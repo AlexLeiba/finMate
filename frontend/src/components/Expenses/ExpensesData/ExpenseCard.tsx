@@ -5,6 +5,8 @@ export function ExpenseCard({ expense }: { expense: ExpenseType }) {
   return (
     <div className="border p-4">
       <p>{expense.description}</p>
+      <p>${expense.amount}</p>
+      <p>Category: {expense.category}</p>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 import { useExpenseStore } from "@/store/useExpensesStore";
@@ -11,6 +11,8 @@ import {
 } from "@/lib/schemas/forms/filterExpenseSchema";
 import { InputSearch } from "../../ui/inputSearch";
 import { DropDown } from "../../shared/DropDown";
+import { generateActiveFilterPayload } from "@/lib/utils/generateActiveFilterPayload";
+import { useEffect } from "react";
 
 export function FilterForm() {
   const filterAllExpenses = useExpenseStore((state) => state.getAllExpenses);
@@ -36,16 +38,36 @@ export function FilterForm() {
   } = formMethods;
 
   async function onSubmit(data: FilterExpenseFormDataType) {
-    console.log(data);
+    const payload = generateActiveFilterPayload(data);
+
     toast.loading("Loading...", { toastId: "filterExpenses" });
     try {
-      await filterAllExpenses(data);
+      await filterAllExpenses(payload);
     } catch (error: unknown) {
       toast.error(error as string);
     } finally {
       toast.dismiss("filterExpenses");
     }
   }
+
+  useEffect(() => {
+    formMethods.setValue("category", filters.category);
+    formMethods.setValue("sort", filters.sort);
+    formMethods.setValue("searchTerm", filters.searchTerm);
+    formMethods.setValue("startDate", filters.startDate);
+    formMethods.setValue("endDate", filters.endDate);
+    formMethods.setValue("minAmount", filters.minAmount);
+    formMethods.setValue("maxAmount", filters.maxAmount);
+  }, [
+    filters.category,
+    filters.sort,
+    filters.searchTerm,
+    filters.startDate,
+    filters.endDate,
+    filters.minAmount,
+    filters.maxAmount,
+    formMethods,
+  ]);
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -53,13 +75,20 @@ export function FilterForm() {
       autoComplete="off"
       className="flex flex-col gap-4  w-full border p-4 "
     >
-      <InputSearch
-        label="Search Expenses"
-        disabled={isLoading}
-        aria-label="Search expenses by description, category or amount"
-        title="Search expenses by description, category or amount"
-        placeholder="Search expenses by description, category or amount"
-        {...register("searchTerm")}
+      <Controller
+        name="searchTerm"
+        control={formMethods.control}
+        render={({ field: { onChange, value } }) => (
+          <InputSearch
+            label="Search Expenses"
+            disabled={isLoading}
+            aria-label="Search expenses by description, category or amount"
+            title="Search expenses by description, category or amount"
+            placeholder="Search expenses by description, category or amount"
+            onChange={(e) => onChange(e.target.value)}
+            value={value}
+          />
+        )}
       />
 
       <div className="flex items-center  gap-2 ">

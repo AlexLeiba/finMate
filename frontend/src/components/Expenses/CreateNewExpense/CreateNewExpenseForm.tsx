@@ -1,18 +1,18 @@
+import { DatePicker } from "@/components/shared/DatePicker";
+import { DropDown } from "@/components/shared/DropDown";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   expenseFormSchema,
   type ExpenseFormDataType,
 } from "@/lib/schemas/forms/expenseSchema";
 import { ExpenseCategory } from "@/lib/types/expense.types";
+import { useExpenseStore } from "@/store/useExpensesStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { FormProvider, useForm } from "react-hook-form";
 
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
-import { useExpenseStore } from "@/store/useExpensesStore";
-import { DropDownCategory } from "./DropDownCategory";
-import { DatePicker } from "../shared/DatePicker";
 import { toast } from "react-toastify";
 
 export function CreateNewExpenseForm() {
@@ -70,7 +70,7 @@ export function CreateNewExpenseForm() {
       />
 
       <FormProvider {...formMethods}>
-        <DropDownCategory isLoading={isLoading} />
+        <DropDown disabled={isLoading} name="category" />
 
         <DatePicker name="date" label="Date" />
       </FormProvider>

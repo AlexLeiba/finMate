@@ -39,13 +39,47 @@ const getAllExpenses = asyncHandler(async function getAllExpenses(
     return;
   }
 
-  let filteredExpenses = [...userExpenses].filter((expense) => {
-    if (validatedProvidedQuery.data.category) {
-      return expense.category === validatedProvidedQuery.data.category;
+  const filteredExpenses = userExpenses.filter((expense) => {
+    const { category, searchTerm, minAmount, maxAmount, startDate, endDate } =
+      validatedProvidedQuery.data;
+
+    if (category && expense.category !== category && category !== "all") {
+      return false;
     }
 
-    return expense;
+    if (
+      searchTerm &&
+      !(
+        expense.description
+          .replace(/\s+/g, " ")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        expense.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        expense.amount.toString().includes(searchTerm)
+      )
+    ) {
+      return false;
+    }
+
+    if (minAmount && expense.amount < minAmount) {
+      return false;
+    }
+
+    if (maxAmount && expense.amount > maxAmount) {
+      return false;
+    }
+
+    if (startDate && startDate.getTime() > expense.date.getTime()) {
+      return false;
+    }
+
+    if (endDate && endDate.getTime() < expense.date.getTime()) {
+      return false;
+    }
+
+    return true;
   });
+  console.log("🚀 ~ getAllExpenses ~ filteredExpenses:", filteredExpenses);
 
   if (validatedProvidedQuery.data.sort === "amount") {
     filteredExpenses.sort((a, b) => a.amount - b.amount);

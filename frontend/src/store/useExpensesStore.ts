@@ -16,11 +16,6 @@ export const useExpenseStore = create<ExpenseStateType>((set, get) => ({
   filters: {
     category: ExpenseCategory.ALL,
     sort: ExpenseSort.DATE_DESC,
-    searchTerm: "",
-    startDate: undefined,
-    endDate: undefined,
-    minAmount: undefined,
-    maxAmount: undefined,
   },
   setExpenses: (expenses) => set({ expenses }),
   setFilters: (filters) => set({ filters }),
@@ -96,7 +91,8 @@ export const useExpenseStore = create<ExpenseStateType>((set, get) => ({
   },
 
   getAllExpenses: async (filters) => {
-    set({ isLoading: true });
+    set({ isLoading: true, filters: filters });
+
     try {
       const response = await apiFactory().getAllExpenses(filters);
       set({

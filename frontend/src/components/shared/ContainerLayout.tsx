@@ -11,9 +11,9 @@ function ContainerLayout({
   flexGrow?: boolean;
 }) {
   return (
-    <main className={cn(fluid ? "w-full" : "content", flexGrow && "flex-1")}>
+    <div className={cn(fluid ? "w-full" : "content", flexGrow && "flex-1")}>
       {children}
-    </main>
+    </div>
   );
 }
 

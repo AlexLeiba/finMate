@@ -4,15 +4,15 @@ export function useDebounce<T extends (...args: any[]) => void>(
   fn: T,
   delay: number,
 ) {
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   return useCallback(
     (...args: Parameters<T>) => {
-      if (timer.current) {
-        clearTimeout(timer.current);
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
       }
 
-      timer.current = setTimeout(() => {
+      timeoutId.current = setTimeout(() => {
         fn(...args);
       }, delay);
     },

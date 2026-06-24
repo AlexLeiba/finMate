@@ -1,5 +1,5 @@
+import { IconButton } from "@/components/ui/iconButton";
 import { cn } from "@/lib/utils/tailwindUtils";
-import { IconButton } from "./iconButton";
 import { Search, X } from "lucide-react";
 
 function InputSearch({
@@ -7,8 +7,13 @@ function InputSearch({
   type,
   error,
   label,
+  onClear,
   ...props
-}: React.ComponentProps<"input"> & { error?: string; label?: string }) {
+}: React.ComponentProps<"input"> & {
+  error?: string;
+  label?: string;
+  onClear: () => void;
+}) {
   function handleClear() {
     if (props.onChange) {
       const event = {
@@ -17,6 +22,8 @@ function InputSearch({
         },
       } as React.ChangeEvent<HTMLInputElement>;
       props.onChange(event);
+
+      onClear();
     }
   }
   return (

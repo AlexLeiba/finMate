@@ -12,5 +12,10 @@ export const filterExpenseSchema = zod.object({
   minAmount: zod.coerce.number().optional(),
   maxAmount: zod.coerce.number().optional(),
 });
-
 export type FilterExpenseFormDataType = zod.infer<typeof filterExpenseSchema>;
+
+export const filterSearchSchema = zod.object({
+  searchTerm: zod.string().trim().toLowerCase().optional(),
+});
+
+export type FilterSearchFormDataType = zod.infer<typeof filterSearchSchema>;

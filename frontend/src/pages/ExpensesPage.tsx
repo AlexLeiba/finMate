@@ -2,6 +2,7 @@ import { CreateNewExpenseDialog } from "@/components/Expenses/CreateNewExpense/C
 import { ExpensesData } from "@/components/Expenses/ExpensesData/ExpensesData";
 
 import { Filters } from "@/components/Expenses/Filters/Filters";
+import { SearchExpense } from "@/components/Expenses/Filters/SearchExpense";
 
 import { Spacer } from "@/components/ui/spacer";
 import { useExpenseStore } from "@/store/useExpensesStore";
@@ -30,10 +31,13 @@ function ExpensesPage() {
           <p>Create and manage your expenses</p>
         </div>
         <div className="flex gap-2 items-center">
-          <Filters />
+          <SearchExpense />
           <CreateNewExpenseDialog />
         </div>
       </div>
+
+      <Spacer size={2} />
+      <Filters />
       <Spacer size={4} />
 
       <ExpensesData />

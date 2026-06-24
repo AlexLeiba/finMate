@@ -20,13 +20,14 @@ export function DropDown({
 }) {
   const { control, setValue } = useFormContext();
 
-  function handleSetCategory(category: ExpenseCategory) {
+  function handleSetValue(category: ExpenseCategory) {
     setValue(name, category);
   }
   return (
     <Controller
       name={name}
       control={control}
+      defaultValue={ExpenseCategory.ALL}
       render={({ field: { onChange, value } }) => {
         return (
           <DropdownMenu modal={false}>
@@ -55,7 +56,7 @@ export function DropDown({
                   key={category}
                   onClick={() => {
                     onChange(category);
-                    handleSetCategory(category);
+                    handleSetValue(category);
                   }}
                 >
                   {CATEGORIES[category as ExpenseCategory]}

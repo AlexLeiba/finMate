@@ -33,4 +33,11 @@ export const updateExpenseSchema = zod.object({
 export const getAllExpensesQuerySchema = zod.object({
   category: zod.enum(ExpenseCategory).optional(),
   sort: zod.enum(ExpenseSort).optional(),
+  searchTerm: zod.string().trim().toLowerCase().optional(),
+
+  startDate: zod.coerce.date().optional(),
+  endDate: zod.coerce.date().optional(),
+
+  minAmount: zod.coerce.number().optional(),
+  maxAmount: zod.coerce.number().optional(),
 });
