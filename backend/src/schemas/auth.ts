@@ -11,6 +11,7 @@ export const signupSchema = zod.object({
       "Password must contain at least one letter and one number",
     ),
   name: zod.string().trim().min(2, "Name must be at least 2 characters"),
+  currency: zod.string().default("EUR").optional(),
 });
 export const signinSchema = zod.object({
   email: zod.string().trim().email().min(1, "Email is required"),

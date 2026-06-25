@@ -79,7 +79,6 @@ const getAllExpenses = asyncHandler(async function getAllExpenses(
 
     return true;
   });
-  console.log("🚀 ~ getAllExpenses ~ filteredExpenses:", filteredExpenses);
 
   if (validatedProvidedQuery.data.sort === "amount") {
     filteredExpenses.sort((a, b) => a.amount - b.amount);
@@ -91,7 +90,18 @@ const getAllExpenses = asyncHandler(async function getAllExpenses(
     filteredExpenses.sort((a, b) => b.date.getTime() - a.date.getTime());
   }
 
-  sendSuccess(res, filteredExpenses, "expenses retrieved successfully", 200);
+  const skip = validatedProvidedQuery.data.skip;
+  const page = validatedProvidedQuery.data.page;
+
+  sendSuccess(
+    res,
+    {
+      expenses: filteredExpenses.slice((page - 1) * skip, skip * page),
+      totalCount: filteredExpenses.length,
+    },
+    "expenses retrieved successfully",
+    200,
+  );
 });
 
 // GET BY ID

@@ -5,8 +5,8 @@ import { Trash, Upload } from "lucide-react";
 export function Avatar() {
   const userProfile = useAuthStore((state) => state.user);
   const userInitials =
-    (userProfile?.name?.split(" ")[0].substring(0, 1) || "") +
-    (userProfile?.name?.split(" ")[1].substring(0, 1) || "");
+    (userProfile?.name?.split(" ")?.[0]?.substring(0, 1) || "") +
+    (userProfile?.name?.split(" ")?.[1]?.substring(0, 1) || "");
   const userAvatar = "";
   // https://picsum.photos/200/200
   return (

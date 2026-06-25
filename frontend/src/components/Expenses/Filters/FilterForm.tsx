@@ -10,9 +10,10 @@ import {
   type FilterExpenseFormDataType,
 } from "@/lib/schemas/forms/filterExpenseSchema";
 import { InputSearch } from "../../ui/inputSearch";
-import { DropDown } from "../../shared/DropDown";
+import { DropDownCategory } from "./DropDownCategory";
 import { generateActiveFilterPayload } from "@/lib/utils/generateActiveFilterPayload";
 import { useEffect } from "react";
+import { Sort } from "./Sort";
 
 export function FilterForm() {
   const filterAllExpenses = useExpenseStore((state) => state.getAllExpenses);
@@ -34,7 +35,6 @@ export function FilterForm() {
   const {
     handleSubmit,
     formState: { errors },
-    register,
   } = formMethods;
 
   async function onSubmit(data: FilterExpenseFormDataType) {
@@ -92,28 +92,44 @@ export function FilterForm() {
       />
 
       <div className="flex items-center  gap-2 ">
-        <Input
-          disabled={isLoading}
-          label="Min Amount"
-          placeholder="99.99"
-          type="number"
-          error={errors.minAmount?.message}
-          {...register("minAmount")}
-          min={0}
+        <Controller
+          control={formMethods.control}
+          name="minAmount"
+          render={({ field }) => (
+            <Input
+              disabled={isLoading}
+              label="Min Amount"
+              placeholder="9.99"
+              type="number"
+              error={errors.minAmount?.message}
+              {...field}
+              onChange={(e) => field.onChange(Number(e.target.value))}
+              min={0}
+            />
+          )}
         />
-        <Input
-          disabled={isLoading}
-          label="Max Amount"
-          placeholder="99.99"
-          type="number"
-          error={errors.maxAmount?.message}
-          {...register("maxAmount")}
-          min={0}
+        <Controller
+          control={formMethods.control}
+          name="maxAmount"
+          render={({ field }) => (
+            <Input
+              disabled={isLoading}
+              label="Max Amount"
+              placeholder="99.99"
+              type="number"
+              error={errors.maxAmount?.message}
+              {...field}
+              onChange={(e) => field.onChange(Number(e.target.value))}
+              min={0}
+            />
+          )}
         />
       </div>
 
+      <Sort />
+
       <FormProvider {...formMethods}>
-        <DropDown disabled={isLoading} name="category" />
+        <DropDownCategory disabled={isLoading} name="category" />
 
         <div className="flex items-center gap-4 lg:flex-row flex-col">
           <DatePicker label="Start Date" name="startDate" />

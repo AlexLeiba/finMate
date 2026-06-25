@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 export function SearchExpense() {
   const [search, setSearch] = useState("");
-  const filterAllExpenses = useExpenseStore((state) => state.getAllExpenses);
+  // const filterAllExpenses = useExpenseStore((state) => state.getAllExpenses);
   const setFilters = useExpenseStore((state) => state.setFilters);
   const filters = useExpenseStore((state) => state.filters);
 
@@ -30,14 +30,7 @@ export function SearchExpense() {
       searchTerm: parsed.data.searchTerm,
     });
 
-    toast.loading("Loading...", { toastId: "search" });
-    try {
-      await filterAllExpenses(payload);
-    } catch (error: unknown) {
-      toast.error(error as string);
-    } finally {
-      toast.dismiss("search");
-    }
+    setFilters(payload);
   }
   const debounceSearch = useDebounce(handleSubmit, 1000);
 
@@ -47,7 +40,11 @@ export function SearchExpense() {
   }
 
   function handleClear() {
-    setFilters({ searchTerm: undefined });
+    const payload = generateActiveFilterPayload({
+      ...filters,
+      searchTerm: undefined,
+    });
+    setFilters(payload);
     setSearch("");
   }
   return (
@@ -59,21 +56,5 @@ export function SearchExpense() {
       title="Search expenses by description, category or amount"
       placeholder="Search for expenses"
     />
-
-    // <Controller
-    //   name="searchTerm"
-    //   control={formMethods.control}
-    //   render={({ field: { onChange, value } }) => (
-    //     <InputSearch
-    //       label="Search Expenses"
-    //       disabled={isLoading}
-    //       aria-label="Search expenses by description, category or amount"
-    //       title="Search expenses by description, category or amount"
-    //       placeholder="Search expenses by description, category or amount"
-    //       onChange={(e) => onChange(e.target.value)}
-    //       value={value}
-    //     />
-    //   )}
-    // />
   );
 }

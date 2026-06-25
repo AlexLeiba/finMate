@@ -29,6 +29,7 @@ export const profileSchema = zod
         )
         .optional(),
     ),
+    currency: zod.string().optional(),
   })
   .refine((data) => data.newPassword === data.repeatNewPassword, {
     message: "Passwords do not match",

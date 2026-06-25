@@ -2,7 +2,7 @@ import { Avatar } from "@/components/Profile/Avatar";
 import { DownloadCsv } from "@/components/Profile/DownloadCsv";
 import { DeleteAccount } from "@/components/Profile/DeleteAccount";
 
-import { PreviewProfile } from "@/components/Profile/PreviewProfile";
+import { PreviewProfileSettings } from "@/components/Profile/PreviewProfile";
 import { lazy, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Spacer } from "@/components/ui/spacer";
@@ -17,7 +17,7 @@ function ProfilePage() {
   const [editProfile, setEditProfile] = useState(false);
   return (
     <div>
-      <h3>Profile</h3>
+      <h3>Settings</h3>
       <Spacer size={4} />
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-8 p-4 border items-center ">
@@ -27,12 +27,12 @@ function ProfilePage() {
             <ProfileForm onCloseEditProfile={() => setEditProfile(false)} />
           ) : (
             <>
-              <PreviewProfile />
+              <PreviewProfileSettings />
               <Button
                 className="self-stretch"
                 onClick={() => setEditProfile(!editProfile)}
               >
-                Edit profile
+                Edit
               </Button>
             </>
           )}

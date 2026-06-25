@@ -40,6 +40,7 @@ export type UserType = {
   password: string;
   createdAt: Date;
   updatedAt: Date;
+  currency: string;
 };
 
 export type MongodbUserType = Document &

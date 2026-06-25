@@ -1,9 +1,13 @@
 import { useAuthStore } from "@/store/useAuthStore";
 
-export function PreviewProfile() {
+export function PreviewProfileSettings() {
   const userProfile = useAuthStore((state) => state.user);
   return (
     <section className="flex flex-col gap-4 w-full border p-4">
+      <div>
+        <p className="font-bold">Currency</p>
+        <p>{userProfile?.currency || "USD"}</p>
+      </div>
       <div>
         <p>Name</p>
         <p className="font-bold">{userProfile?.name}</p>

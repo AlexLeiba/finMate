@@ -7,16 +7,21 @@ import {
 } from "@/lib/types/expense.types";
 import { create } from "zustand";
 
+export const DEFAULT_FILTERS = {
+  category: ExpenseCategory.ALL,
+  sort: ExpenseSort.DATE_DESC,
+};
+
 export const useExpenseStore = create<ExpenseStateType>((set, get) => ({
+  page: 1,
   expenses: [],
   currentExpense: null,
   isLoading: false,
   error: null,
   totalCount: 0,
-  filters: {
-    category: ExpenseCategory.ALL,
-    sort: ExpenseSort.DATE_DESC,
-  },
+  filters: DEFAULT_FILTERS,
+
+  setPage: (page) => set({ page }),
   setExpenses: (expenses) => set({ expenses }),
   setFilters: (filters) => set({ filters }),
   setCurrentExpense: (expense) => set({ currentExpense: expense }),
@@ -34,6 +39,9 @@ export const useExpenseStore = create<ExpenseStateType>((set, get) => ({
         expenses: [...state.expenses, response],
         error: null,
       }));
+
+      const getAllExpenses = get().getAllExpenses;
+      getAllExpenses(DEFAULT_FILTERS);
     } catch (error: unknown) {
       set({ error: error as string });
       throw error as string;
@@ -90,15 +98,22 @@ export const useExpenseStore = create<ExpenseStateType>((set, get) => ({
     }
   },
 
-  getAllExpenses: async (filters) => {
-    set({ isLoading: true, filters: filters });
+  getAllExpenses: async (filtersQuery) => {
+    set({
+      isLoading: true,
+      filters: filtersQuery,
+    });
+    const page = String(get().page);
 
     try {
-      const response = await apiFactory().getAllExpenses(filters);
+      const response = await apiFactory().getAllExpenses({
+        ...filtersQuery,
+        page: page,
+      });
       set({
         error: null,
-        expenses: response,
-        totalCount: response.length,
+        expenses: response.expenses,
+        totalCount: response.totalCount,
       });
     } catch (error: unknown) {
       set({ error: error as string });

@@ -40,4 +40,7 @@ export const getAllExpensesQuerySchema = zod.object({
 
   minAmount: zod.coerce.number().optional(),
   maxAmount: zod.coerce.number().optional(),
+
+  page: zod.coerce.number().min(1).default(1),
+  skip: zod.coerce.number().min(10).default(10),
 });

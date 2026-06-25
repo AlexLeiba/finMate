@@ -35,6 +35,7 @@ async function createExpense(body: ExpenseFormDataType) {
 async function getAllExpenses(query: {
   category?: ExpenseCategory;
   sort?: ExpenseSort;
+  page?: string;
 }) {
   const queryString = new URLSearchParams(query).toString();
 

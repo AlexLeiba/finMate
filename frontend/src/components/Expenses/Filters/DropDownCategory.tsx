@@ -3,15 +3,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "../../ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { Controller, useFormContext } from "react-hook-form";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import { ExpenseCategory } from "@/lib/types/expense.types";
 import { CATEGORIES } from "@/lib/consts/categories";
 import { cn } from "@/lib/utils/tailwindUtils";
 
-export function DropDown({
+export function DropDownCategory({
   disabled,
   name,
 }: {

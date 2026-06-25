@@ -8,4 +8,6 @@ export const updateProfileSchema = zod.object({
     .trim()
     .min(8, "Password must be at least 8 characters")
     .optional(),
+
+  currency: zod.string().optional(),
 });

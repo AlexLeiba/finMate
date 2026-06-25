@@ -44,6 +44,8 @@ export type ExpenseFiltersType = {
   maxAmount?: number;
 };
 
+export type ExpenseFilterKeys = keyof ExpenseFiltersType;
+
 // zustand type
 export type ExpenseStateType = {
   expenses: ExpenseType[];
@@ -52,7 +54,9 @@ export type ExpenseStateType = {
   error: string | null;
   filters: ExpenseFiltersType;
   totalCount: number;
+  page: number;
 
+  setPage: (page: number) => void;
   setExpenses: (expenses: ExpenseType[]) => void;
   setCurrentExpense: (expense: ExpenseType | null) => void;
   setIsLoading: (isLoading: boolean) => void;

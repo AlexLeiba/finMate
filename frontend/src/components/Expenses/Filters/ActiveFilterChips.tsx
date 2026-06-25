@@ -1,4 +1,11 @@
-export function ActiveFilterChips({ value }: { value: string }) {
+import type { ExpenseFilterKeys } from "@/lib/types/expense.types";
+
+export function ActiveFilterChips({
+  value,
+}: {
+  value: string;
+  title: ExpenseFilterKeys;
+}) {
   return (
     <div>
       <div className="flex items-center gap-1 border p-1 px-2 rounded-md bg-background-element-accent">

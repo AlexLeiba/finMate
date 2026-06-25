@@ -4,6 +4,7 @@ export type UserType = {
   email: string;
   createdAt: Date;
   updatedAt: Date;
+  currency?: string;
 };
 export type UserProfileType = {
   name?: string;

@@ -22,6 +22,10 @@ const userSchema = new Schema<MongodbUserType>(
       required: true,
       trim: true,
     },
+    currency: {
+      type: String,
+      default: "EUR",
+    },
     otp: {
       type: Number,
     },

@@ -78,6 +78,7 @@ const updateProfile = asyncHandler(async function updateProfile(
   const updatedData = {
     name: validatedUserInput.data.name || userDB.name,
     password: userDB.password,
+    currency: validatedUserInput.data.currency || userDB.currency,
   };
 
   if (validatedUserInput.data.password) {

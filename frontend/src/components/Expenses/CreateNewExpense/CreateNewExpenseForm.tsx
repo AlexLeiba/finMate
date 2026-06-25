@@ -1,5 +1,5 @@
 import { DatePicker } from "@/components/shared/DatePicker";
-import { DropDown } from "@/components/shared/DropDown";
+import { DropDownCategory } from "@/components/Expenses/Filters/DropDownCategory";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,7 +11,7 @@ import { ExpenseCategory } from "@/lib/types/expense.types";
 import { useExpenseStore } from "@/store/useExpensesStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import { toast } from "react-toastify";
 
@@ -59,18 +59,26 @@ export function CreateNewExpenseForm() {
         error={errors.description?.message}
         {...register("description")}
       />
-      <Input
-        disabled={isLoading}
-        label="Amount"
-        placeholder="99.99"
-        type="number"
-        error={errors.amount?.message}
-        {...register("amount")}
-        min={0}
+
+      <Controller
+        control={formMethods.control}
+        name="amount"
+        render={({ field }) => (
+          <Input
+            disabled={isLoading}
+            label="Amount"
+            placeholder="99.99"
+            type="number"
+            error={errors.amount?.message}
+            {...field}
+            onChange={(e) => field.onChange(Number(e.target.value))}
+            min={0}
+          />
+        )}
       />
 
       <FormProvider {...formMethods}>
-        <DropDown disabled={isLoading} name="category" />
+        <DropDownCategory disabled={isLoading} name="category" />
 
         <DatePicker name="date" label="Date" />
       </FormProvider>
