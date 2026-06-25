@@ -4,7 +4,7 @@ import { useExpenseStore } from "@/store/useExpensesStore";
 import { SORT_DIRECTION, SORT_TYPE } from "@/lib/consts/sort";
 import { cn } from "@/lib/utils/tailwindUtils";
 
-export function Sort() {
+export function Sort({ label = true }: { label?: boolean }) {
   const setFilters = useExpenseStore((state) => state.setFilters);
   const filters = useExpenseStore((state) => state.filters);
 
@@ -24,12 +24,15 @@ export function Sort() {
   return (
     <div className="flex gap-8 items-center ">
       <div>
-        <label
-          htmlFor="sort"
-          className="text-lg font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Sort type:
-        </label>
+        {label && (
+          <label
+            htmlFor="sort"
+            className="text-lg font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Sort type:
+          </label>
+        )}
+
         <div id="sort" className="border  rounded-md flex">
           {SORT_TYPE.map((sort) => (
             <Button
@@ -47,12 +50,15 @@ export function Sort() {
       </div>
 
       <div>
-        <label
-          htmlFor="sort-direction"
-          className="text-lg font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Sort direction:
-        </label>
+        {label && (
+          <label
+            htmlFor="sort-direction"
+            className="text-lg font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Sort direction:
+          </label>
+        )}
+
         <div id="sort-direction" className="border  rounded-md flex">
           {SORT_DIRECTION.map((sort) => (
             <Button

@@ -4,6 +4,7 @@ import { Pagination } from "@/components/Expenses/ExpensesData/Pagination";
 
 import { Filters } from "@/components/Expenses/Filters/Filters";
 import { SearchExpense } from "@/components/Expenses/Filters/SearchExpense";
+import { Sort } from "@/components/Expenses/Filters/Sort";
 
 import { Spacer } from "@/components/ui/spacer";
 import { useExpenseStore } from "@/store/useExpensesStore";
@@ -13,7 +14,10 @@ import { toast } from "react-toastify";
 function ExpensesPage() {
   const fetchAllExpenses = useExpenseStore((state) => state.getAllExpenses);
   const filters = useExpenseStore((state) => state.filters);
-  const page = useExpenseStore((state) => state.page);
+  const page = useExpenseStore((state) => {
+    return state.page;
+  });
+  const totalCount = useExpenseStore((state) => state.totalCount);
 
   useEffect(() => {
     toast.loading("Loading...", { toastId: "fetchExpenses" });
@@ -34,6 +38,7 @@ function ExpensesPage() {
             <p>Create and manage your expenses</p>
           </div>
           <div className="flex gap-2 items-center">
+            <Sort label={false} />
             <SearchExpense />
             <CreateNewExpenseDialog />
           </div>
@@ -45,8 +50,7 @@ function ExpensesPage() {
 
         <ExpensesData />
       </div>
-
-      <Pagination />
+      {totalCount > 10 && <Pagination page={page} totalCount={totalCount} />}
     </div>
   );
 }

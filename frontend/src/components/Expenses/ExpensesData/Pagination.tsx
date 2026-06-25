@@ -8,11 +8,15 @@ import {
 } from "@/components/ui/pagination";
 import { useExpenseStore } from "@/store/useExpensesStore";
 
-export function Pagination() {
+export function Pagination({
+  page,
+  totalCount,
+}: {
+  page: number;
+  totalCount: number;
+}) {
   const ITEMS_PER_PAGE = 10;
-  const totalCount = useExpenseStore((state) => state.totalCount);
   const setPage = useExpenseStore((state) => state.setPage);
-  const page = useExpenseStore((state) => state.page);
   const pages = Array.from(
     { length: Math.ceil(totalCount / ITEMS_PER_PAGE) },
     (_, index) => index + 1,
