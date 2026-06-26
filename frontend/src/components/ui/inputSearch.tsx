@@ -22,12 +22,18 @@ function InputSearch({
   return (
     <div className="flex flex-col justify-start items-start gap-1 relative">
       {label && (
-        <label className="text-lg font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <label
+          htmlFor={label || "search"}
+          className="text-lg font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
           {label}
         </label>
       )}
       <div className="relative w-full">
         <input
+          id={label || "search"}
+          title={label || "Search"}
+          aria-label={label || "Search"}
           type={type}
           data-slot="input"
           className={cn(

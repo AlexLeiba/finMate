@@ -17,7 +17,7 @@ function ExpensesPage() {
   const page = useExpenseStore((state) => {
     return state.page;
   });
-  const totalCount = useExpenseStore((state) => state.totalCount);
+  const totalCount = useExpenseStore((state) => state.stats.totalCount);
 
   useEffect(() => {
     toast.loading("Loading...", { toastId: "fetchExpenses" });

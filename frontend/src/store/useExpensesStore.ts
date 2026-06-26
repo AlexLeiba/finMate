@@ -18,8 +18,12 @@ export const useExpenseStore = create<ExpenseStateType>((set, get) => ({
   currentExpense: null,
   isLoading: false,
   error: null,
-  totalCount: 0,
   filters: DEFAULT_FILTERS,
+  stats: {
+    totalCount: 0,
+    totalAmount: 0,
+    averageAmount: 0,
+  },
 
   setPage: (page) => set({ page }),
   setExpenses: (expenses) => set({ expenses }),
@@ -113,7 +117,11 @@ export const useExpenseStore = create<ExpenseStateType>((set, get) => ({
       set({
         error: null,
         expenses: response.expenses,
-        totalCount: response.totalCount,
+        stats: {
+          totalCount: response.stats.totalCount,
+          totalAmount: response.stats.totalAmount,
+          averageAmount: response.stats.averageAmount,
+        },
       });
     } catch (error: unknown) {
       set({ error: error as string });

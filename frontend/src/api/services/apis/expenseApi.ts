@@ -97,7 +97,7 @@ async function updateExpense(body: ExpenseFormDataType, id: string) {
 async function deleteExpense(id: string) {
   try {
     const response = await axiosInstance.delete<ApiResponse<ExpenseType>>(
-      ` ${ENDPOINTS.expenses}/${id}`,
+      `${ENDPOINTS.expenses}/${id}`,
     );
 
     const parsed = expenseSchema.safeParse(response?.data);

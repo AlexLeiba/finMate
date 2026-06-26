@@ -22,6 +22,8 @@ function Input({
         )}
         <div className="relative w-full">
           <input
+            title={label || "Input"}
+            aria-label={label || "Input"}
             type={show ? "text" : type}
             data-slot="input"
             className={cn(

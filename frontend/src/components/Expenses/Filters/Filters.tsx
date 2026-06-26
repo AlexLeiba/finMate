@@ -80,7 +80,6 @@ export function Filters() {
           <DialogContent
             onInteractOutside={(e) => {
               const target = e.target as HTMLElement;
-              console.log("🚀 ~ Filters ~ target:", target);
 
               if (target.closest("[data-radix-popper-content-wrapper]")) {
                 e.preventDefault();

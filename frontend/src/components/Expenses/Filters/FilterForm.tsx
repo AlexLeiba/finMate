@@ -104,7 +104,6 @@ export function FilterForm() {
               error={errors.minAmount?.message}
               {...field}
               onChange={(e) => field.onChange(Number(e.target.value))}
-              min={0}
             />
           )}
         />
@@ -120,7 +119,6 @@ export function FilterForm() {
               error={errors.maxAmount?.message}
               {...field}
               onChange={(e) => field.onChange(Number(e.target.value))}
-              min={0}
             />
           )}
         />
@@ -132,13 +130,24 @@ export function FilterForm() {
         <DropDownCategory disabled={isLoading} name="category" />
 
         <div className="flex items-center gap-4 lg:flex-row flex-col">
-          <DatePicker label="Start Date" name="startDate" />
-          <DatePicker label="End Date" name="endDate" />
+          <DatePicker
+            disabled={isLoading}
+            label="Start Date"
+            name="startDate"
+          />
+          <DatePicker disabled={isLoading} label="End Date" name="endDate" />
         </div>
       </FormProvider>
 
       <div className="flex gap-4 w-full">
-        <Button className="w-full" loading={isLoading} variant={"accent"}>
+        <Button
+          type="submit"
+          title="Apply Filter"
+          aria-label="Apply Filter"
+          className="w-full"
+          loading={isLoading}
+          variant={"accent"}
+        >
           Apply Filter
         </Button>
       </div>

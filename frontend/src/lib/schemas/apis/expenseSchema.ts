@@ -30,7 +30,11 @@ export const arrayExpenseSchema = zod.object({
         userId: zod.string(),
       }),
     ),
-    totalCount: zod.number(),
+    stats: zod.object({
+      totalCount: zod.number(),
+      totalAmount: zod.number(),
+      averageAmount: zod.number(),
+    }),
   }),
 });
 

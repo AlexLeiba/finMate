@@ -93,11 +93,25 @@ const getAllExpenses = asyncHandler(async function getAllExpenses(
   const skip = validatedProvidedQuery.data.skip;
   const page = validatedProvidedQuery.data.page;
 
+  const totalAmount =
+    Math.round(
+      filteredExpenses.reduce((acc, expense) => {
+        return acc + expense.amount;
+      }, 0) * 100,
+    ) / 100;
+
+  const averageAmount =
+    Math.round((totalAmount / filteredExpenses.length) * 100) / 100;
+
   sendSuccess(
     res,
     {
       expenses: filteredExpenses.slice((page - 1) * skip, skip * page),
-      totalCount: filteredExpenses.length,
+      stats: {
+        totalCount: filteredExpenses.length,
+        totalAmount,
+        averageAmount,
+      },
     },
     "expenses retrieved successfully",
     200,
@@ -192,10 +206,6 @@ const updateExpense = asyncHandler(async function updateExpense(
   }
 
   const validatedProvidedBody = updateExpenseSchema.safeParse(req.body);
-  console.log(
-    "🚀 ~ updateExpense ~ validatedProvidedBody:",
-    validatedProvidedBody,
-  );
 
   if (!validatedProvidedBody.success) {
     sendError(

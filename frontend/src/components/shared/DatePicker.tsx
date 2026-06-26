@@ -11,9 +11,11 @@ import { Calendar } from "../ui/calendar";
 export function DatePicker({
   label = "Date",
   name = "date",
+  disabled = false,
 }: {
   label?: string;
   name: string;
+  disabled?: boolean;
 }) {
   const { control } = useFormContext();
 
@@ -25,7 +27,7 @@ export function DatePicker({
       </p>
 
       <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild disabled={disabled}>
           <Button
             variant="outline"
             classNameChildren="flex items-center gap-2 justify-between"

@@ -7,7 +7,7 @@ import {
   expenseFormSchema,
   type ExpenseFormDataType,
 } from "@/lib/schemas/forms/expenseSchema";
-import { ExpenseCategory } from "@/lib/types/expense.types";
+import { type ExpenseType } from "@/lib/types/expense.types";
 import { useExpenseStore } from "@/store/useExpensesStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -15,16 +15,22 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import { toast } from "react-toastify";
 
-export function CreateNewExpenseForm() {
-  const createExpense = useExpenseStore((state) => state.createExpense);
+export function EditExpenseForm({
+  expense,
+  onOpenChangeMemo,
+}: {
+  expense: ExpenseType;
+  onOpenChangeMemo: (open: boolean) => void;
+}) {
+  const updateExpense = useExpenseStore((state) => state.updateExpense);
   const isLoading = useExpenseStore((state) => state.isLoading);
   const formMethods = useForm<ExpenseFormDataType>({
     resolver: zodResolver(expenseFormSchema),
     defaultValues: {
-      amount: 0,
-      category: ExpenseCategory.ALL,
-      description: "",
-      date: new Date(),
+      amount: expense.amount,
+      category: expense.category,
+      description: expense.description,
+      date: expense.date || new Date(),
     },
   });
 
@@ -35,14 +41,20 @@ export function CreateNewExpenseForm() {
   } = formMethods;
 
   async function onSubmit(data: ExpenseFormDataType) {
-    console.log(data);
-    toast.loading("Loading...", { toastId: "createExpense" });
+    toast.loading("Loading...", { toastId: "updateExpense" });
     try {
-      await createExpense({ ...data, amount: Number(data.amount) });
+      await updateExpense(
+        { ...data, amount: Number(data.amount) },
+        expense._id,
+      );
+      toast.success("Expense updated successfully", {
+        toastId: "updateExpenseSuccess",
+      });
+      onOpenChangeMemo(false);
     } catch (error: unknown) {
       toast.error(error as string);
     } finally {
-      toast.dismiss("createExpense");
+      toast.dismiss("updateExpense");
     }
   }
   return (
@@ -83,8 +95,8 @@ export function CreateNewExpenseForm() {
       </FormProvider>
 
       <div className="flex gap-4">
-        <Button loading={isLoading} variant={"accent"}>
-          Create Expense
+        <Button loading={isLoading} disabled={isLoading} variant={"accent"}>
+          Update Expense
         </Button>
       </div>
     </form>

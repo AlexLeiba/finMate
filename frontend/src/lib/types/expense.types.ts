@@ -53,7 +53,11 @@ export type ExpenseStateType = {
   isLoading: boolean;
   error: string | null;
   filters: ExpenseFiltersType;
-  totalCount: number;
+  stats: {
+    totalCount: number;
+    totalAmount: number;
+    averageAmount: number;
+  };
   page: number;
 
   setPage: (page: number) => void;
