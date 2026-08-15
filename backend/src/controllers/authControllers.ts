@@ -18,10 +18,14 @@ import {
   generateRefreshToken,
 } from "../utils/generateTokens";
 import {
-  accessTokenCookieExpiresAt,
-  refreshTokenExpiresAt,
+  ACCESS_TOKEN,
+  ACCESS_TOKEN_EXPIRES_AT,
+  DEVELOPMENT_ENVIRONMENT,
+  REFRESH_TOKEN,
+  REFRESH_TOKEN_EXPIRES_AT,
 } from "../config/token";
-import { User } from "../models/user";
+import { User } from "../models/User";
+import { OTP_EXPIRE_AT } from "../config/otp";
 
 //SIGN UP
 const signUp = asyncHandler(async function signUp(req: Request, res: Response) {
@@ -36,9 +40,8 @@ const signUp = asyncHandler(async function signUp(req: Request, res: Response) {
   if (!validatedUserInput.success) {
     sendError(
       res,
-      JSON.parse(validatedUserInput?.error?.message)[0].message ||
-        DEFAULT_VALIDATION_ERROR_MESSAGE,
-      400,
+      JSON.parse(validatedUserInput?.error?.message)[0].message || DEFAULT_VALIDATION_ERROR_MESSAGE,
+      400
     );
     return;
   }
@@ -51,10 +54,7 @@ const signUp = asyncHandler(async function signUp(req: Request, res: Response) {
     return;
   }
 
-  const encryptedPassword = await bcrypt.hash(
-    validatedUserInput.data.password,
-    10,
-  );
+  const encryptedPassword = await bcrypt.hash(validatedUserInput.data.password, 10);
   validatedUserInput.data.password = encryptedPassword;
   const newUser = (await User.create(validatedUserInput.data)).toObject();
 
@@ -80,9 +80,8 @@ const signIn = asyncHandler(async function signIn(req: Request, res: Response) {
   if (!validatedUserInput.success) {
     sendError(
       res,
-      JSON.parse(validatedUserInput?.error?.message)[0].message ||
-        DEFAULT_VALIDATION_ERROR_MESSAGE,
-      400,
+      JSON.parse(validatedUserInput?.error?.message)[0].message || DEFAULT_VALIDATION_ERROR_MESSAGE,
+      400
     );
     return;
   }
@@ -95,18 +94,16 @@ const signIn = asyncHandler(async function signIn(req: Request, res: Response) {
         verifiedOtpExpiresAt: 0,
         refreshToken: 0,
         refreshTokenExpiresAt: 0,
-      },
+      }
     )
   )?.toObject();
+
   if (!userDB) {
     sendError(res, "User not found", 404);
     return;
   }
 
-  const isPasswordValid = await bcrypt.compare(
-    validatedUserInput.data.password,
-    userDB.password,
-  );
+  const isPasswordValid = await bcrypt.compare(validatedUserInput.data.password, userDB.password);
   if (!isPasswordValid) {
     sendError(res, "Invalid credentials", 401);
     return;
@@ -116,17 +113,17 @@ const signIn = asyncHandler(async function signIn(req: Request, res: Response) {
   const refreshToken = generateRefreshToken(userDB._id, userDB.email);
 
   // SET COOKIE TO BE SEND TO CLIENT BROWSER
-  res.cookie("accessToken", accessToken, {
+  res.cookie(ACCESS_TOKEN, accessToken, {
     httpOnly: true, //prevents access through javascript, document.cookie/ helps protect against CSRF attacks
-    secure: process.env.NODE_ENV !== "development", //sends the cookies only through https
+    secure: process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT, //sends the cookies only through https
     sameSite: "strict", //prevents cross-site request forgery
-    maxAge: accessTokenCookieExpiresAt, //15min / expire time of cookies
+    maxAge: ACCESS_TOKEN_EXPIRES_AT, //15min / expire time of cookies
   });
-  res.cookie("refreshToken", refreshToken, {
+  res.cookie(REFRESH_TOKEN, refreshToken, {
     httpOnly: true, //prevents access through javascript, document.cookie/ helps protect against CSRF attacks
-    secure: process.env.NODE_ENV !== "development", //sends the cookies only through https
+    secure: process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT, //sends the cookies only through https
     sameSite: "strict", //prevents cross-site request forgery
-    maxAge: refreshTokenExpiresAt, //30 days / expire time of cookies
+    maxAge: REFRESH_TOKEN_EXPIRES_AT, //30 days / expire time of cookies
   });
 
   const encryptedRefreshToken = await bcrypt.hash(refreshToken, 10);
@@ -136,10 +133,10 @@ const signIn = asyncHandler(async function signIn(req: Request, res: Response) {
     {
       $set: {
         refreshToken: encryptedRefreshToken,
-        refreshTokenExpiresAt: new Date(Date.now() + refreshTokenExpiresAt),
+        refreshTokenExpiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_AT),
       },
     },
-    {},
+    {}
   );
 
   const { password: _, ...userWithoutPassword } = userDB;
@@ -155,23 +152,20 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendOTPforgotPassword = asyncHandler(async function sendOTPforgotPassword(
   req: Request,
-  res: Response,
+  res: Response
 ) {
   const validatedUserInput = verifyEmailSchema.safeParse(req.body);
 
   if (!validatedUserInput.success) {
     sendError(
       res,
-      JSON.parse(validatedUserInput?.error?.message)[0].message ||
-        DEFAULT_VALIDATION_ERROR_MESSAGE,
-      400,
+      JSON.parse(validatedUserInput?.error?.message)[0].message || DEFAULT_VALIDATION_ERROR_MESSAGE,
+      400
     );
     return;
   }
 
-  const userDB = (
-    await User.findOne({ email: validatedUserInput?.data?.email })
-  )?.toObject();
+  const userDB = (await User.findOne({ email: validatedUserInput?.data?.email }))?.toObject();
   if (!userDB) {
     sendError(res, "User not found", 404);
     return;
@@ -181,8 +175,11 @@ const sendOTPforgotPassword = asyncHandler(async function sendOTPforgotPassword(
   const { error } = await resend.emails.send({
     from: "Acme <onboarding@resend.dev>",
     to: [validatedUserInput.data.email],
-    subject: "Reset Password with OTP",
-    html: `<h2>Reset Password with OTP</h2>
+    subject: "FineMate - Reset Password with OTP",
+    text: `FineMate - Reset Password with OTP
+Your OTP is: ${otpCode}
+The OTP will expire in 5 minutes`,
+    html: `<h2>FineMate - Reset Password with OTP</h2>
     <h3><strong>Your OTP is: ${otpCode}</strong></h3>
     <p>The OTP will expire in 5 minutes</p> 
     `,
@@ -192,7 +189,7 @@ const sendOTPforgotPassword = asyncHandler(async function sendOTPforgotPassword(
     sendError(res, error.message, 500);
     return;
   }
-  const otpExpiresAt = Date.now() + 300000; //5min
+  const otpExpiresAt = Date.now() + OTP_EXPIRE_AT; //5min
 
   const updatedUserDB = (
     await User.findOneAndUpdate(
@@ -200,7 +197,7 @@ const sendOTPforgotPassword = asyncHandler(async function sendOTPforgotPassword(
       {
         otp: otpCode,
         otpExpiresAt: new Date(otpExpiresAt),
-      },
+      }
     )
   )?.toObject();
   console.log("🚀 ~ sendOTPforgotPassword ~ otpCode:", otpCode);
@@ -210,81 +207,70 @@ const sendOTPforgotPassword = asyncHandler(async function sendOTPforgotPassword(
 });
 
 //VERIFY OTP
-const verifyOTPforgotPassword = asyncHandler(
-  async function verifyOTPforgotPassword(req: Request, res: Response) {
-    const validatedUserInput = resetPasswordSendOtpSchema.safeParse(req.body);
-    if (!validatedUserInput.success) {
-      sendError(
-        res,
-        JSON.parse(validatedUserInput?.error?.message)[0].message ||
-          DEFAULT_VALIDATION_ERROR_MESSAGE,
-        400,
-      );
-      return;
-    }
+const verifyOTPforgotPassword = asyncHandler(async function verifyOTPforgotPassword(
+  req: Request,
+  res: Response
+) {
+  const validatedUserInput = resetPasswordSendOtpSchema.safeParse(req.body);
+  if (!validatedUserInput.success) {
+    sendError(
+      res,
+      JSON.parse(validatedUserInput?.error?.message)[0].message || DEFAULT_VALIDATION_ERROR_MESSAGE,
+      400
+    );
+    return;
+  }
 
-    const userDB = (
-      await User.findOne({ email: validatedUserInput?.data?.email })
-    )?.toObject();
-    if (!userDB) {
-      sendError(res, "User not found", 404);
-      return;
-    }
+  const userDB = (await User.findOne({ email: validatedUserInput?.data?.email }))?.toObject();
+  if (!userDB) {
+    sendError(res, "User not found", 404);
+    return;
+  }
 
-    if (userDB.otp !== validatedUserInput?.data?.otpCode) {
-      sendError(res, "Invalid OTP", 400);
-      return;
-    }
+  if (userDB.otp !== validatedUserInput?.data?.otpCode) {
+    sendError(res, "Invalid OTP", 400);
+    return;
+  }
 
-    if (
-      userDB?.otpExpiresAt &&
-      new Date(userDB?.otpExpiresAt).getTime() < Date.now()
-    ) {
-      await User.findOneAndUpdate(
-        { email: validatedUserInput?.data?.email },
-        {
-          verifiedOtp: false,
-          otp: null,
-          otpExpiresAt: null,
-        },
-      );
-      sendError(res, "OTP expired", 400);
-      return;
-    }
-
+  if (userDB?.otpExpiresAt && new Date(userDB?.otpExpiresAt).getTime() < Date.now()) {
     await User.findOneAndUpdate(
       { email: validatedUserInput?.data?.email },
       {
-        verifiedOtp: true,
+        verifiedOtp: false,
         otp: null,
         otpExpiresAt: null,
-      },
+      }
     );
+    sendError(res, "OTP expired", 400);
+    return;
+  }
 
-    sendSuccess(res, userDB?.email, "OTP verified successfully", 200);
-  },
-);
+  await User.findOneAndUpdate(
+    { email: validatedUserInput?.data?.email },
+    {
+      verifiedOtp: true,
+      otp: null,
+      otpExpiresAt: null,
+    }
+  );
+
+  sendSuccess(res, userDB?.email, "OTP verified successfully", 200);
+});
 
 // RESET PASSWORD
-const resetPassword = asyncHandler(async function resetPassword(
-  req: Request,
-  res: Response,
-) {
+const resetPassword = asyncHandler(async function resetPassword(req: Request, res: Response) {
   const validatedUserInput = resetPasswordSchema.safeParse(req.body);
 
   if (!validatedUserInput.success) {
     sendError(
       res,
-      JSON.parse(validatedUserInput?.error?.message)[0].message ||
-        DEFAULT_VALIDATION_ERROR_MESSAGE,
-      400,
+      JSON.parse(validatedUserInput?.error?.message)[0].message || DEFAULT_VALIDATION_ERROR_MESSAGE,
+      400
     );
     return;
   }
 
-  const userDB = (
-    await User.findOne({ email: validatedUserInput?.data?.email })
-  )?.toObject();
+  const userDB = (await User.findOne({ email: validatedUserInput?.data?.email }))?.toObject();
   if (!userDB) {
     sendError(res, "User not found", 404);
     return;
@@ -294,24 +280,21 @@ const resetPassword = asyncHandler(async function resetPassword(
     return;
   }
 
-  const encrytedPassword = await bcrypt.hash(
-    validatedUserInput?.data?.newPassword,
-    10,
-  );
+  const encrytedPassword = await bcrypt.hash(validatedUserInput?.data?.newPassword, 10);
 
   await User.findOneAndUpdate(
     { email: validatedUserInput?.data?.newPassword },
     {
       password: encrytedPassword,
       verifiedOtp: false,
-    },
+    }
   );
 
   sendSuccess(
     res,
     userDB?.email,
     "Password reset successfully, please login with your new password",
-    200,
+    200
   );
 });
 // TODO
@@ -323,28 +306,25 @@ const logOut = asyncHandler(async function logOut(req: Request, res: Response) {
     {
       refreshToken: null,
       refreshTokenExpiresAt: null,
-    },
+    }
   );
 
   res.clearCookie("refreshToken", {
     httpOnly: true, //prevents access through javascript, document.cookie/ helps protect against CSRF attacks
-    secure: process.env.NODE_ENV !== "development", //sends the cookies only through https
+    secure: process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT, //sends the cookies only through https
     sameSite: "strict", //prevents cross-site request forgery
-    maxAge: refreshTokenExpiresAt, //30 days / expire time of cookies
+    maxAge: REFRESH_TOKEN_EXPIRES_AT, //30 days / expire time of cookies
   });
   res.clearCookie("accessToken", {
     httpOnly: true, //prevents access through javascript, document.cookie/ helps protect against CSRF attacks
-    secure: process.env.NODE_ENV !== "development", //sends the cookies only through https
+    secure: process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT, //sends the cookies only through https
     sameSite: "strict", //prevents cross-site request forgery
-    maxAge: accessTokenCookieExpiresAt, //30 days / expire time of cookies
+    maxAge: ACCESS_TOKEN_EXPIRES_AT, //30 days / expire time of cookies
   });
   sendSuccess(res, null, "Logged out successfully", 200);
 });
 // REFRESH TOKEN
-const refreshToken = asyncHandler(async function refreshToken(
-  req: Request,
-  res: Response,
-) {
+const refreshToken = asyncHandler(async function refreshToken(req: Request, res: Response) {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
@@ -367,10 +347,7 @@ const refreshToken = asyncHandler(async function refreshToken(
     return;
   }
 
-  const tokenMatches = await bcrypt.compare(
-    refreshToken,
-    userDB?.refreshToken || "",
-  );
+  const tokenMatches = await bcrypt.compare(refreshToken, userDB?.refreshToken || "");
 
   if (!tokenMatches) {
     sendError(res, "Doesnt match", 401); //TODO change to "Unauthorized"
@@ -388,9 +365,9 @@ const refreshToken = asyncHandler(async function refreshToken(
   // GENERATE ACCESS TOKEN
   const accessToken = generateAccessToken(userDB?._id, userDB?.email);
 
-  res.cookie("accessToken", accessToken, {
+  res.cookie(ACCESS_TOKEN, accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== "development",
+    secure: process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT,
     sameSite: "strict",
   });
 

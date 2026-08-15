@@ -1,8 +1,5 @@
-import express, {
-  type Application,
-  type Request,
-  type Response,
-} from "express";
+import express, { type Application, type Request, type Response } from "express";
+
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
@@ -26,7 +23,7 @@ const PORT = process.env.PORT || 8000;
 
 app.use(cors(corsOptions)); //configure cors middleware to add special headers to outgoing responses
 app.use(express.json()); //parse incoming requests as json
-app.use(cookieParser());
+app.use(cookieParser()); //parse incoming cookies
 
 //ROUTE DEFINITIONS SYNC WITH SERVER
 app.use("/api/auth", authRoutes);
