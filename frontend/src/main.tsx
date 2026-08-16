@@ -24,10 +24,9 @@ async function renderRoute() {
   // Initialize the auth store
 
   try {
-    await useAuthStore.getState().getProfile();
+    await useAuthStore.getState().getProfile(); //get user profile in the store on load
   } catch (error: unknown) {
-    const errorMessage =
-      typeof error === "string" ? error : "Something went wrong";
+    const errorMessage = typeof error === "string" ? error : "Something went wrong";
 
     console.log(errorMessage);
   }
@@ -41,7 +40,8 @@ async function renderRoute() {
     root.render(
       <StrictMode>
         <RouterProvider router={router} context={{ auth: useAuthStore }} />
-      </StrictMode>,
+        {/* //pass auth store to context */}
+      </StrictMode>
     );
   }
 }

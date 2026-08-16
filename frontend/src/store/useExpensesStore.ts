@@ -1,10 +1,6 @@
 import { apiFactory } from "@/api/services/apiFactory";
 
-import {
-  ExpenseCategory,
-  ExpenseSort,
-  type ExpenseStateType,
-} from "@/lib/types/expense.types";
+import { ExpenseCategory, ExpenseSort, type ExpenseStateType } from "@/lib/types/expense.types";
 import { create } from "zustand";
 
 export const DEFAULT_FILTERS = {

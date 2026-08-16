@@ -8,15 +8,21 @@ import { parseActiveFilters } from "@/lib/utils/parseActiveFilters";
 import { ActiveFilterChips } from "./ActiveFilterChips";
 import { toast } from "react-toastify";
 import type { ExpenseFilterKeys } from "@/lib/types/expense.types";
+import { useShallow } from "zustand/react/shallow";
 
 const LazyFilterForm = lazy(() =>
-  import("./FilterForm").then((module) => ({ default: module.FilterForm })),
+  import("./FilterForm").then((module) => ({ default: module.FilterForm }))
 );
 
 export function Filters() {
   const [open, setOpen] = useState(false);
-  const activeFilters = useExpenseStore((state) => state.filters);
-  const filterAllExpenses = useExpenseStore((state) => state.getAllExpenses);
+  const { filterAllExpenses, activeFilters } = useExpenseStore(
+    useShallow((state) => ({
+      filterAllExpenses: state.getAllExpenses,
+      activeFilters: state.filters,
+    }))
+  );
+
   const isActiveFilters = Object.keys(activeFilters).length > 2;
 
   async function revalidateAllExpenses() {

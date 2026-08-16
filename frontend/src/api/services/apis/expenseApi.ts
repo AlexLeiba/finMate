@@ -1,35 +1,23 @@
 import { axiosInstance } from "@/api/axios";
 import { ENDPOINTS } from "../endpoints";
-import {
-  arrayExpenseSchema,
-  expenseSchema,
-} from "@/lib/schemas/apis/expenseSchema";
-import type {
-  ExpenseCategory,
-  ExpenseSort,
-  ExpenseType,
-} from "@/lib/types/expense.types";
+import { arrayExpenseSchema, expenseSchema } from "@/lib/schemas/apis/expenseSchema";
+import type { ExpenseCategory, ExpenseSort, ExpenseType } from "@/lib/types/expense.types";
 import type { ApiErrorResponse, ApiResponse } from "@/lib/types/auth.types";
 import type { ExpenseFormDataType } from "@/lib/schemas/forms/expenseSchema";
 
 async function createExpense(body: ExpenseFormDataType) {
   try {
-    const response = await axiosInstance.post<ApiResponse<ExpenseType>>(
-      ENDPOINTS.expenses,
-      body,
-    );
-    console.log("🚀 ~ createExpense ~ response:", response);
+    const response = await axiosInstance.post<ApiResponse<ExpenseType>>(ENDPOINTS.expenses, body);
 
     const parsed = expenseSchema.safeParse(response?.data);
-    if (!parsed.success)
-      throw new Error("Backend returned invalid expense shape");
+    if (!parsed.success) throw new Error("Backend returned invalid expense shape");
 
     return parsed?.data?.data;
   } catch (error: unknown) {
     const err = error as ApiErrorResponse;
     throw typeof err?.response?.data?.message === "string"
       ? err?.response?.data?.message
-      : "Something went wrong";
+      : "Something went wrong, please try again or contact support";
   }
 }
 async function getAllExpenses(query: {
@@ -41,15 +29,15 @@ async function getAllExpenses(query: {
 
   try {
     const response = await axiosInstance.get<ApiResponse<ExpenseType[]>>(
-      `${ENDPOINTS.expenses}?${queryString}`,
+      `${ENDPOINTS.expenses}?${queryString}`
     );
 
     const parsed = arrayExpenseSchema.safeParse(response?.data);
-    if (!parsed.success)
-      throw new Error("Backend returned invalid expense shape");
+    if (!parsed.success) throw new Error("Backend returned invalid expense shape");
 
     return parsed?.data?.data;
   } catch (error: unknown) {
+    console.log("🚀 ~ getAllExpenses ~ error:", error);
     const err = error as ApiErrorResponse;
     throw typeof err?.response?.data?.message === "string"
       ? err?.response?.data?.message
@@ -60,12 +48,11 @@ async function getAllExpenses(query: {
 async function getExpenseById(id: string) {
   try {
     const response = await axiosInstance.get<ApiResponse<ExpenseType>>(
-      `${ENDPOINTS.expenses}/${id}`,
+      `${ENDPOINTS.expenses}/${id}`
     );
 
     const parsed = expenseSchema.safeParse(response?.data);
-    if (!parsed.success)
-      throw new Error("Backend returned invalid expense shape");
+    if (!parsed.success) throw new Error("Backend returned invalid expense shape");
 
     return parsed?.data?.data;
   } catch (error: unknown) {
@@ -79,12 +66,11 @@ async function updateExpense(body: ExpenseFormDataType, id: string) {
   try {
     const response = await axiosInstance.put<ApiResponse<ExpenseType>>(
       `${ENDPOINTS.expenses}/${id}`,
-      body,
+      body
     );
 
     const parsed = expenseSchema.safeParse(response?.data);
-    if (!parsed.success)
-      throw new Error("Backend returned invalid expense shape");
+    if (!parsed.success) throw new Error("Backend returned invalid expense shape");
 
     return parsed?.data?.data;
   } catch (error: unknown) {
@@ -97,12 +83,11 @@ async function updateExpense(body: ExpenseFormDataType, id: string) {
 async function deleteExpense(id: string) {
   try {
     const response = await axiosInstance.delete<ApiResponse<ExpenseType>>(
-      `${ENDPOINTS.expenses}/${id}`,
+      `${ENDPOINTS.expenses}/${id}`
     );
 
     const parsed = expenseSchema.safeParse(response?.data);
-    if (!parsed.success)
-      throw new Error("Backend returned invalid expense shape");
+    if (!parsed.success) throw new Error("Backend returned invalid expense shape");
 
     return parsed?.data?.data;
   } catch (error: unknown) {
@@ -113,10 +98,4 @@ async function deleteExpense(id: string) {
   }
 }
 
-export {
-  createExpense,
-  getAllExpenses,
-  updateExpense,
-  deleteExpense,
-  getExpenseById,
-};
+export { createExpense, getAllExpenses, updateExpense, deleteExpense, getExpenseById };

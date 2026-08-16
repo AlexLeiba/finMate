@@ -8,20 +8,15 @@ import {
 } from "@/components/ui/pagination";
 import { useExpenseStore } from "@/store/useExpensesStore";
 
-export function Pagination({
-  page,
-  totalCount,
-}: {
-  page: number;
-  totalCount: number;
-}) {
+export function Pagination({ page, totalCount }: { page: number; totalCount: number }) {
   const ITEMS_PER_PAGE = 10;
   const setPage = useExpenseStore((state) => state.setPage);
   const pages = Array.from(
     { length: Math.ceil(totalCount / ITEMS_PER_PAGE) },
-    (_, index) => index + 1,
+    (_, index) => index + 1
   );
 
+  // TODO: add API req page
   function handleChangePage(page: number) {
     setPage(page);
   }

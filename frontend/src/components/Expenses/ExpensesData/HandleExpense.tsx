@@ -1,7 +1,7 @@
 import type { ExpenseType } from "@/lib/types/expense.types";
 
-import { DeleteExpense } from "./DeleteExpense/DeleteExpense";
-import { EditExpense } from "./EditExpense/EditExpense";
+import { DeleteExpense } from "../../shared/DeleteExpense/DeleteExpense";
+import { EditExpense } from "../../shared/EditExpense/EditExpense";
 
 export function HandleExpense({ expense }: { expense: ExpenseType }) {
   return (
@@ -11,10 +11,7 @@ export function HandleExpense({ expense }: { expense: ExpenseType }) {
         <EditExpense expense={expense} />
 
         {/* DELETE */}
-        <DeleteExpense
-          expenseId={expense._id}
-          expenseCategory={expense.category}
-        />
+        <DeleteExpense expenseId={expense._id} expenseCategory={expense.category} />
       </div>
     </>
   );

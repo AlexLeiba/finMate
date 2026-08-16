@@ -1,4 +1,4 @@
-import { CreateNewExpenseDialog } from "@/components/Expenses/CreateNewExpense/CreateNewExpenseDialog";
+import { CreateNewExpenseDialog } from "@/components/shared/CreateNewExpense/CreateNewExpenseDialog";
 import { ExpensesData } from "@/components/Expenses/ExpensesData/ExpensesData";
 import { Pagination } from "@/components/Expenses/ExpensesData/Pagination";
 
@@ -8,16 +8,25 @@ import { Sort } from "@/components/Expenses/Filters/Sort";
 
 import { Spacer } from "@/components/ui/spacer";
 import { useExpenseStore } from "@/store/useExpensesStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useShallow } from "zustand/react/shallow";
+import { DEFAULT_CURRENCY } from "@/lib/consts/currency";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 
 function ExpensesPage() {
-  const fetchAllExpenses = useExpenseStore((state) => state.getAllExpenses);
-  const filters = useExpenseStore((state) => state.filters);
-  const page = useExpenseStore((state) => {
-    return state.page;
-  });
-  const totalCount = useExpenseStore((state) => state.stats.totalCount);
+  const { page, totalCount, expenses, fetchAllExpenses, filters } = useExpenseStore(
+    useShallow((state) => ({
+      expenses: state.expenses,
+      page: state.page,
+      totalCount: state.stats.totalCount,
+      isLoading: state.isLoading,
+      fetchAllExpenses: state.getAllExpenses,
+      filters: state.filters,
+      setFilters: state.setFilters,
+    }))
+  );
+  const currency = useAuthStore((state) => state.user?.currency) || DEFAULT_CURRENCY;
 
   useEffect(() => {
     toast.loading("Loading...", { toastId: "fetchExpenses" });
@@ -29,6 +38,7 @@ function ExpensesPage() {
       toast.dismiss("fetchExpenses");
     }
   }, [filters, page]);
+
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -48,7 +58,7 @@ function ExpensesPage() {
         <Filters />
         <Spacer size={4} />
 
-        <ExpensesData />
+        <ExpensesData currency={currency} expenses={expenses} />
       </div>
       {totalCount > 10 && <Pagination page={page} totalCount={totalCount} />}
     </div>

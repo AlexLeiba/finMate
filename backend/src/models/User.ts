@@ -45,7 +45,7 @@ const userSchema = new Schema<MongodbUserType>(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 export default userSchema;

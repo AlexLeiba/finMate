@@ -21,6 +21,7 @@ export const Route = createFileRoute("/(app)/_protected")({
 function ProtectedLayout() {
   return (
     <ContainerLayout>
+      {/* start from height of header */}
       <div className="h-21" />
       <Outlet />
     </ContainerLayout>

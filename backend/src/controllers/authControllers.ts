@@ -24,7 +24,7 @@ import {
   REFRESH_TOKEN,
   REFRESH_TOKEN_EXPIRES_AT,
 } from "../config/token";
-import { User } from "../models/User";
+import { User } from "../models/user";
 import { OTP_EXPIRE_AT } from "../config/otp";
 
 //SIGN UP

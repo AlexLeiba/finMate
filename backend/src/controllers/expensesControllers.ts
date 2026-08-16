@@ -2,27 +2,31 @@ import { type Request, type Response } from "express";
 import { asyncHandler, sendError, sendSuccess } from "../utils/responseHelpers";
 import {
   createExpenseSchema,
+  expenseIdSchema,
   getAllExpensesQuerySchema,
   updateExpenseSchema,
+  userIdSchema,
 } from "../schemas/expenses";
 import { DEFAULT_VALIDATION_ERROR_MESSAGE } from "../consts/consts";
 import { Expense } from "../models/Expense";
 
 // GET ALL
-const getAllExpenses = asyncHandler(async function getAllExpenses(
-  req: Request,
-  res: Response,
-) {
+const getAllExpenses = asyncHandler(async function getAllExpenses(req: Request, res: Response) {
   const userId = req.userId;
+
+  if (!userId) {
+    sendError(res, "User not found", 404);
+    return;
+  }
 
   const userExpenses = await Expense.find({ userId });
 
-  if (userExpenses.length === 0) {
+  if (userExpenses?.length === 0) {
     sendSuccess(
       res,
       [],
       "No expenses were found for this user. Create an expense to get started",
-      200,
+      200
     );
     return;
   }
@@ -34,7 +38,7 @@ const getAllExpenses = asyncHandler(async function getAllExpenses(
       res,
       JSON.parse(validatedProvidedQuery.error?.message)[0].message ||
         DEFAULT_VALIDATION_ERROR_MESSAGE,
-      400,
+      400
     );
     return;
   }
@@ -43,17 +47,16 @@ const getAllExpenses = asyncHandler(async function getAllExpenses(
     const { category, searchTerm, minAmount, maxAmount, startDate, endDate } =
       validatedProvidedQuery.data;
 
+    // If cat doesnt exists
     if (category && expense.category !== category && category !== "all") {
       return false;
     }
 
+    // Search term for description, category and amount
     if (
       searchTerm &&
       !(
-        expense.description
-          .replace(/\s+/g, " ")
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
+        expense.description.replace(/\s+/g, " ").toLowerCase().includes(searchTerm.toLowerCase()) ||
         expense.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
         expense.amount.toString().includes(searchTerm)
       )
@@ -80,6 +83,7 @@ const getAllExpenses = asyncHandler(async function getAllExpenses(
     return true;
   });
 
+  // Sorting (amount, date)
   if (validatedProvidedQuery.data.sort === "amount") {
     filteredExpenses.sort((a, b) => a.amount - b.amount);
   } else if (validatedProvidedQuery.data.sort === "-amount") {
@@ -97,45 +101,56 @@ const getAllExpenses = asyncHandler(async function getAllExpenses(
     Math.round(
       filteredExpenses.reduce((acc, expense) => {
         return acc + expense.amount;
-      }, 0) * 100,
+      }, 0) * 100
     ) / 100;
 
-  const averageAmount =
-    Math.round((totalAmount / filteredExpenses.length) * 100) / 100;
+  const averageAmount = Math.round((totalAmount / filteredExpenses.length) * 100) / 100;
 
   sendSuccess(
     res,
     {
       expenses: filteredExpenses.slice((page - 1) * skip, skip * page),
       stats: {
-        totalCount: filteredExpenses.length,
-        totalAmount,
-        averageAmount,
+        totalCount: filteredExpenses.length || 0,
+        totalAmount: totalAmount || 0,
+        averageAmount: averageAmount || 0,
       },
     },
     "expenses retrieved successfully",
-    200,
+    200
   );
 });
 
 // GET BY ID
-const getExpenseById = asyncHandler(async function getSingleExpense(
-  req: Request,
-  res: Response,
-) {
+const getExpenseById = asyncHandler(async function getSingleExpense(req: Request, res: Response) {
   const { id } = req.params;
   const userId = req.userId;
 
-  if (!id.toString().trim()) {
-    sendError(res, "id is required", 400);
-    return;
-  }
-  if (typeof id !== "string") {
-    sendError(res, "id must be a string", 400);
+  const parsedId = expenseIdSchema.safeParse(id);
+  if (!parsedId.success) {
+    sendError(res, JSON.parse(parsedId?.error?.message)[0].message, 400);
     return;
   }
 
-  const expense = (await Expense.findOne({ _id: id, userId }))?.toObject();
+  const parsedUserId = userIdSchema.safeParse(userId);
+  if (!parsedUserId.success) {
+    sendError(res, JSON.parse(parsedUserId?.error?.message)[0].message, 400);
+    return;
+  }
+
+  // TODO: add runtime validation for such type tests
+  // if (!id.toString().trim()) {
+  //   sendError(res, "id is required", 400);
+  //   return;
+  // }
+  // if (typeof id !== "string") {
+  //   sendError(res, "id must be a string", 400);
+  //   return;
+  // }
+
+  const expense = (
+    await Expense.findOne({ _id: parsedId.data, userId: parsedUserId.data })
+  )?.toObject();
 
   if (!expense) {
     sendError(res, "expense not found", 404);
@@ -146,10 +161,7 @@ const getExpenseById = asyncHandler(async function getSingleExpense(
 });
 
 // CREATE
-const createExpense = asyncHandler(async function createExpense(
-  req: Request,
-  res: Response,
-) {
+const createExpense = asyncHandler(async function createExpense(req: Request, res: Response) {
   const userId = req.userId;
   const { amount, category, description, date } = req.body;
 
@@ -165,7 +177,7 @@ const createExpense = asyncHandler(async function createExpense(
       res,
       JSON.parse(validatedProvidedBody?.error?.message)[0].message ||
         DEFAULT_VALIDATION_ERROR_MESSAGE,
-      400,
+      400
     );
     return;
   }
@@ -182,10 +194,7 @@ const createExpense = asyncHandler(async function createExpense(
 });
 
 // UPDATE
-const updateExpense = asyncHandler(async function updateExpense(
-  req: Request,
-  res: Response,
-) {
+const updateExpense = asyncHandler(async function updateExpense(req: Request, res: Response) {
   const userId = req.userId;
   const { id } = req.params;
 
@@ -212,7 +221,7 @@ const updateExpense = asyncHandler(async function updateExpense(
       res,
       JSON.parse(validatedProvidedBody?.error?.message)[0].message ||
         DEFAULT_VALIDATION_ERROR_MESSAGE,
-      400,
+      400
     );
     return;
   }
@@ -243,7 +252,7 @@ const updateExpense = asyncHandler(async function updateExpense(
     },
     {
       new: true,
-    },
+    }
   );
 
   if (!updatedExpense) {
@@ -255,10 +264,7 @@ const updateExpense = asyncHandler(async function updateExpense(
 });
 
 // DELETE
-const deleteExpense = asyncHandler(async function deleteExpense(
-  req: Request,
-  res: Response,
-) {
+const deleteExpense = asyncHandler(async function deleteExpense(req: Request, res: Response) {
   const { id } = req.params;
   const userId = req.userId;
 
@@ -286,12 +292,6 @@ const deleteExpense = asyncHandler(async function deleteExpense(
   sendSuccess(res, deletedExpense, "expense deleted successfully", 200);
 });
 
-export {
-  getAllExpenses,
-  getExpenseById,
-  createExpense,
-  updateExpense,
-  deleteExpense,
-};
+export { getAllExpenses, getExpenseById, createExpense, updateExpense, deleteExpense };
 
 // TODO add upload/download expenses as csv.

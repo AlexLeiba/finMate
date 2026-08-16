@@ -1,8 +1,4 @@
-import {
-  createRootRouteWithContext,
-  Outlet,
-  useRouterState,
-} from "@tanstack/react-router";
+import { createRootRouteWithContext, Outlet, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ToastContainer } from "react-toastify";
@@ -36,7 +32,7 @@ function RootLayout() {
       <div className="flex flex-col min-h-screen">
         <Header />
 
-        <main className="flex-1 ">
+        <main className="flex-1">
           <Outlet />
         </main>
 

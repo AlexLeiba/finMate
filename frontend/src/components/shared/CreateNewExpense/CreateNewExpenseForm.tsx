@@ -3,10 +3,7 @@ import { DropDownCategory } from "@/components/Expenses/Filters/DropDownCategory
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  expenseFormSchema,
-  type ExpenseFormDataType,
-} from "@/lib/schemas/forms/expenseSchema";
+import { expenseFormSchema, type ExpenseFormDataType } from "@/lib/schemas/forms/expenseSchema";
 import { ExpenseCategory } from "@/lib/types/expense.types";
 import { useExpenseStore } from "@/store/useExpensesStore";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,10 +11,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import { toast } from "react-toastify";
+import { useShallow } from "zustand/react/shallow";
 
 export function CreateNewExpenseForm() {
-  const createExpense = useExpenseStore((state) => state.createExpense);
-  const isLoading = useExpenseStore((state) => state.isLoading);
+  const { createExpense, isLoading } = useExpenseStore(
+    useShallow((state) => ({ createExpense: state.createExpense, isLoading: state.isLoading }))
+  );
+
   const formMethods = useForm<ExpenseFormDataType>({
     resolver: zodResolver(expenseFormSchema),
     defaultValues: {
@@ -35,7 +35,6 @@ export function CreateNewExpenseForm() {
   } = formMethods;
 
   async function onSubmit(data: ExpenseFormDataType) {
-    console.log(data);
     toast.loading("Loading...", { toastId: "createExpense" });
     try {
       await createExpense({ ...data, amount: Number(data.amount) });

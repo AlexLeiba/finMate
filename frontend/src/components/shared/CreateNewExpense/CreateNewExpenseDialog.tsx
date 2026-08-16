@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { lazy, Suspense } from "react";
-import { SkeletonForm } from "../SkeletonForm";
+import { SkeletonForm } from "../../Expenses/SkeletonForm";
 
 const CreateNewExpenseForm = lazy(() =>
-  import("../CreateNewExpense/CreateNewExpenseForm").then((module) => ({
+  import("./CreateNewExpenseForm").then((module) => ({
     default: module.CreateNewExpenseForm,
-  })),
+  }))
 );
 
 export function CreateNewExpenseDialog() {

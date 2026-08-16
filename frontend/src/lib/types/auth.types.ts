@@ -11,6 +11,7 @@ export type SignupRequestType = {
   password: string;
 };
 
+// TODO, pass in monorepo file and une on both apps
 export type ApiResponse<T> = {
   success: boolean;
   data?: T;

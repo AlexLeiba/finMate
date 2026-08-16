@@ -14,11 +14,24 @@ import { DropDownCategory } from "./DropDownCategory";
 import { generateActiveFilterPayload } from "@/lib/utils/generateActiveFilterPayload";
 import { useEffect } from "react";
 import { Sort } from "./Sort";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useShallow } from "zustand/react/shallow";
 
 export function FilterForm() {
-  const filterAllExpenses = useExpenseStore((state) => state.getAllExpenses);
-  const filters = useExpenseStore((state) => state.filters);
-  const isLoading = useExpenseStore((state) => state.isLoading);
+  const { filterAllExpenses, filters, setFilters, isLoading } = useExpenseStore(
+    useShallow((state) => ({
+      filterAllExpenses: state.getAllExpenses,
+      filters: state.filters,
+      setFilters: state.setFilters,
+      isLoading: state.isLoading,
+    }))
+  );
+
+  const { start, end } = useSearch({
+    from: "/(app)/_protected/expenses",
+  });
+  const navigate = useNavigate();
+
   const formMethods = useForm<FilterExpenseFormDataType>({
     resolver: zodResolver(filterExpenseSchema),
     defaultValues: {
@@ -43,6 +56,16 @@ export function FilterForm() {
     toast.loading("Loading...", { toastId: "filterExpenses" });
     try {
       await filterAllExpenses(payload);
+
+      if (start || end) {
+        navigate({
+          to: "/expenses",
+          search: {
+            start: undefined,
+            end: undefined,
+          },
+        });
+      }
     } catch (error: unknown) {
       toast.error(error as string);
     } finally {
@@ -58,6 +81,13 @@ export function FilterForm() {
     formMethods.setValue("endDate", filters.endDate);
     formMethods.setValue("minAmount", filters.minAmount);
     formMethods.setValue("maxAmount", filters.maxAmount);
+
+    // Redirect from dashboard stats with filters current month or previous month
+    if (start && end) {
+      formMethods.setValue("startDate", start);
+      formMethods.setValue("endDate", end);
+      setFilters({ ...filters, startDate: start, endDate: end });
+    }
   }, [
     filters.category,
     filters.sort,
@@ -67,7 +97,11 @@ export function FilterForm() {
     filters.minAmount,
     filters.maxAmount,
     formMethods,
+    start,
+    end,
   ]);
+
+  const activeFilters = Object.values(filters).length > 2 ? Object.values(filters).length - 2 : 0;
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -130,11 +164,7 @@ export function FilterForm() {
         <DropDownCategory disabled={isLoading} name="category" />
 
         <div className="flex items-center gap-4 lg:flex-row flex-col">
-          <DatePicker
-            disabled={isLoading}
-            label="Start Date"
-            name="startDate"
-          />
+          <DatePicker disabled={isLoading} label="Start Date" name="startDate" />
           <DatePicker disabled={isLoading} label="End Date" name="endDate" />
         </div>
       </FormProvider>
@@ -148,7 +178,14 @@ export function FilterForm() {
           loading={isLoading}
           variant={"accent"}
         >
-          Apply Filter
+          <div className="flex justify-center items-center gap-2">
+            <p>Apply Filter</p>
+            {activeFilters > 0 && (
+              <span className="size-6 p-1 bg-accent rounded-md text-black flex items-center justify-center">
+                {activeFilters}
+              </span>
+            )}
+          </div>
         </Button>
       </div>
     </form>

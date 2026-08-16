@@ -14,6 +14,12 @@ import {
   updateExpense,
   getExpenseById,
 } from "./apis/expenseApi";
+import {
+  getDashboardStats,
+  getCategoriesBreakdown,
+  getMonthlyTotalsOfOneYear,
+  getSpendingTrends,
+} from "./apis/dashboardApi";
 import { getProfile, updateProfile } from "./apis/profileApi";
 
 export function apiFactory() {
@@ -32,5 +38,9 @@ export function apiFactory() {
     updateExpense,
     deleteExpense,
     getExpenseById,
+    getDashboardStats,
+    getCategoriesBreakdown,
+    getMonthlyTotalsOfOneYear,
+    getSpendingTrends,
   };
 }

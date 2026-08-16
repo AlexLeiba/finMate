@@ -2,12 +2,12 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import type { ExpenseType } from "@/lib/types/expense.types";
 import { lazy, Suspense, useCallback } from "react";
 
-import { SkeletonForm } from "../../SkeletonForm";
+import { SkeletonForm } from "../../Expenses/SkeletonForm";
 
 const EditExpenseForm = lazy(() =>
   import("./EditExpenseForm").then((module) => ({
     default: module.EditExpenseForm,
-  })),
+  }))
 );
 
 // import { SkeletonForm } from "../SkeletonForm";
@@ -30,7 +30,7 @@ export function ModalEditExpense({
     (open: boolean) => {
       return onOpenChange(open);
     },
-    [onOpenChange],
+    [onOpenChange]
   );
   if (!expense) {
     if (onOpenChange) {
@@ -47,10 +47,7 @@ export function ModalEditExpense({
         <h4 className="text-lg font-semibold">{title}</h4>
 
         <Suspense fallback={<SkeletonForm className="lg:h-98.5" />}>
-          <EditExpenseForm
-            expense={expense}
-            onOpenChangeMemo={onOpenChangeMemo}
-          />
+          <EditExpenseForm expense={expense} onOpenChangeMemo={onOpenChangeMemo} />
         </Suspense>
       </DialogContent>
     </Dialog>

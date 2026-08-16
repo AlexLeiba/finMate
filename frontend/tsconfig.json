@@ -3,5 +3,13 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  // Not used by `tsc -b` (files is empty), but tools that read only the root
+  // tsconfig -- the shadcn CLI, ESLint resolvers, Vitest -- need the alias here
+  // or they fall back to treating "@/..." as a literal folder name.
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
 }

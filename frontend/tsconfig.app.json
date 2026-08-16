@@ -23,6 +23,7 @@
 
     // path alias
 
+    // No baseUrl: deprecated in TS 6. "paths" resolves relative to this file.
     "paths": {
       "@/*": ["./src/*"]
     }

@@ -17,6 +17,13 @@ export const ENDPOINTS = {
   profile: "profile",
 } as const;
 
+export const DASHBOARD_ENDPOINTS = {
+  getStats: "/analytics/dashboard",
+  getCategoriesBreakdown: "/analytics/categories",
+  getMonthlyTotalsOfOneYear: "/analytics/monthly",
+  getSpendingTrends: "/analytics/trends",
+} as const;
+
 export const AUTH_ENDPOINTS = [
   "/auth/signin",
   "/auth/signup",
@@ -26,4 +33,4 @@ export const AUTH_ENDPOINTS = [
   "/auth/verify-otp",
   "/auth/reset-password",
   // "profile",
-];
+] as const;

@@ -5,7 +5,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
 
-import { useResponsive } from "@/hooks/useResponsive";
+import { useResponsive } from "@/lib/hooks/useResponsive";
 import { cn } from "@/lib/utils/tailwindUtils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { BREAKPOINTS } from "@/lib/breakpoints";
+import { BREAKPOINTS } from "@/lib/consts/breakpoints";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;

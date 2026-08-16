@@ -3,23 +3,20 @@ import { ExpenseSort } from "@/lib/types/expense.types";
 import { useExpenseStore } from "@/store/useExpensesStore";
 import { SORT_DIRECTION, SORT_TYPE } from "@/lib/consts/sort";
 import { cn } from "@/lib/utils/tailwindUtils";
+import { useShallow } from "zustand/react/shallow";
 
 export function Sort({ label = true }: { label?: boolean }) {
-  const setFilters = useExpenseStore((state) => state.setFilters);
-  const filters = useExpenseStore((state) => state.filters);
+  const { setFilters, filters } = useExpenseStore(
+    useShallow((state) => ({ setFilters: state.setFilters, filters: state.filters }))
+  );
 
   function handleSort(sort: ExpenseSort) {
     setFilters({ ...filters, sort });
   }
 
-  const activeSortType =
-    filters.sort?.replace("-", "") || ExpenseSort.DATE_DESC;
-  console.log("🚀 ~ Sort ~ activeSortType:", activeSortType);
-
-  const sortDirectionSymbol = filters.sort?.replace(activeSortType, "");
-  console.log("🚀 ~ Sort ~ sortDirectionSymbol:", sortDirectionSymbol);
-
-  const activeSortDirection = sortDirectionSymbol !== "-" ? "asc" : "desc";
+  const activeSortType = filters.sort?.replace("-", "") || ExpenseSort.DATE_DESC;
+  const activeSortDirectionSymbol = filters.sort?.replace(activeSortType, "");
+  const activeSortDirection = activeSortDirectionSymbol !== "-" ? "asc" : "desc";
 
   return (
     <div className="flex gap-8 items-center ">
@@ -33,13 +30,11 @@ export function Sort({ label = true }: { label?: boolean }) {
           </label>
         )}
 
-        <div id="sort" className="border  rounded-md flex">
+        <div id="sort" className="border rounded-md flex">
           {SORT_TYPE.map((sort) => (
             <Button
               key={sort.value}
-              onClick={() =>
-                handleSort((sortDirectionSymbol + sort.value) as ExpenseSort)
-              }
+              onClick={() => handleSort((activeSortDirectionSymbol + sort.value) as ExpenseSort)}
               variant="ghost"
               className={cn(activeSortType === sort.value && "bg-primary ")}
             >
@@ -63,13 +58,9 @@ export function Sort({ label = true }: { label?: boolean }) {
           {SORT_DIRECTION.map((sort) => (
             <Button
               key={sort.value}
-              onClick={() =>
-                handleSort((sort.symbol + activeSortType) as ExpenseSort)
-              }
+              onClick={() => handleSort((sort.symbol + activeSortType) as ExpenseSort)}
               variant="ghost"
-              className={cn(
-                activeSortDirection === sort.value && "bg-primary ",
-              )}
+              className={cn(activeSortDirection === sort.value && "bg-primary ")}
             >
               {sort.label}
             </Button>

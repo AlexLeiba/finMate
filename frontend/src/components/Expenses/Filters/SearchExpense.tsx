@@ -5,12 +5,13 @@ import { useDebounce } from "@/lib/hooks/useDebounce";
 import { InputSearch } from "./inputSearch";
 import { generateActiveFilterPayload } from "@/lib/utils/generateActiveFilterPayload";
 import { useEffect, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 export function SearchExpense() {
   const [search, setSearch] = useState("");
-  // const filterAllExpenses = useExpenseStore((state) => state.getAllExpenses);
-  const setFilters = useExpenseStore((state) => state.setFilters);
-  const filters = useExpenseStore((state) => state.filters);
+  const { setFilters, filters } = useExpenseStore(
+    useShallow((state) => ({ setFilters: state.setFilters, filters: state.filters }))
+  );
 
   useEffect(() => {
     setSearch(filters.searchTerm || "");
@@ -25,12 +26,12 @@ export function SearchExpense() {
       return toast.error(parsed.error.message);
     }
 
-    const payload = generateActiveFilterPayload({
+    const activeFilters = generateActiveFilterPayload({
       ...filters,
       searchTerm: parsed.data.searchTerm,
     });
 
-    setFilters(payload);
+    setFilters(activeFilters);
   }
   const debounceSearch = useDebounce(handleSubmit, 1000);
 
@@ -40,11 +41,11 @@ export function SearchExpense() {
   }
 
   function handleClear() {
-    const payload = generateActiveFilterPayload({
+    const remainedActiveFilters = generateActiveFilterPayload({
       ...filters,
       searchTerm: undefined,
     });
-    setFilters(payload);
+    setFilters(remainedActiveFilters);
     setSearch("");
   }
   return (
@@ -52,7 +53,7 @@ export function SearchExpense() {
       onClear={() => handleClear()}
       onChange={(e) => handleSearch(e.target.value)}
       value={search}
-      aria-label="Search expenses by description, category or amount"
+      aria-label="Search expenses by description, category or amount."
       title="Search expenses by description, category or amount"
       placeholder="Search for expenses"
     />

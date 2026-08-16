@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  getExpensesByCategories,
+  getCategoriesBreakdown,
   getMonthlyTotalsOfOneYear,
   getDashboardStats,
   getSpendingTrends,
@@ -9,7 +9,7 @@ import {
 // route definitions
 const router = Router();
 
-router.get("/categories", getExpensesByCategories);
+router.get("/categories", getCategoriesBreakdown);
 router.get("/monthly", getMonthlyTotalsOfOneYear);
 router.get("/dashboard", getDashboardStats);
 router.get("/trends", getSpendingTrends);
