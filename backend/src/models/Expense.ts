@@ -11,7 +11,7 @@ const expenseSchema = new Schema<MongodbExpenseType>(
       ref: "User",
     },
     amount: {
-      type: Number,
+      type: String,
       required: true,
     },
     category: {
@@ -31,7 +31,7 @@ const expenseSchema = new Schema<MongodbExpenseType>(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 export const Expense = model<MongodbExpenseType>("Expense", expenseSchema);

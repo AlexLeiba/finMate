@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils/tailwindUtils";
 import type { ComponentProps } from "react";
 
 export function StatCard({
@@ -12,7 +13,12 @@ export function StatCard({
 } & ComponentProps<"button">) {
   return (
     <button
-      className="text-left cursor-pointer flex flex-col justify-between gap-1 border p-4 border-border hover:border-accent-foreground rounded-md"
+      className={cn(
+        "text-left flex flex-col justify-between gap-1 border p-4 border-border rounded-md",
+        rest.onClick
+          ? "cursor-pointer hover:border-accent-foreground border-background-element-accent"
+          : ""
+      )}
       {...rest}
     >
       <div className="flex gap-2">

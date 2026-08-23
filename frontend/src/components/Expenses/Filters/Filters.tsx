@@ -16,10 +16,12 @@ const LazyFilterForm = lazy(() =>
 
 export function Filters() {
   const [open, setOpen] = useState(false);
-  const { filterAllExpenses, activeFilters } = useExpenseStore(
+  const { filterAllExpenses, activeFilters, setFilters, filters } = useExpenseStore(
     useShallow((state) => ({
       filterAllExpenses: state.getAllExpenses,
       activeFilters: state.filters,
+      setFilters: state.setFilters,
+      filters: state.filters,
     }))
   );
 
@@ -34,6 +36,11 @@ export function Filters() {
     } finally {
       toast.dismiss("filterExpenses");
     }
+  }
+  function handleRemoveFilter(key: ExpenseFilterKeys) {
+    const newFilters = { ...filters };
+    delete newFilters[key];
+    setFilters(newFilters);
   }
 
   return (
@@ -57,6 +64,7 @@ export function Filters() {
                   {Object.entries(activeFilters).map(([key, value]) => {
                     return (
                       <ActiveFilterChips
+                        handleRemove={() => handleRemoveFilter(key as ExpenseFilterKeys)}
                         key={key}
                         value={`${parseActiveFilters(value, key as ExpenseFilterKeys)}`}
                         title={key as ExpenseFilterKeys}

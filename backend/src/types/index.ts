@@ -23,7 +23,7 @@ export enum ExpenseSort {
 export type ExpenseType = {
   _id: string;
   userId: string;
-  amount: number;
+  amount: string;
   category: ExpenseCategory;
   description: string;
   date: Date; //when the expense actually happened

@@ -1,3 +1,4 @@
+import { ExpenseCategory } from "@/lib/types/expense.types";
 import * as zod from "zod";
 
 const dashboardStatsSchema = zod.object({
@@ -5,16 +6,16 @@ const dashboardStatsSchema = zod.object({
     totalExpenses: zod.number(),
     averageExpense: zod.number(),
     highestExpense: zod.object({
-      amount: zod.number(),
-      category: zod.string(),
+      amount: zod.string(),
+      category: zod.enum(Object.values(ExpenseCategory)),
       description: zod.string(),
       date: zod.coerce.date(),
       createdAt: zod.coerce.date(),
       updatedAt: zod.coerce.date(),
     }),
     lowestExpense: zod.object({
-      amount: zod.number(),
-      category: zod.string(),
+      amount: zod.string(),
+      category: zod.enum(Object.values(ExpenseCategory)),
       description: zod.string(),
       date: zod.coerce.date(),
       createdAt: zod.coerce.date(),
@@ -32,7 +33,7 @@ type DashboardStatsType = zod.infer<typeof dashboardStatsSchema>;
 const categoriesBreakdownSchema = zod.object({
   data: zod.array(
     zod.object({
-      category: zod.string(),
+      category: zod.enum(Object.values(ExpenseCategory)),
       total: zod.number(),
       count: zod.number(),
       percentage: zod.number(),
@@ -41,6 +42,26 @@ const categoriesBreakdownSchema = zod.object({
 });
 
 type ExpensesByCategoriesType = zod.infer<typeof categoriesBreakdownSchema>;
+
+const spendingByCategoryTimePeriodSchema = zod.object({
+  data: zod.object({
+    totalAmount: zod.number(),
+    count: zod.number(),
+    average: zod.number(),
+    startDate: zod.coerce.date(),
+    endDate: zod.coerce.date(),
+    categoriesBreakdownStats: zod.array(
+      zod.object({
+        category: zod.enum(Object.values(ExpenseCategory)),
+        total: zod.number(),
+        count: zod.number(),
+        percentage: zod.number(),
+      })
+    ),
+  }),
+});
+
+type SpendingByCategoryTimePeriodType = zod.infer<typeof spendingByCategoryTimePeriodSchema>;
 
 const monthlyTotalsSchema = zod.object({
   data: zod.array(
@@ -71,5 +92,12 @@ export {
   categoriesBreakdownSchema,
   monthlyTotalsSchema,
   spendingTrendsSchema,
+  spendingByCategoryTimePeriodSchema,
 };
-export type { DashboardStatsType, ExpensesByCategoriesType, MonthlyTotalsType, SendingTrendsType };
+export type {
+  DashboardStatsType,
+  ExpensesByCategoriesType,
+  MonthlyTotalsType,
+  SendingTrendsType,
+  SpendingByCategoryTimePeriodType,
+};

@@ -1,0 +1,6 @@
+const DEFAULT_TIME_PERIOD_IN_DAYS = 7;
+const ALL_TIME = 99999;
+
+export { DEFAULT_TIME_PERIOD_IN_DAYS, ALL_TIME };
+
+export const MAX_PERIOD_IN_DAYS = 730;

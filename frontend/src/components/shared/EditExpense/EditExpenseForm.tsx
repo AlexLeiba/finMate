@@ -3,10 +3,7 @@ import { DropDownCategory } from "@/components/Expenses/Filters/DropDownCategory
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  expenseFormSchema,
-  type ExpenseFormDataType,
-} from "@/lib/schemas/forms/expenseSchema";
+import { expenseFormSchema, type ExpenseFormDataType } from "@/lib/schemas/forms/expenseSchema";
 import { type ExpenseType } from "@/lib/types/expense.types";
 import { useExpenseStore } from "@/store/useExpensesStore";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,10 +40,7 @@ export function EditExpenseForm({
   async function onSubmit(data: ExpenseFormDataType) {
     toast.loading("Loading...", { toastId: "updateExpense" });
     try {
-      await updateExpense(
-        { ...data, amount: Number(data.amount) },
-        expense._id,
-      );
+      await updateExpense({ ...data, amount: data.amount }, expense._id);
       toast.success("Expense updated successfully", {
         toastId: "updateExpenseSuccess",
       });
@@ -83,7 +77,7 @@ export function EditExpenseForm({
             type="number"
             error={errors.amount?.message}
             {...field}
-            onChange={(e) => field.onChange(Number(e.target.value))}
+            onChange={(e) => field.onChange(e.target.value)}
           />
         )}
       />

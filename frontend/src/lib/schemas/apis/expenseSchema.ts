@@ -5,7 +5,7 @@ export const expenseSchema = zod.object({
   data: zod.object({
     createdAt: zod.coerce.date(),
     updatedAt: zod.coerce.date(),
-    amount: zod.number(),
+    amount: zod.string(),
     category: zod.enum(ExpenseCategory),
     description: zod.string(),
     _id: zod.string(),
@@ -23,7 +23,7 @@ export const arrayExpenseSchema = zod.object({
         zod.object({
           createdAt: zod.coerce.date(),
           updatedAt: zod.coerce.date(),
-          amount: zod.number(),
+          amount: zod.string(),
           category: zod.enum(ExpenseCategory),
           description: zod.string(),
           _id: zod.string(),

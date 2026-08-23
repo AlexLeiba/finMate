@@ -21,7 +21,7 @@ export function CreateNewExpenseForm() {
   const formMethods = useForm<ExpenseFormDataType>({
     resolver: zodResolver(expenseFormSchema),
     defaultValues: {
-      amount: 0,
+      amount: "0",
       category: ExpenseCategory.ALL,
       description: "",
       date: new Date(),
@@ -37,7 +37,7 @@ export function CreateNewExpenseForm() {
   async function onSubmit(data: ExpenseFormDataType) {
     toast.loading("Loading...", { toastId: "createExpense" });
     try {
-      await createExpense({ ...data, amount: Number(data.amount) });
+      await createExpense({ ...data, amount: data.amount });
     } catch (error: unknown) {
       toast.error(error as string);
     } finally {
@@ -70,7 +70,7 @@ export function CreateNewExpenseForm() {
             type="number"
             error={errors.amount?.message}
             {...field}
-            onChange={(e) => field.onChange(Number(e.target.value))}
+            onChange={(e) => field.onChange(e.target.value)}
           />
         )}
       />

@@ -10,6 +10,7 @@ import {
   type MonthlyTotalsType,
   type SendingTrendsType,
   spendingTrendsSchema,
+  spendingByCategoryTimePeriodSchema,
 } from "@/lib/schemas/apis/dashboardSchema";
 
 async function getDashboardStats() {
@@ -32,7 +33,7 @@ async function getDashboardStats() {
 }
 
 async function getCategoriesBreakdown(query?: { timePeriodInDays?: number }) {
-  const queryString = new URLSearchParams(String(query)).toString();
+  const queryString = new URLSearchParams(query as string).toString();
   try {
     const response = await axiosInstance.get<ApiResponse<ExpensesByCategoriesType>>(
       `${DASHBOARD_ENDPOINTS.getCategoriesBreakdown}?${queryString}`
@@ -89,5 +90,30 @@ async function getSpendingTrends() {
       : "Something went wrong";
   }
 }
+async function getSpendingByCategoryTimePeriod(query: { timePeriodInDays?: number }) {
+  const queryString = new URLSearchParams(query as string).toString();
+  try {
+    const response = await axiosInstance.get<ApiResponse<ExpensesByCategoriesType>>(
+      `${DASHBOARD_ENDPOINTS.getPeriodStats}?${queryString}`
+    );
 
-export { getDashboardStats, getCategoriesBreakdown, getMonthlyTotalsOfOneYear, getSpendingTrends };
+    const parsed = spendingByCategoryTimePeriodSchema.safeParse(response?.data);
+    if (!parsed.success) throw new Error("Backend returned invalid expense shape");
+
+    return parsed?.data?.data;
+  } catch (error: unknown) {
+    console.log("🚀 ~ getAllExpenses ~ error:", error);
+    const err = error as ApiErrorResponse;
+    throw typeof err?.response?.data?.message === "string"
+      ? err?.response?.data?.message
+      : "Something went wrong";
+  }
+}
+
+export {
+  getDashboardStats,
+  getCategoriesBreakdown,
+  getMonthlyTotalsOfOneYear,
+  getSpendingTrends,
+  getSpendingByCategoryTimePeriod,
+};

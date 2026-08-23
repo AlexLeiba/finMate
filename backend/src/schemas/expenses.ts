@@ -2,14 +2,14 @@ import * as zod from "zod";
 import { ExpenseCategory, ExpenseSort } from "../types";
 
 export const createExpenseSchema = zod.object({
-  amount: zod.coerce.number().min(0.01, "Amount must be greater than 0").max(10000000000),
+  amount: zod.coerce.string().min(0.01, "Amount must be greater than 0").max(10000000000),
   category: zod.enum(ExpenseCategory),
   description: zod.string().trim().min(3, "Description must be at least 3 character").max(200),
   date: zod.coerce.date().optional(),
 });
 
 export const updateExpenseSchema = zod.object({
-  amount: zod.coerce.number().min(0.01, "Amount must be greater than 0").optional(),
+  amount: zod.coerce.string().min(0.01, "Amount must be greater than 0").optional(),
   category: zod.enum(ExpenseCategory).optional(),
   description: zod
     .string()
@@ -28,8 +28,8 @@ export const getAllExpensesQuerySchema = zod.object({
   startDate: zod.coerce.date().optional(),
   endDate: zod.coerce.date().optional(),
 
-  minAmount: zod.coerce.number().optional(),
-  maxAmount: zod.coerce.number().optional(),
+  minAmount: zod.coerce.string().optional(),
+  maxAmount: zod.coerce.string().optional(),
 
   page: zod.coerce.number().min(1).default(1),
   skip: zod.coerce.number().min(10).default(10),

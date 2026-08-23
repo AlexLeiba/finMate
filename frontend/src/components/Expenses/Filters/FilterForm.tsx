@@ -14,7 +14,6 @@ import { DropDownCategory } from "./DropDownCategory";
 import { generateActiveFilterPayload } from "@/lib/utils/generateActiveFilterPayload";
 import { useEffect } from "react";
 import { Sort } from "./Sort";
-import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useShallow } from "zustand/react/shallow";
 
 export function FilterForm() {
@@ -26,11 +25,6 @@ export function FilterForm() {
       isLoading: state.isLoading,
     }))
   );
-
-  const { start, end } = useSearch({
-    from: "/(app)/_protected/expenses",
-  });
-  const navigate = useNavigate();
 
   const formMethods = useForm<FilterExpenseFormDataType>({
     resolver: zodResolver(filterExpenseSchema),
@@ -56,16 +50,6 @@ export function FilterForm() {
     toast.loading("Loading...", { toastId: "filterExpenses" });
     try {
       await filterAllExpenses(payload);
-
-      if (start || end) {
-        navigate({
-          to: "/expenses",
-          search: {
-            start: undefined,
-            end: undefined,
-          },
-        });
-      }
     } catch (error: unknown) {
       toast.error(error as string);
     } finally {
@@ -83,10 +67,8 @@ export function FilterForm() {
     formMethods.setValue("maxAmount", filters.maxAmount);
 
     // Redirect from dashboard stats with filters current month or previous month
-    if (start && end) {
-      formMethods.setValue("startDate", start);
-      formMethods.setValue("endDate", end);
-      setFilters({ ...filters, startDate: start, endDate: end });
+    if (filters.startDate || filters.endDate) {
+      setFilters({ ...filters });
     }
   }, [
     filters.category,
@@ -97,8 +79,6 @@ export function FilterForm() {
     filters.minAmount,
     filters.maxAmount,
     formMethods,
-    start,
-    end,
   ]);
 
   const activeFilters = Object.values(filters).length > 2 ? Object.values(filters).length - 2 : 0;
@@ -137,7 +117,7 @@ export function FilterForm() {
               type="number"
               error={errors.minAmount?.message}
               {...field}
-              onChange={(e) => field.onChange(Number(e.target.value))}
+              onChange={(e) => field.onChange(e.target.value)}
             />
           )}
         />
@@ -152,7 +132,7 @@ export function FilterForm() {
               type="number"
               error={errors.maxAmount?.message}
               {...field}
-              onChange={(e) => field.onChange(Number(e.target.value))}
+              onChange={(e) => field.onChange(e.target.value)}
             />
           )}
         />

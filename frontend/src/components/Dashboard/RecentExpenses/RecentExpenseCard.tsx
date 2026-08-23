@@ -1,10 +1,16 @@
 import type { ExpenseType } from "@/lib/types/expense.types";
-import { Category } from "../../shared/ExpenseCategory";
 import { CURRENCY_SYMBOLS } from "@/lib/consts/currency";
 import { Calendar } from "lucide-react";
-import { HandleExpense } from "../../shared/HandleExpense";
+import { Category } from "@/components/shared/ExpenseCategory";
+import { HandleExpense } from "@/components/shared/HandleExpense";
 
-export function ExpenseCard({ expense, currency }: { expense: ExpenseType; currency: string }) {
+export function RecentExpenseCard({
+  expense,
+  currency,
+}: {
+  expense: ExpenseType;
+  currency: string;
+}) {
   return (
     <div className="border p-4 rounded-md flex flex-col gap-2">
       <div className="flex justify-between items-center">
@@ -15,7 +21,6 @@ export function ExpenseCard({ expense, currency }: { expense: ExpenseType; curre
           <span className="ml-0.5">{expense.amount}</span>
         </p>
       </div>
-      <p className="text-text-secondary">{expense.description}</p>
 
       <div className="flex justify-between items-center">
         <div className="flex gap-2">

@@ -1,9 +1,11 @@
 import { apiFactory } from "@/api/services/apiFactory";
+import { CATEGORY_TIME_PERIOD, type CategoryTimePeriod } from "@/lib/consts/dashboard";
 import type {
   DashboardStatsType,
   ExpensesByCategoriesType,
   MonthlyTotalsType,
   SendingTrendsType,
+  SpendingByCategoryTimePeriodType,
 } from "@/lib/schemas/apis/dashboardSchema";
 
 import { create } from "zustand";
@@ -13,14 +15,18 @@ type DashboardStateType = {
   categoryBreakdown: ExpensesByCategoriesType["data"];
   monthlyTotals: MonthlyTotalsType["data"];
   spendingTrends: SendingTrendsType["data"];
+  spendingByCategoryTimePeriod: SpendingByCategoryTimePeriodType["data"] | null;
+  periodStats: CategoryTimePeriod | null;
+  getSpendingByCategoryTimePeriod: (query: { timePeriodInDays: number }) => Promise<void>;
   getDashboardStats: () => Promise<void>;
-  getCategoriesBreakdown: () => Promise<void>;
+  getCategoriesBreakdown: (query?: { timePeriodInDays: number }) => Promise<void>;
   getMonthlyTotalsOfOneYear: (query: { year?: string; month?: string }) => Promise<void>;
   getSpendingTrends: () => Promise<void>;
+  setPeriodStats: (periodStats: CategoryTimePeriod) => void;
 
   isLoading: boolean;
   error: string | null;
-}; //TODO move in types file after complete
+}; //TODO move in types file after complete implementing
 
 export const useDashboardStore = create<DashboardStateType>((set) => ({
   dashboardStats: null,
@@ -29,6 +35,11 @@ export const useDashboardStore = create<DashboardStateType>((set) => ({
   spendingTrends: [],
   isLoading: false,
   error: null,
+  spendingByCategoryTimePeriod: null,
+  periodStats: CATEGORY_TIME_PERIOD[0],
+  setPeriodStats: (periodStats) => {
+    set({ periodStats: periodStats });
+  },
 
   //   Apis
   getDashboardStats: async () => {
@@ -46,10 +57,10 @@ export const useDashboardStore = create<DashboardStateType>((set) => ({
       set({ isLoading: false });
     }
   },
-  getCategoriesBreakdown: async () => {
+  getCategoriesBreakdown: async (query) => {
     set({ isLoading: true });
     try {
-      const response = await apiFactory().getCategoriesBreakdown();
+      const response = await apiFactory().getCategoriesBreakdown(query);
       set({ categoryBreakdown: response, error: null });
     } catch (error: unknown) {
       set({
@@ -61,6 +72,24 @@ export const useDashboardStore = create<DashboardStateType>((set) => ({
       set({ isLoading: false });
     }
   },
+  getSpendingByCategoryTimePeriod: async (query) => {
+    set({ isLoading: true });
+    try {
+      const response = await apiFactory().getSpendingByCategoryTimePeriod(query);
+      set({ error: null, spendingByCategoryTimePeriod: response });
+    } catch (error: unknown) {
+      set({
+        spendingByCategoryTimePeriod: null,
+        error: error as string,
+      });
+      throw error as string;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  //   getSpendingByCategoryTimePeriod: (timePeriod: CategoryTimePeriod) => {
+  //   set({ spendingByCategoryTimePeriod: timePeriod });
+  // },
   getMonthlyTotalsOfOneYear: async (query: { year?: string; month?: string }) => {
     set({ isLoading: true });
     try {

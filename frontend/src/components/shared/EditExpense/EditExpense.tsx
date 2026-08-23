@@ -12,7 +12,7 @@ export function EditExpense({ expense }: { expense: ExpenseType }) {
       title={`Edit ${expense.category} expense`}
       expense={expense}
     >
-      <Button size={"sm"} variant="outline">
+      <Button size={"sm"} variant="outline" className="opacity-30 hover:opacity-100">
         <Edit />
       </Button>
     </ModalEditExpense>

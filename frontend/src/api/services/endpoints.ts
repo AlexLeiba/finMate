@@ -22,6 +22,7 @@ export const DASHBOARD_ENDPOINTS = {
   getCategoriesBreakdown: "/analytics/categories",
   getMonthlyTotalsOfOneYear: "/analytics/monthly",
   getSpendingTrends: "/analytics/trends",
+  getPeriodStats: "/analytics/period",
 } as const;
 
 export const AUTH_ENDPOINTS = [

@@ -44,7 +44,7 @@ export function DeleteExpense({
         aria-label={`delete ${expenseCategory} expense`}
         size={"sm"}
         variant="destructive"
-        className="opacity-40 hover:opacity-100"
+        className="opacity-30 hover:opacity-100"
       >
         <Trash />
       </Button>

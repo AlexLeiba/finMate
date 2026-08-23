@@ -1,4 +1,4 @@
-import { ALL_TIME, DEFAULT_TIME_PERIOD_IN_DAYS } from "../config/dashboard";
+import { DEFAULT_TIME_PERIOD_IN_DAYS, MAX_PERIOD_IN_DAYS } from "../config/dashboard";
 import { Expense } from "../models/Expense";
 import type { DashboardStatsType, MonthlyTotalType } from "../types";
 import { getCurrentMonth } from "../utils/getCurrentMonth";
@@ -28,23 +28,28 @@ const getCategoriesBreakdown = asyncHandler(async function getExpensesByCategori
     ? Number(req.query.timePeriodInDays)
     : DEFAULT_TIME_PERIOD_IN_DAYS;
 
-  const now = new Date();
+  if (isNaN(timePeriodInDays)) {
+    sendError(res, "Time period must be a valid number", 400);
+    return;
+  }
 
-  const startPeriod = new Date(now);
-  startPeriod.setDate(startPeriod.getDate() - timePeriodInDays);
+  if (timePeriodInDays < 1) {
+    sendError(res, "Time period must be greater than 0", 400);
+    return;
+  }
 
-  const filteredExpensesPerPeriod =
-    timePeriodInDays === ALL_TIME
-      ? userExpenses
-      : userExpenses.filter((expense) => expense.date >= startPeriod);
+  if (userExpenses?.length === 0) {
+    sendSuccess(res, [], "No expenses were found for this period", 200);
+    return;
+  }
 
-  const totalAmountPerCategory = filteredExpensesPerPeriod.reduce(
+  const totalExpenseAmountPerCategory = userExpenses.reduce(
     (acc, expense) => {
       if (!acc[expense.category]) {
         acc[expense.category] = { total: 0, count: 0 };
       }
 
-      acc[expense.category].total += expense.amount;
+      acc[expense.category].total += Number(expense.amount);
       acc[expense.category].count += 1;
 
       return acc;
@@ -52,12 +57,12 @@ const getCategoriesBreakdown = asyncHandler(async function getExpensesByCategori
     {} as Record<string, { total: number; count: number }>
   );
 
-  const grandTotalAmountOfAllCategories = Object.values(totalAmountPerCategory).reduce(
+  const grandTotalAmountOfAllCategories = Object.values(totalExpenseAmountPerCategory).reduce(
     (acc, cat) => (acc += cat.total),
     0
   );
 
-  const categoriesStats = Object.entries(totalAmountPerCategory).map(
+  const categoriesBreakdownStats = Object.entries(totalExpenseAmountPerCategory).map(
     ([categoryName, categoryData]) => {
       return {
         category: categoryName,
@@ -68,9 +73,123 @@ const getCategoriesBreakdown = asyncHandler(async function getExpensesByCategori
     }
   );
   // sort asc
-  categoriesStats.sort((a, b) => a.total - b.total);
+  categoriesBreakdownStats.sort((a, b) => a.total - b.total);
 
-  sendSuccess(res, categoriesStats, "Category breakdown retrieved!", 200);
+  sendSuccess(res, categoriesBreakdownStats, "Category breakdown retrieved!", 200);
+});
+const getPeriodStats = asyncHandler(async function getExpensesByCategories(
+  req: Request,
+  res: Response
+) {
+  const userId = req.userId;
+
+  if (!userId) {
+    sendError(res, "User not found", 404);
+    return;
+  }
+
+  const userExpenses = (await Expense.find({ userId })) || [];
+
+  if (userExpenses?.length === 0) {
+    sendSuccess(res, [], "No expenses were found. Create an expense to get started", 200);
+    return;
+  }
+
+  const timePeriodInDays = req?.query?.timePeriodInDays
+    ? Number(req.query.timePeriodInDays)
+    : DEFAULT_TIME_PERIOD_IN_DAYS;
+
+  if (isNaN(timePeriodInDays)) {
+    sendError(res, "Time period must be a valid number", 400);
+    return;
+  }
+
+  if (timePeriodInDays < 1) {
+    sendError(res, "Time period must be greater than 0", 400);
+    return;
+  }
+
+  const endPeriod = new Date();
+  const startPeriod = new Date(endPeriod);
+
+  if (timePeriodInDays <= MAX_PERIOD_IN_DAYS) {
+    startPeriod.setDate(startPeriod.getDate() - timePeriodInDays);
+  }
+
+  const filteredExpensesPerPeriod =
+    timePeriodInDays > MAX_PERIOD_IN_DAYS
+      ? userExpenses //return all expenses if time period is greater than MAX_PERIOD_IN_DAYS
+      : userExpenses.filter((expense) => expense.date >= startPeriod);
+
+  if (filteredExpensesPerPeriod.length === 0) {
+    sendSuccess(
+      res,
+      {
+        totalAmount: 0,
+        count: 0,
+        average: 0,
+        startDate: startPeriod.toISOString().split("T")[0],
+        endDate: endPeriod.toISOString().split("T")[0],
+        categoriesBreakdownStats: [],
+      },
+      "No expenses were found for this period",
+      200
+    );
+    return;
+  }
+
+  const total = filteredExpensesPerPeriod.reduce((acc, expense) => {
+    acc += Number(expense.amount);
+
+    return acc;
+  }, 0);
+
+  const average = Math.round(total / filteredExpensesPerPeriod.length);
+
+  // Total per category expense amount
+  const totalExpenseAmountPerCategory = filteredExpensesPerPeriod.reduce(
+    (acc, expense) => {
+      if (!acc[expense.category]) {
+        acc[expense.category] = {
+          total: 0,
+          count: 0,
+        };
+      }
+      acc[expense.category].total += Number(expense.amount);
+      acc[expense.category].count += 1;
+
+      return acc;
+    },
+    {} as Record<string, { total: number; count: number }>
+  );
+
+  // Category total expense amount, category count, percentage, total
+  const categoriesBreakdownStats = Object.entries(totalExpenseAmountPerCategory).map(
+    ([categoryName, categoryData]) => {
+      return {
+        category: categoryName,
+        ...categoryData,
+        percentage: Math.round((categoryData.total / total) * 100), //category percentage amount out of total expenses and categories amount
+        total: Math.round(categoryData.total * 100) / 100, //this would limit the decimals to two points
+      };
+    }
+  );
+
+  categoriesBreakdownStats.sort((a, b) => b.total - a.total);
+
+  sendSuccess(
+    res,
+    {
+      totalAmount: Math.round(total * 100) / 100, //this would limit the decimals to two points
+      count: filteredExpensesPerPeriod.length,
+      average: Math.round(average * 100) / 100,
+      startDate: startPeriod.toISOString().split("T")[0],
+      endDate: endPeriod.toISOString().split("T")[0],
+      categoriesBreakdownStats,
+    },
+    "Category breakdown retrieved!",
+    200
+  );
 });
 
 const getMonthlyTotalsOfOneYear = asyncHandler(async function getExpensesByMonthlyTotals(
@@ -133,7 +252,7 @@ const getMonthlyTotalsOfOneYear = asyncHandler(async function getExpensesByMonth
         acc[monthString] = { total: 0, count: 0, month: monthString };
       }
 
-      acc[monthString].total += value.amount;
+      acc[monthString].total += Number(value.amount);
       acc[monthString].count += 1;
 
       return acc;
@@ -174,23 +293,23 @@ const getDashboardStats = asyncHandler(async function getDashboardStats(
   }
 
   const totalExpenses = userExpenses.reduce((acc, expense) => {
-    return acc + expense.amount;
+    return acc + Number(expense.amount);
   }, 0);
 
   const averageExpense = totalExpenses / userExpenses.length;
 
   const highestAndLowestExpenses = userExpenses.reduce(
     (acc, expense) => {
-      if (!acc.lowestExpense && expense.amount > 0) {
-        acc.lowestExpense = expense.amount;
+      if (!acc.lowestExpense && Number(expense.amount) > 0) {
+        acc.lowestExpense = Number(expense.amount);
       }
 
-      if (acc.highestExpense < expense.amount) {
-        acc.highestExpense = expense.amount;
+      if (acc.highestExpense < Number(expense.amount)) {
+        acc.highestExpense = Number(expense.amount);
       }
 
-      if (acc.lowestExpense > expense.amount) {
-        acc.lowestExpense = expense.amount;
+      if (acc.lowestExpense > Number(expense.amount)) {
+        acc.lowestExpense = Number(expense.amount);
       }
       return acc;
     },
@@ -198,10 +317,10 @@ const getDashboardStats = asyncHandler(async function getDashboardStats(
   );
 
   const highestExpense = userExpenses.find(
-    (exp) => exp.amount === highestAndLowestExpenses.highestExpense
+    (exp) => Number(exp.amount) === highestAndLowestExpenses.highestExpense
   );
   const lowestExpense = userExpenses.find(
-    (exp) => exp.amount === highestAndLowestExpenses.lowestExpense
+    (exp) => Number(exp.amount) === highestAndLowestExpenses.lowestExpense
   );
   if (!highestExpense || !lowestExpense) {
     return sendError(res, "No expenses were found");
@@ -215,7 +334,10 @@ const getDashboardStats = asyncHandler(async function getDashboardStats(
     );
   });
 
-  const currentMonthTotal = currentMonthExpenses.reduce((acc, exp) => (acc += exp.amount), 0);
+  const currentMonthTotal = currentMonthExpenses.reduce(
+    (acc, exp) => (acc += Number(exp.amount)),
+    0
+  );
 
   const prevMonthExpenses = userExpenses.filter((exp) => {
     return (
@@ -223,7 +345,7 @@ const getDashboardStats = asyncHandler(async function getDashboardStats(
     );
   });
 
-  const prevMonthTotal = prevMonthExpenses.reduce((acc, exp) => (acc += exp.amount), 0);
+  const prevMonthTotal = prevMonthExpenses.reduce((acc, exp) => (acc += Number(exp.amount)), 0);
 
   let monthlyPercentageExpenseChange = 0;
   if (prevMonthTotal > 0) {
@@ -275,7 +397,7 @@ const getSpendingTrends = asyncHandler(async function getSpendingTrends(
         return exp;
       }
     });
-    const monthTotal = monthExpenses.reduce((acc, exp) => (acc += exp.amount), 0);
+    const monthTotal = monthExpenses.reduce((acc, exp) => (acc += Number(exp.amount)), 0);
 
     trends.push({
       month: monthString,
@@ -287,4 +409,10 @@ const getSpendingTrends = asyncHandler(async function getSpendingTrends(
   sendSuccess(res, trends, "Spending trends retrieved.", 200);
 });
 
-export { getCategoriesBreakdown, getMonthlyTotalsOfOneYear, getDashboardStats, getSpendingTrends };
+export {
+  getCategoriesBreakdown,
+  getMonthlyTotalsOfOneYear,
+  getDashboardStats,
+  getSpendingTrends,
+  getPeriodStats,
+};

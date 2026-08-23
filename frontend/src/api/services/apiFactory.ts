@@ -19,6 +19,7 @@ import {
   getCategoriesBreakdown,
   getMonthlyTotalsOfOneYear,
   getSpendingTrends,
+  getSpendingByCategoryTimePeriod,
 } from "./apis/dashboardApi";
 import { getProfile, updateProfile } from "./apis/profileApi";
 
@@ -42,5 +43,6 @@ export function apiFactory() {
     getCategoriesBreakdown,
     getMonthlyTotalsOfOneYear,
     getSpendingTrends,
+    getSpendingByCategoryTimePeriod,
   };
 }

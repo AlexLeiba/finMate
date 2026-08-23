@@ -85,9 +85,9 @@ const getAllExpenses = asyncHandler(async function getAllExpenses(req: Request, 
 
   // Sorting (amount, date)
   if (validatedProvidedQuery.data.sort === "amount") {
-    filteredExpenses.sort((a, b) => a.amount - b.amount);
+    filteredExpenses.sort((a, b) => Number(a.amount) - Number(b.amount));
   } else if (validatedProvidedQuery.data.sort === "-amount") {
-    filteredExpenses.sort((a, b) => b.amount - a.amount);
+    filteredExpenses.sort((a, b) => Number(b.amount) - Number(a.amount));
   } else if (validatedProvidedQuery.data.sort === "date") {
     filteredExpenses.sort((a, b) => a.date.getTime() - b.date.getTime());
   } else if (validatedProvidedQuery.data.sort === "-date") {
@@ -100,7 +100,7 @@ const getAllExpenses = asyncHandler(async function getAllExpenses(req: Request, 
   const totalAmount =
     Math.round(
       filteredExpenses.reduce((acc, expense) => {
-        return acc + expense.amount;
+        return acc + Number(expense.amount);
       }, 0) * 100
     ) / 100;
 

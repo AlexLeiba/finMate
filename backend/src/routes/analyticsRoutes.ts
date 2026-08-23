@@ -4,6 +4,7 @@ import {
   getMonthlyTotalsOfOneYear,
   getDashboardStats,
   getSpendingTrends,
+  getPeriodStats,
 } from "../controllers/analyticsControllers";
 
 // route definitions
@@ -13,5 +14,6 @@ router.get("/categories", getCategoriesBreakdown);
 router.get("/monthly", getMonthlyTotalsOfOneYear);
 router.get("/dashboard", getDashboardStats);
 router.get("/trends", getSpendingTrends);
+router.get("/period", getPeriodStats);
 
 export default router;

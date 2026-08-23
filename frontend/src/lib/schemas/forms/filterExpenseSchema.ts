@@ -9,8 +9,8 @@ export const filterExpenseSchema = zod.object({
   startDate: zod.date().optional(),
   endDate: zod.date().optional(),
 
-  minAmount: zod.number().optional(),
-  maxAmount: zod.number().optional(),
+  minAmount: zod.string().optional(),
+  maxAmount: zod.string().optional(),
 });
 export type FilterExpenseFormDataType = zod.infer<typeof filterExpenseSchema>;
 

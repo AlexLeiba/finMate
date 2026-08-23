@@ -24,7 +24,7 @@ export enum ExpenseSort {
 export type ExpenseType = {
   _id: string;
   userId: string;
-  amount: number;
+  amount: string;
   category: ExpenseCategory;
   description: string;
   date: Date; //when the expense actually happened
@@ -40,8 +40,8 @@ export type ExpenseFiltersType = {
   startDate?: Date;
   endDate?: Date;
 
-  minAmount?: number;
-  maxAmount?: number;
+  minAmount?: string;
+  maxAmount?: string;
 };
 
 export type ExpenseFilterKeys = keyof ExpenseFiltersType;
@@ -70,5 +70,5 @@ export type ExpenseStateType = {
   deleteExpense: (id: string) => Promise<void>;
   updateExpense: (body: ExpenseFormDataType, id: string) => Promise<void>;
   getExpenseById: (id: string) => Promise<void>;
-  getAllExpenses: (filters: ExpenseFiltersType) => Promise<void>;
+  getAllExpenses: (filters?: ExpenseFiltersType) => Promise<void>;
 };

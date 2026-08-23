@@ -1,7 +1,7 @@
 import type { ExpenseType } from "@/lib/types/expense.types";
 
-import { DeleteExpense } from "../../shared/DeleteExpense/DeleteExpense";
-import { EditExpense } from "../../shared/EditExpense/EditExpense";
+import { DeleteExpense } from "./DeleteExpense/DeleteExpense";
+import { EditExpense } from "./EditExpense/EditExpense";
 
 export function HandleExpense({ expense }: { expense: ExpenseType }) {
   return (
