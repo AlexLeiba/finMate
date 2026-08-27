@@ -22,7 +22,14 @@ export function ActiveFilterChips({
         {value}
       </div>
       {title !== "category" && title !== "sort" && (
-        <button
+        <div
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleRemove?.();
+            }
+          }}
           aria-label="Remove filter"
           onClick={(e) => {
             e.stopPropagation();
@@ -31,7 +38,7 @@ export function ActiveFilterChips({
           className="opacity-30 bg-black p-1 hover:opacity-100 rounded-full cursor-pointer absolute -right-2 -top-2"
         >
           <X className="size-3 text-white" />
-        </button>
+        </div>
       )}
     </div>
   );

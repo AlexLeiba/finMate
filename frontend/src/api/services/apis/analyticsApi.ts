@@ -11,13 +11,12 @@ import {
   type SendingTrendsType,
   spendingTrendsSchema,
   spendingByCategoryTimePeriodSchema,
-} from "@/lib/schemas/apis/dashboardSchema";
+} from "@/lib/schemas/apis/analyticsSchema";
 
-async function getDashboardStats(query?: { startDate?: string; endDate?: string }) {
-  const queryString = new URLSearchParams(query as string).toString();
+async function getDashboardStats() {
   try {
     const response = await axiosInstance.get<ApiResponse<DashboardStatsType>>(
-      `${DASHBOARD_ENDPOINTS.getStats}?${queryString}`
+      `${DASHBOARD_ENDPOINTS.getStats}`
     );
 
     const parsed = dashboardStatsSchema.safeParse(response?.data);
@@ -73,8 +72,7 @@ async function getMonthlyTotalsOfOneYear(query: { year?: string; month?: string 
   }
 }
 
-// GET TRENDS OVER THE LAST 6 MONTHS
-async function getSpendingTrends(query: { timePeriodInMonths?: number }) {
+async function getSpendingTrendsTimePeriod(query: { timePeriodInMonths?: number }) {
   const queryString = new URLSearchParams(query as string).toString();
   try {
     const response = await axiosInstance.get<ApiResponse<SendingTrendsType>>(
@@ -117,6 +115,6 @@ export {
   getDashboardStats,
   getCategoriesBreakdown,
   getMonthlyTotalsOfOneYear,
-  getSpendingTrends,
+  getSpendingTrendsTimePeriod,
   getSpendingByCategoryTimePeriod,
 };

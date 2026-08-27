@@ -5,15 +5,7 @@ import { parseStartAndEndOfMonth } from "@/lib/utils/parseStartAndEndOfMonth";
 import { useExpenseStore } from "@/store/useExpensesStore";
 import { useNavigate } from "@tanstack/react-router";
 
-import {
-  CartesianGrid,
-  createHorizontalChart,
-  Legend,
-  Line,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { CartesianGrid, createHorizontalChart, Line, Tooltip, XAxis, YAxis } from "recharts";
 import { useShallow } from "zustand/react/shallow";
 
 const Typed = createHorizontalChart<any, string, number>()({ XAxis, YAxis, Tooltip, Line });
@@ -44,9 +36,6 @@ function LineChart({ data }: { data: SendingTrendsType["data"] }) {
   }
   return (
     <Typed.LineChart
-      onClick={(e) => {
-        console.log("🚀 ~ LineChart ~ e:\n\n\n", e);
-      }}
       style={{ width: "100%", maxWidth: "700px", maxHeight: "70vh", aspectRatio: 1.618 }}
       responsive
       data={data}
@@ -69,10 +58,8 @@ function LineChart({ data }: { data: SendingTrendsType["data"] }) {
         }}
       />
       <Typed.YAxis yAxisId="left" width="auto" />
-      <Typed.YAxis yAxisId="right" orientation="right" width="auto" />
+      <Typed.YAxis yAxisId="right" width="auto" />
       <Tooltip content={<CustomTooltip />} />
-
-      <Legend />
 
       <Typed.Line
         dot={({ cx, cy, payload }) => {
@@ -113,7 +100,46 @@ function LineChart({ data }: { data: SendingTrendsType["data"] }) {
         // activeDot={{ r: 8 }}
         stroke="#FF0000"
       />
-      <Typed.Line yAxisId="right" type="monotone" dataKey="count" stroke="#00FF00" />
+      <Typed.Line
+        dot={({ cx, cy, payload }) => {
+          return (
+            <circle
+              className="cursor-pointer"
+              cx={cx}
+              cy={cy}
+              r={4}
+              fill={payload.color}
+              stroke={payload.color}
+              strokeWidth={2}
+              onClick={() => {
+                handleLinechartClick(payload);
+              }}
+            />
+          );
+        }}
+        activeDot={({ cx, cy, payload }) => {
+          return (
+            <circle
+              className="cursor-pointer"
+              cx={cx}
+              cy={cy}
+              r={12}
+              fill={payload.color}
+              stroke={payload.color}
+              strokeWidth={2}
+              onClick={() => {
+                handleLinechartClick(payload);
+              }}
+            />
+          );
+        }}
+        yAxisId="right"
+        type="monotone"
+        dataKey="count"
+        // activeDot={{ r: 8 }}
+        stroke="#00FF00"
+      />
+      {/* <Typed.Line yAxisId="right" type="monotone" dataKey="count" /> */}
     </Typed.LineChart>
   );
 }
@@ -123,5 +149,19 @@ export function LineChartCategoriesBreakdown({
 }: {
   spendingTrends: SendingTrendsType["data"];
 }) {
-  return <LineChart data={spendingTrends} />;
+  return (
+    <div>
+      <LineChart data={spendingTrends} />
+
+      <div className="flex gap-1 items-center">
+        <div className="p-2 rounded-full bg-red-600" />
+        <p>Number of expenses</p>
+      </div>
+
+      <div className="flex gap-1 items-center">
+        <div className="p-2 rounded-full bg-green-600" />
+        <p>Total cost</p>
+      </div>
+    </div>
+  );
 }

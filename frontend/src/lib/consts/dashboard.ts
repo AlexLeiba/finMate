@@ -1,4 +1,4 @@
-export type CategoryTimePeriod = { label: string; value: number };
+type CategoryTimePeriod = { label: string; value: number };
 const CATEGORY_TIME_PERIOD: CategoryTimePeriod[] = [
   {
     label: "Last 7 days",
@@ -29,5 +29,50 @@ const CATEGORY_TIME_PERIOD: CategoryTimePeriod[] = [
     value: 99999,
   },
 ] as const;
+type TrendTimePeriod = { label: string; value: number };
+const TREND_TIME_PERIOD: TrendTimePeriod[] = [
+  {
+    label: "Last 6 months",
+    value: 6,
+  },
+  {
+    label: "Last month",
+    value: 1,
+  },
+  {
+    label: "Last 2 months",
+    value: 2,
+  },
+  {
+    label: "Last 3 months",
+    value: 3,
+  },
 
-export { CATEGORY_TIME_PERIOD };
+  {
+    label: "Last year",
+    value: 12,
+  },
+  {
+    label: "Last 2 years",
+    value: 24,
+  },
+  {
+    label: "All Time",
+    value: 99999,
+  },
+] as const;
+
+const TIME_PERIOD_IN_DAYS_DEFAULT = 7;
+const TIME_PERIOD_IN_MONTHS_DEFAULT = 6;
+
+const MAX_PERIOD_IN_DAYS = 730;
+
+export {
+  CATEGORY_TIME_PERIOD,
+  TIME_PERIOD_IN_DAYS_DEFAULT,
+  MAX_PERIOD_IN_DAYS,
+  TIME_PERIOD_IN_MONTHS_DEFAULT,
+  TREND_TIME_PERIOD,
+  type CategoryTimePeriod,
+  type TrendTimePeriod,
+};

@@ -6,11 +6,12 @@ import { PreviewProfileSettings } from "@/components/Profile/PreviewProfile";
 import { lazy, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Spacer } from "@/components/ui/spacer";
+import { UploadCsv } from "@/components/Profile/UploadCsv/UploadCsv";
 
 const ProfileForm = lazy(() =>
   import("@/components/Profile/ProfileForm").then((module) => ({
     default: module.ProfileForm,
-  })),
+  }))
 );
 
 function ProfilePage() {
@@ -21,17 +22,12 @@ function ProfilePage() {
       <Spacer size={4} />
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-8 p-4 border items-center ">
-          <Avatar />
-
           {editProfile ? (
             <ProfileForm onCloseEditProfile={() => setEditProfile(false)} />
           ) : (
             <>
               <PreviewProfileSettings />
-              <Button
-                className="self-stretch"
-                onClick={() => setEditProfile(!editProfile)}
-              >
+              <Button className="self-stretch" onClick={() => setEditProfile(!editProfile)}>
                 Edit
               </Button>
             </>
@@ -40,6 +36,7 @@ function ProfilePage() {
 
         <div className="p-4 border flex flex-col justify-between">
           <DownloadCsv />
+          <UploadCsv />
 
           <DeleteAccount />
         </div>

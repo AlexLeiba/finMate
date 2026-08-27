@@ -1,5 +1,10 @@
 import { apiFactory } from "@/api/services/apiFactory";
-import { CATEGORY_TIME_PERIOD, type CategoryTimePeriod } from "@/lib/consts/dashboard";
+import {
+  CATEGORY_TIME_PERIOD,
+  TREND_TIME_PERIOD,
+  type CategoryTimePeriod,
+  type TrendTimePeriod,
+} from "@/lib/consts/dashboard";
 import type {
   DashboardStatsType,
   ExpensesByCategoriesType,
@@ -16,13 +21,15 @@ type DashboardStateType = {
   monthlyTotals: MonthlyTotalsType["data"];
   spendingTrends: SendingTrendsType["data"];
   spendingByCategoryTimePeriod: SpendingByCategoryTimePeriodType["data"] | null;
-  periodStats: CategoryTimePeriod | null;
+  selectedCategoriesBreakdownPeriod: CategoryTimePeriod | null;
+  selectedTrendPeriod: CategoryTimePeriod | null;
   getSpendingByCategoryTimePeriod: (query: { timePeriodInDays: number }) => Promise<void>;
-  getDashboardStats: () => Promise<void>;
+  getDashboardStats: (query?: { startDate?: string; endDate?: string }) => Promise<void>;
   getCategoriesBreakdown: (query?: { timePeriodInDays: number }) => Promise<void>;
   getMonthlyTotalsOfOneYear: (query: { year?: string; month?: string }) => Promise<void>;
-  getSpendingTrends: () => Promise<void>;
-  setPeriodStats: (periodStats: CategoryTimePeriod) => void;
+  getSpendingTrends: (query: { timePeriodInMonths: number }) => Promise<void>;
+  setSelectedCategoriesBreakdownPeriod: (periodStats: CategoryTimePeriod) => void;
+  setSelectedTrendPeriod: (selectedTrendPeriod: TrendTimePeriod) => void;
 
   isLoading: boolean;
   error: string | null;
@@ -36,16 +43,21 @@ export const useDashboardStore = create<DashboardStateType>((set) => ({
   isLoading: false,
   error: null,
   spendingByCategoryTimePeriod: null,
-  periodStats: CATEGORY_TIME_PERIOD[0],
-  setPeriodStats: (periodStats) => {
-    set({ periodStats: periodStats });
+  selectedCategoriesBreakdownPeriod: CATEGORY_TIME_PERIOD[0],
+  selectedTrendPeriod: TREND_TIME_PERIOD[0],
+
+  setSelectedTrendPeriod: (selectedTrendPeriod) => {
+    set({ selectedTrendPeriod: selectedTrendPeriod });
+  },
+  setSelectedCategoriesBreakdownPeriod: (periodStats) => {
+    set({ selectedCategoriesBreakdownPeriod: periodStats });
   },
 
   //   Apis
-  getDashboardStats: async () => {
+  getDashboardStats: async (query) => {
     set({ isLoading: true });
     try {
-      const response = await apiFactory().getDashboardStats();
+      const response = await apiFactory().getDashboardStats(query);
       set({ dashboardStats: response, error: null });
     } catch (error: unknown) {
       set({
@@ -105,10 +117,10 @@ export const useDashboardStore = create<DashboardStateType>((set) => ({
       set({ isLoading: false });
     }
   },
-  getSpendingTrends: async () => {
+  getSpendingTrends: async (query: { timePeriodInMonths: number }) => {
     set({ isLoading: true });
     try {
-      const response = await apiFactory().getSpendingTrends();
+      const response = await apiFactory().getSpendingTrends(query);
       set({ spendingTrends: response, error: null });
     } catch (error: unknown) {
       set({

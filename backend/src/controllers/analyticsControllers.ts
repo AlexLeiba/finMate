@@ -1,5 +1,7 @@
 import { DEFAULT_TIME_PERIOD_IN_DAYS, MAX_PERIOD_IN_DAYS } from "../config/dashboard";
+import { DEFAULT_VALIDATION_ERROR_MESSAGE } from "../consts/consts";
 import { Expense } from "../models/Expense";
+import { getAllDashboardStatsQuerySchema, timePeriodInMonthsSchema } from "../schemas/analytics";
 import type { DashboardStatsType, MonthlyTotalType } from "../types";
 import { getCurrentMonth } from "../utils/getCurrentMonth";
 import { getMonthString } from "../utils/getMonthString";
@@ -292,13 +294,39 @@ const getDashboardStats = asyncHandler(async function getDashboardStats(
     return;
   }
 
-  const totalExpenses = userExpenses.reduce((acc, expense) => {
+  //TODO filter expenses by time period year and month and day
+  const queryValidation = getAllDashboardStatsQuerySchema.safeParse(req.query);
+
+  if (!queryValidation.success) {
+    sendError(
+      res,
+      JSON.parse(queryValidation?.error?.message)[0].message || DEFAULT_VALIDATION_ERROR_MESSAGE,
+      400
+    );
+    return;
+  }
+
+  const { startDate, endDate } = queryValidation.data;
+
+  const filteredExpensesByDate = userExpenses.filter((expense) => {
+    const { date } = expense;
+    if (startDate && date.getTime() < startDate.getTime()) {
+      return false;
+    }
+    if (endDate && date.getTime() > endDate.getTime()) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const totalExpenses = filteredExpensesByDate.reduce((acc, expense) => {
     return acc + Number(expense.amount);
   }, 0);
 
-  const averageExpense = totalExpenses / userExpenses.length;
+  const averageExpense = totalExpenses / filteredExpensesByDate.length;
 
-  const highestAndLowestExpenses = userExpenses.reduce(
+  const highestAndLowestExpenses = filteredExpensesByDate.reduce(
     (acc, expense) => {
       if (!acc.lowestExpense && Number(expense.amount) > 0) {
         acc.lowestExpense = Number(expense.amount);
@@ -316,10 +344,10 @@ const getDashboardStats = asyncHandler(async function getDashboardStats(
     { highestExpense: 0, lowestExpense: 0 }
   );
 
-  const highestExpense = userExpenses.find(
+  const highestExpense = filteredExpensesByDate.find(
     (exp) => Number(exp.amount) === highestAndLowestExpenses.highestExpense
   );
-  const lowestExpense = userExpenses.find(
+  const lowestExpense = filteredExpensesByDate.find(
     (exp) => Number(exp.amount) === highestAndLowestExpenses.lowestExpense
   );
   if (!highestExpense || !lowestExpense) {
@@ -364,7 +392,7 @@ const getDashboardStats = asyncHandler(async function getDashboardStats(
     currentMonthTotal: Math.round(currentMonthTotal * 100) / 100,
     prevMonthTotal: Math.round(prevMonthTotal * 100) / 100,
     monthlyPercentageExpenseChange,
-    expenseCount: userExpenses.length,
+    expenseCount: filteredExpensesByDate.length,
   };
 
   sendSuccess(res, stats, "Dashboard statistics retrieved.", 200);
@@ -377,6 +405,11 @@ const getSpendingTrends = asyncHandler(async function getSpendingTrends(
 ) {
   const userId = req.userId;
 
+  if (!userId) {
+    sendError(res, "User not found", 404);
+    return;
+  }
+
   const userExpenses = (await Expense.find({ userId })) || [];
 
   if (userExpenses.length === 0) {
@@ -384,10 +417,22 @@ const getSpendingTrends = asyncHandler(async function getSpendingTrends(
     return;
   }
 
+  const timePeriodInMonthsValidation = timePeriodInMonthsSchema.safeParse(req.query);
+
+  if (!timePeriodInMonthsValidation.success) {
+    sendError(
+      res,
+      JSON.parse(timePeriodInMonthsValidation?.error?.message)[0].message ||
+        DEFAULT_VALIDATION_ERROR_MESSAGE,
+      400
+    );
+    return;
+  }
+
   const currentMonth = getCurrentMonth();
   const trends = [];
   // TODO make trends dynamic by any nr of months.
-  for (let i = 6; i >= 1; i--) {
+  for (let i = timePeriodInMonthsValidation.data.timePeriodInMonths; i >= 1; i--) {
     const month = new Date().setMonth(currentMonth - i);
 
     const monthString = getMonthString(new Date(month));
@@ -399,11 +444,13 @@ const getSpendingTrends = asyncHandler(async function getSpendingTrends(
     });
     const monthTotal = monthExpenses.reduce((acc, exp) => (acc += Number(exp.amount)), 0);
 
-    trends.push({
-      month: monthString,
-      total: Math.round(monthTotal * 100) / 100,
-      count: monthExpenses.length,
-    });
+    if (monthTotal > 0) {
+      trends.push({
+        month: monthString,
+        total: Math.round(monthTotal * 100) / 100,
+        count: monthExpenses.length,
+      });
+    }
   }
 
   sendSuccess(res, trends, "Spending trends retrieved.", 200);

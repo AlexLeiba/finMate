@@ -20,7 +20,7 @@ async function createExpense(body: ExpenseFormDataType) {
       : "Something went wrong, please try again or contact support";
   }
 }
-async function getAllExpenses(query: {
+async function getAllExpenses(query?: {
   category?: ExpenseCategory;
   sort?: ExpenseSort;
   page?: string;

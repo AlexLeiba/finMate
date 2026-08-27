@@ -1,12 +1,12 @@
 import { PieChartCategoriesBreakdown } from "@/components/Dashboard/CategoriesBreakdown/PieChartCategoriesBreakdown";
-import { SpendingPeriodByCategoryDropDown } from "@/components/Dashboard/CategoriesBreakdown/SpendingPeriodByCategoryDropDown";
-import { TIME_PERIOD_DEFAULT } from "@/lib/consts/categories";
+import { TIME_PERIOD_IN_DAYS_DEFAULT } from "@/lib/consts/dashboard";
 import { DEFAULT_CURRENCY } from "@/lib/consts/currency";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useDashboardStore } from "@/store/useDashboardStore";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useShallow } from "zustand/react/shallow";
+import { SpendingPeriodByCategoryDropDown } from "@/components/Dashboard/CategoriesBreakdown/SpendingPeriodByCategoryDropDown";
 
 export function SpendingByCategoryBreakdown() {
   const { isLoading, getSpendingByCategoryTimePeriod, spendingByCategoryTimePeriod } =
@@ -23,7 +23,7 @@ export function SpendingByCategoryBreakdown() {
 
   useEffect(() => {
     try {
-      getSpendingByCategoryTimePeriod({ timePeriodInDays: TIME_PERIOD_DEFAULT });
+      getSpendingByCategoryTimePeriod({ timePeriodInDays: TIME_PERIOD_IN_DAYS_DEFAULT });
     } catch (error) {
       console.log("🚀 ~ CategoriesBreakdown ~ error:", error);
       toast.error(error as string);

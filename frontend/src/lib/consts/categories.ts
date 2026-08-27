@@ -13,5 +13,3 @@ export const CATEGORIES: Record<ExpenseCategory, string> = {
   drinks: "🍵 Drinks",
   other: "other",
 };
-
-export const TIME_PERIOD_DEFAULT = 7;

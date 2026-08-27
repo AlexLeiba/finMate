@@ -23,5 +23,5 @@ export function useFetchDashboardStats() {
     }
   }, []);
 
-  return { isLoading, dashboardStats };
+  return { isLoading, dashboardStats, getDashboardStats };
 }

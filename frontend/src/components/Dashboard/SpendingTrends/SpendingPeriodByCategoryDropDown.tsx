@@ -8,20 +8,18 @@ import { ChevronDown } from "lucide-react";
 import { Button } from "../../ui/button";
 
 import { cn } from "@/lib/utils/tailwindUtils";
-import { CATEGORY_TIME_PERIOD } from "@/lib/consts/dashboard";
+import { TREND_TIME_PERIOD } from "@/lib/consts/dashboard";
 import { useDashboardStore } from "@/store/useDashboardStore";
 import { useShallow } from "zustand/react/shallow";
 
-export function SpendingPeriodByCategoryDropDown() {
-  const { getSpendingByCategoryTimePeriod, periodStats, setPeriodStats, getSpendingTrends } =
-    useDashboardStore(
-      useShallow((state) => ({
-        getSpendingByCategoryTimePeriod: state.getSpendingByCategoryTimePeriod,
-        getSpendingTrends: state.getSpendingTrends,
-        periodStats: state.selectedCategoriesBreakdownPeriod,
-        setPeriodStats: state.setSelectedCategoriesBreakdownPeriod,
-      }))
-    );
+export function SpendingTrendsPeriodByCategoryDropDown() {
+  const { selectedTrendPeriod, setSelectedTrendPeriod, getSpendingTrends } = useDashboardStore(
+    useShallow((state) => ({
+      getSpendingTrends: state.getSpendingTrends,
+      selectedTrendPeriod: state.selectedTrendPeriod,
+      setSelectedTrendPeriod: state.setSelectedTrendPeriod,
+    }))
+  );
 
   return (
     <DropdownMenu modal={false}>
@@ -33,19 +31,20 @@ export function SpendingPeriodByCategoryDropDown() {
             className="w-full justify-between"
             classNameChildren="flex items-center justify-between"
           >
-            {periodStats?.label}
+            {selectedTrendPeriod?.label}
             <ChevronDown className="ml-2 h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
       </div>
       <DropdownMenuContent className="w-56">
-        {CATEGORY_TIME_PERIOD.map((period) => (
+        {TREND_TIME_PERIOD.map((period) => (
           <DropdownMenuItem
-            className={cn(periodStats?.value === period.value && "bg-primary text-text-primary")}
+            className={cn(
+              selectedTrendPeriod?.value === period.value && "bg-primary text-text-primary"
+            )}
             key={period.value}
             onClick={() => {
-              setPeriodStats(period);
-              getSpendingByCategoryTimePeriod({ timePeriodInDays: period.value });
+              setSelectedTrendPeriod(period);
               getSpendingTrends({ timePeriodInMonths: period.value });
             }}
           >

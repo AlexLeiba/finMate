@@ -1,8 +1,7 @@
 import { CustomTooltip } from "@/components/Dashboard/CategoriesBreakdown/CustomTooltip";
 import { PieChartLegend } from "@/components/Dashboard/CategoriesBreakdown/PieChartLegend";
-import { CATEGORIES } from "@/lib/consts/categories";
+import { MAX_PERIOD_IN_DAYS } from "@/lib/consts/dashboard";
 import { COLORS } from "@/lib/consts/charts";
-import { CURRENCY_SYMBOLS, DEFAULT_CURRENCY } from "@/lib/consts/currency";
 import type { SpendingByCategoryTimePeriodType } from "@/lib/schemas/apis/dashboardSchema";
 import { ExpenseCategory } from "@/lib/types/expense.types";
 import { parseStartAndEndOfMonth } from "@/lib/utils/parseStartAndEndOfMonth";
@@ -91,7 +90,7 @@ export default function PieChartWithCustomizedLabel({
     })
   );
 
-  const periodStats = useDashboardStore((state) => state.periodStats);
+  const periodStats = useDashboardStore((state) => state.selectedCategoriesBreakdownPeriod);
 
   function handleSliceClick(
     payload: SpendingByCategoryTimePeriodType["data"]["categoriesBreakdownStats"][0]
@@ -100,7 +99,7 @@ export default function PieChartWithCustomizedLabel({
     setFilters({
       ...filters,
       category: payload?.category || ExpenseCategory.ALL,
-      ...(periodStats && periodStats?.value > 730
+      ...(periodStats && periodStats?.value > MAX_PERIOD_IN_DAYS
         ? null
         : { startDate: startOfMonth, endDate: new Date() }),
     });

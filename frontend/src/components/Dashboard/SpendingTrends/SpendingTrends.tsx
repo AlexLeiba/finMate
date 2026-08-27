@@ -1,4 +1,6 @@
 import { LineChartCategoriesBreakdown } from "@/components/Dashboard/CategoriesBreakdown/LineChartCategoriesBreakdown";
+import { SpendingTrendsPeriodByCategoryDropDown } from "@/components/Dashboard/SpendingTrends/SpendingPeriodByCategoryDropDown";
+import { TIME_PERIOD_IN_MONTHS_DEFAULT } from "@/lib/consts/dashboard";
 import { useDashboardStore } from "@/store/useDashboardStore";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
@@ -14,13 +16,11 @@ export function SpendingTrends() {
       };
     })
   );
-  console.log("🚀 ~ SpendingTrends ~ spendingTrends:", spendingTrends);
 
   useEffect(() => {
     try {
-      getSpendingTrends();
+      getSpendingTrends({ timePeriodInMonths: TIME_PERIOD_IN_MONTHS_DEFAULT });
     } catch (error) {
-      console.log("🚀 ~ CategoriesBreakdown ~ error:", error);
       toast.error(error as string);
     }
   }, []);
@@ -29,7 +29,10 @@ export function SpendingTrends() {
 
   return (
     <div className="px-4 py-2 border-border border rounded-md">
-      <h4>Spending Trend</h4>
+      <div className="flex justify-between items-center">
+        <h4>Spending Trend</h4>
+        <SpendingTrendsPeriodByCategoryDropDown />
+      </div>
 
       {!isLoading && spendingTrends?.length === 0 ? (
         <div>No expenses were found </div>
