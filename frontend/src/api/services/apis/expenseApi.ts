@@ -3,7 +3,10 @@ import { ENDPOINTS } from "../endpoints";
 import { arrayExpenseSchema, expenseSchema } from "@/lib/schemas/apis/expenseSchema";
 import type { ExpenseCategory, ExpenseSort, ExpenseType } from "@/lib/types/expense.types";
 import type { ApiErrorResponse, ApiResponse } from "@/lib/types/auth.types";
-import type { ExpenseFormDataType } from "@/lib/schemas/forms/expenseSchema";
+import type {
+  ExpenseFormDataType,
+  UploadNewExpensesFormDataType,
+} from "@/lib/schemas/forms/expenseSchema";
 
 async function createExpense(body: ExpenseFormDataType) {
   try {
@@ -13,6 +16,22 @@ async function createExpense(body: ExpenseFormDataType) {
     if (!parsed.success) throw new Error("Backend returned invalid expense shape");
 
     return parsed?.data?.data;
+  } catch (error: unknown) {
+    const err = error as ApiErrorResponse;
+    throw typeof err?.response?.data?.message === "string"
+      ? err?.response?.data?.message
+      : "Something went wrong, please try again or contact support";
+  }
+}
+async function createMultipleExpenses(body: UploadNewExpensesFormDataType) {
+  try {
+    await axiosInstance.post<ApiResponse<ExpenseType[]>>(ENDPOINTS.expensesMultiple, body);
+    // console.log("🚀 ~ createMultipleExpenses ~ response:", response)
+
+    // const parsed = expenseSchema.safeParse(response?.data);
+    // if (!parsed.success) throw new Error("Backend returned invalid expense shape");
+
+    // return parsed?.data?.data;
   } catch (error: unknown) {
     const err = error as ApiErrorResponse;
     throw typeof err?.response?.data?.message === "string"
@@ -98,4 +117,11 @@ async function deleteExpense(id: string) {
   }
 }
 
-export { createExpense, getAllExpenses, updateExpense, deleteExpense, getExpenseById };
+export {
+  createExpense,
+  getAllExpenses,
+  updateExpense,
+  deleteExpense,
+  getExpenseById,
+  createMultipleExpenses,
+};

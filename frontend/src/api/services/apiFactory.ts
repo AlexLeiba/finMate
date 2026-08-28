@@ -13,6 +13,7 @@ import {
   getAllExpenses,
   updateExpense,
   getExpenseById,
+  createMultipleExpenses,
 } from "./apis/expenseApi";
 import {
   getDashboardStats,
@@ -44,5 +45,6 @@ export function apiFactory() {
     getMonthlyTotalsOfOneYear,
     getSpendingTrends,
     getSpendingByCategoryTimePeriod,
+    createMultipleExpenses,
   };
 }

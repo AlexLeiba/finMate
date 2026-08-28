@@ -2,6 +2,7 @@ import { type Request, type Response } from "express";
 import { asyncHandler, sendError, sendSuccess } from "../utils/responseHelpers";
 import {
   createExpenseSchema,
+  createMultipleExpenseSchema,
   expenseIdSchema,
   getAllExpensesQuerySchema,
   updateExpenseSchema,
@@ -193,6 +194,49 @@ const createExpense = asyncHandler(async function createExpense(req: Request, re
   sendSuccess(res, createdExpense, "expenses created successfully", 201);
 });
 
+// CREATE MULTIPLE EXPENSES
+const createMultipleExpense = asyncHandler(async function createExpense(
+  req: Request,
+  res: Response
+) {
+  const userId = req.userId;
+  const expenses = req.body;
+
+  if (!expenses) {
+    sendError(res, "amount, category, description and date are required", 400);
+
+    return;
+  }
+
+  const validatedProvidedBody = createMultipleExpenseSchema.safeParse(expenses);
+  if (!validatedProvidedBody.success) {
+    sendError(
+      res,
+      JSON.parse(validatedProvidedBody?.error?.message)[0].message ||
+        DEFAULT_VALIDATION_ERROR_MESSAGE,
+      400
+    );
+    return;
+  }
+
+  try {
+    validatedProvidedBody.data.forEach(async (expense) => {
+      await Expense.create({
+        userId: userId,
+        amount: expense.amount,
+        category: expense.category,
+        description: expense.description,
+        date: expense.date || new Date(),
+      });
+    });
+
+    sendSuccess(res, {}, "expenses created successfully", 201);
+  } catch (error) {
+    console.log("🚀 ~ createMultipleExpense ~ error:", error);
+    sendError(res, "expenses could not be created", 400);
+  }
+});
+
 // UPDATE
 const updateExpense = asyncHandler(async function updateExpense(req: Request, res: Response) {
   const userId = req.userId;
@@ -292,6 +336,13 @@ const deleteExpense = asyncHandler(async function deleteExpense(req: Request, re
   sendSuccess(res, deletedExpense, "expense deleted successfully", 200);
 });
 
-export { getAllExpenses, getExpenseById, createExpense, updateExpense, deleteExpense };
+export {
+  getAllExpenses,
+  getExpenseById,
+  createExpense,
+  createMultipleExpense,
+  updateExpense,
+  deleteExpense,
+};
 
 // TODO add upload/download expenses as csv.

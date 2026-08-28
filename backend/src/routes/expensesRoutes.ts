@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createExpense,
+  createMultipleExpense,
   deleteExpense,
   getAllExpenses,
   getExpenseById,
@@ -21,6 +22,7 @@ router.get("/:id", getExpenseById);
 
 // CREATE NEW
 router.post("", createExpense);
+router.post("/multiple", createMultipleExpense);
 
 // UPDATE
 router.put("/:id", updateExpense);

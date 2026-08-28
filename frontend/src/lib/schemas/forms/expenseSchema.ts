@@ -9,3 +9,26 @@ export const expenseFormSchema = zod.object({
 });
 
 export type ExpenseFormDataType = zod.infer<typeof expenseFormSchema>;
+
+export const uploadNewExpensesFormSchema = zod.array(
+  zod
+    .object({
+      description: zod.string().min(1),
+      date: zod.coerce.date(),
+      category: zod.enum(ExpenseCategory),
+      amount: zod.coerce.number().min(1),
+    })
+    .refine(
+      (state) => {
+        if (state.date) {
+          console.log("🚀 ~ state.date:", state.date);
+          const date = new Date(state.date);
+          return !isNaN(date.getTime()) || date.toString() !== "Invalid Date";
+        }
+        return true;
+      },
+      { message: "Invalid date jora" }
+    )
+);
+
+export type UploadNewExpensesFormDataType = zod.infer<typeof uploadNewExpensesFormSchema>;

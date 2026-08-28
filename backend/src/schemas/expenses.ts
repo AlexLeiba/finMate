@@ -7,6 +7,14 @@ export const createExpenseSchema = zod.object({
   description: zod.string().trim().min(3, "Description must be at least 3 character").max(200),
   date: zod.coerce.date().optional(),
 });
+export const createMultipleExpenseSchema = zod.array(
+  zod.object({
+    amount: zod.coerce.string().min(0.01, "Amount must be greater than 0").max(10000000000),
+    category: zod.enum(ExpenseCategory),
+    description: zod.string().trim().min(3, "Description must be at least 3 character").max(200),
+    date: zod.coerce.date().optional(),
+  })
+);
 
 export const updateExpenseSchema = zod.object({
   amount: zod.coerce.string().min(0.01, "Amount must be greater than 0").optional(),

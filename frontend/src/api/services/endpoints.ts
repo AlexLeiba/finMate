@@ -14,6 +14,7 @@ export const ENDPOINTS = {
   budgets: "budgets",
   dashboard: "dashboard",
   expenses: "expenses",
+  expensesMultiple: "expenses/multiple",
   profile: "profile",
 } as const;
 
