@@ -25,7 +25,7 @@ export function DownloadCsv() {
         classNameChildren="flex items-center gap-1"
         className="self-start"
       >
-        <Download /> Export data
+        <Download /> Download csv file
       </Button>
     </section>
   );

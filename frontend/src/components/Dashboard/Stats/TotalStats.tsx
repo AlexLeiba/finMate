@@ -9,6 +9,7 @@ import { DatePicker } from "@/components/Dashboard/SpendingTrends/DatePicker";
 import { toast } from "react-toastify";
 import { useStatsStore } from "@/store/useStatsStore";
 import { Separator } from "@/components/ui/separator";
+import { CURRENCY_SYMBOLS } from "@/lib/consts/currency";
 
 export function TotalStats({ currency }: { currency: string }) {
   const [datePeriod, setDatePeriod] = useState<{ startDate: Date; endDate: Date }>({
@@ -90,52 +91,53 @@ export function TotalStats({ currency }: { currency: string }) {
   return (
     <>
       <section>
-        <div className="flex justify-end">
-          <div className="flex gap-2">
-            <DatePicker
-              value={datePeriod.startDate}
-              disabled={isLoading}
-              onChange={(date) => handleFilterbyDate(date, "startDate")}
-              label="From"
+        <div className="p-2 border rounded-md flex flex-col gap-2">
+          <div className="flex justify-end">
+            <div className="flex gap-2">
+              <DatePicker
+                value={datePeriod.startDate}
+                disabled={isLoading}
+                onChange={(date) => handleFilterbyDate(date, "startDate")}
+                label="From"
+              />
+              <DatePicker
+                value={datePeriod.endDate}
+                disabled={isLoading}
+                onChange={(date) => handleFilterbyDate(date, "endDate")}
+                label="to"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2 w-full">
+            <StatCard
+              icon={<TrendingDown size={18} />}
+              title="Number of Expenses"
+              value={`${dashboardStats?.expenseCount || 0}`}
             />
-            <DatePicker
-              value={datePeriod.endDate}
-              disabled={isLoading}
-              onChange={(date) => handleFilterbyDate(date, "endDate")}
-              label="to"
+            <StatCard
+              icon={<DollarSign size={18} />}
+              title="Total Expenses"
+              value={`${CURRENCY_SYMBOLS[currency]} ${dashboardStats?.totalExpenses || 0} `}
+            />
+            <StatCard
+              icon={<ChartNoAxesColumn size={18} />}
+              title="Average Expense"
+              value={`${CURRENCY_SYMBOLS[currency]} ${dashboardStats?.averageExpense || 0} `}
+            />
+            <StatCard
+              onClick={() => handleFilterbyMonth("lowest")}
+              icon={<CalendarArrowDown size={18} />}
+              title="Lowest Expense"
+              value={`${CURRENCY_SYMBOLS[currency]} ${dashboardStats?.lowestExpense?.amount || 0} `}
+            />
+            <StatCard
+              onClick={() => handleFilterbyMonth("highest")}
+              icon={<CalendarArrowDown size={18} />}
+              title="Highest Expense"
+              value={`${CURRENCY_SYMBOLS[currency]} ${dashboardStats?.highestExpense?.amount || 0} `}
             />
           </div>
         </div>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2 w-full">
-          <StatCard
-            icon={<TrendingDown size={18} />}
-            title="Number of Expenses"
-            value={`${dashboardStats?.expenseCount || 0}`}
-          />
-          <StatCard
-            icon={<DollarSign size={18} />}
-            title="Total Expenses"
-            value={`${dashboardStats?.totalExpenses || 0} ${currency}`}
-          />
-          <StatCard
-            icon={<ChartNoAxesColumn size={18} />}
-            title="Average Expense"
-            value={`${dashboardStats?.averageExpense || 0} ${currency}`}
-          />
-          <StatCard
-            onClick={() => handleFilterbyMonth("lowest")}
-            icon={<CalendarArrowDown size={18} />}
-            title="Lowest Expense"
-            value={`${dashboardStats?.lowestExpense?.amount || 0} ${currency}`}
-          />
-          <StatCard
-            onClick={() => handleFilterbyMonth("highest")}
-            icon={<CalendarArrowDown size={18} />}
-            title="Highest Expense"
-            value={`${dashboardStats?.highestExpense?.amount || 0} ${currency}`}
-          />
-        </div>
-
         <Separator className="w-full h-2 my-6" />
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(270px,1fr))] gap-2 w-full">
@@ -143,13 +145,13 @@ export function TotalStats({ currency }: { currency: string }) {
             onClick={() => handleFilterbyMonth("thisMonth")}
             icon={<CalendarArrowDown size={18} />}
             title="This Month"
-            value={`${dashboardStats?.currentMonthTotal || 0} ${currency}`}
+            value={`${CURRENCY_SYMBOLS[currency]} ${dashboardStats?.currentMonthTotal || 0} `}
           />
           <StatCard
             onClick={() => handleFilterbyMonth("prevMonth")}
             icon={<CalendarArrowDown size={18} />}
             title="Previous Month"
-            value={`${dashboardStats?.prevMonthTotal || 0} ${currency}`}
+            value={`${CURRENCY_SYMBOLS[currency]} ${dashboardStats?.prevMonthTotal || 0} `}
           />
           <StatCard
             icon={<CalendarArrowDown size={18} />}

@@ -41,6 +41,7 @@ const uploadNewExpensesSchemaOptional = z
 export function GenerateExpensesModal() {
   const [expenses, setExpenses] = useState<any[][]>([[]]);
   const [headers, setHeaders] = useState<string[]>([]);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const ref = useRef<HTMLInputElement>(null);
   function handleUpload() {
@@ -82,17 +83,16 @@ export function GenerateExpensesModal() {
     // validate vlues before saving;
 
     const validatedValues = uploadNewExpensesSchemaOptional.safeParse({ [key]: value });
-    console.log("🚀 ~ handleSelectValue ~ validatedValues:>>>>>>>>", validatedValues);
 
     if (!validatedValues.success) {
       const errorMessage = JSON.parse(validatedValues.error.message)?.[0]?.message;
       setErrors((prev) => ({ ...prev, [cardId]: { ...prev[cardId], [key]: errorMessage } }));
     }
-    setSelectedValues((prev) => ({ ...prev, [cardId]: { ...prev[cardId], [key]: value } }));
 
     if (validatedValues.success) {
       setErrors((prev) => ({ ...prev, [cardId]: { ...prev[cardId], [key]: "" } }));
     }
+    setSelectedValues((prev) => ({ ...prev, [cardId]: { ...prev[cardId], [key]: value } }));
   }
 
   function handleSetDefaultDate(cardId: number, key: string) {
@@ -107,10 +107,8 @@ export function GenerateExpensesModal() {
 
   async function handleSubmit() {
     const parsedExpenses = Object.values(selectedValues);
-    console.log("🚀 ~ handleSubmit ~ parsedExpenses:", parsedExpenses);
 
     const validatedResult = uploadNewExpensesFormSchema.safeParse(parsedExpenses);
-    console.log("🚀 ~ handleSubmit ~ validatedResult:>>>>>>>>", validatedResult);
 
     if (!validatedResult.success) {
       const errorMessage = JSON.parse(validatedResult.error.message)?.[0]?.message;
@@ -118,30 +116,26 @@ export function GenerateExpensesModal() {
       return;
     }
     try {
-      const response = await apiFactory().createMultipleExpenses(validatedResult.data);
-      console.log("🚀 ~ handleSubmit ~ response:", response);
-      toast.success("Expenses created successfully");
+      await apiFactory().createMultipleExpenses(validatedResult.data);
+      toast.success("Expenses was uploaded successfully");
+      setOpenDialog(false);
     } catch (error: unknown) {
       toast.error(error as string);
     }
-    // whould collect an array of each obj, on submit I would validate all of them again before saving it.
-    // validate also on select
-    // take a list of expenses
-    // on backend map through and create expenses
   }
 
   useEffect(() => {
-    return () => {
+    if (!openDialog) {
       setHeaders([]);
       setExpenses([]);
       setSelectedValues({});
       setErrors({});
-    };
-  }, []);
+    }
+  }, [openDialog]);
   return (
     <>
       <input ref={ref} type="file" className="hidden" onChange={(e) => handleUploadChange(e)} />
-      <Dialog>
+      <Dialog onOpenChange={setOpenDialog} open={openDialog}>
         <DialogTrigger asChild>
           <Button
             onClick={handleUpload}
@@ -149,121 +143,129 @@ export function GenerateExpensesModal() {
             classNameChildren="flex items-center gap-1"
             className="self-start"
           >
-            <Download /> Upload data
+            <Download /> Upload csv file
           </Button>
         </DialogTrigger>
 
         <DialogContent className="lg:max-w-800 overflow-y-auto  h-full">
           <div className="flex justify-between">
             <h4 className="text-lg font-semibold">Upload new expenses</h4>
-            <Button variant="secondary" onClick={handleSubmit} className="mr-8">
-              Save expenses
+            <Button variant="accent" onClick={handleSubmit} className="mr-8">
+              Save new expenses
             </Button>
           </div>
           <Suspense fallback={<SkeletonForm className="lg:h-98.5" />}>
             {/* <GenerateExpenseForm /> */}
             {/* TODO: for category dropdown: will provide my list of categories */}
             {/* TODO: for date: will check type of date, otherwise will add current date */}
+            {expenses?.length === 0 && (
+              <Button
+                onClick={handleUpload}
+                variant="accent"
+                classNameChildren="flex items-center gap-1"
+                className="self-start"
+              >
+                <Download /> Upload csv file
+              </Button>
+            )}
 
-            <div className="flex flex-col gap-2">
-              <div className="grid grid-cols-2 gap-2">
-                {expenses?.slice(1).map((rows, indexExpense) => {
-                  return (
-                    <div
-                      className="flex flex-col gap-4 border rounded-md px-4 py-2 overflow-y-hidden overflow-x-auto"
-                      key={expenses[0][indexExpense] + indexExpense}
-                    >
-                      <p>{indexExpense + 1}:</p>
-                      {rows?.map((value, indexDropdown) => {
-                        const errorMessage = errors[indexExpense + 1]?.[headers[indexDropdown]];
-                        const selectedValue =
-                          selectedValues?.[indexExpense + 1]?.[headers?.[indexDropdown]];
-                        if (EXCLUDED_KEYS.includes(headers[indexDropdown])) return null;
-                        return (
-                          <div className="flex flex-col ">
-                            <div className="flex items-center gap-1 " key={value + indexDropdown}>
-                              <p>
-                                {headers[indexDropdown]?.substring(0, 1).toUpperCase() +
-                                  headers[indexDropdown]?.substring(1)}
-                                :
-                              </p>
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-2">
+              {expenses?.slice(1).map((rows, indexExpense) => {
+                return (
+                  <div
+                    className="flex flex-col gap-4 border rounded-md px-4 py-2 overflow-y-hidden overflow-x-auto"
+                    key={expenses[0][indexExpense] + indexExpense}
+                  >
+                    <p>{indexExpense + 1}:</p>
+                    {rows?.map((value, indexDropdown) => {
+                      const errorMessage = errors[indexExpense + 1]?.[headers[indexDropdown]];
+                      const selectedValue =
+                        selectedValues?.[indexExpense + 1]?.[headers?.[indexDropdown]];
+                      if (EXCLUDED_KEYS.includes(headers[indexDropdown])) return null;
+                      return (
+                        <div className="flex flex-col ">
+                          <div className="flex items-center gap-1 " key={value + indexDropdown}>
+                            <p>
+                              {headers[indexDropdown]?.substring(0, 1).toUpperCase() +
+                                headers[indexDropdown]?.substring(1)}
+                              :
+                            </p>
 
-                              <DropdownMenu modal={false}>
-                                <div className="flex flex-col gap-1">
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      // disabled={disabled}
-                                      variant={
-                                        selectedValue && !errorMessage ? "secondary" : "outline"
-                                      }
-                                      className="w-full justify-between"
-                                      classNameChildren="flex items-center justify-between"
-                                    >
-                                      {selectedValue || "Select a value"}
-                                      <ChevronDown className="ml-2 h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                </div>
-                                <DropdownMenuContent className="w-56 flex flex-col gap-1">
-                                  {headers[indexDropdown] === "category"
-                                    ? Object.values(ExpenseCategory).map((category) => (
-                                        <DropdownMenuItem
-                                          className={cn(
-                                            value === category && "bg-primary text-text-primary"
-                                          )}
-                                          key={category}
-                                          onClick={() => {
-                                            handleSelectValue(
-                                              indexExpense + 1,
-                                              headers[indexDropdown],
-                                              category
-                                            );
-                                          }}
-                                        >
-                                          {CATEGORIES[category as ExpenseCategory]}
-                                        </DropdownMenuItem>
-                                      ))
-                                    : rows?.map((value, indexItem) => (
-                                        <DropdownMenuItem
-                                          className={cn(
-                                            value === selectedValue ? "bg-primary" : "bg-popover",
-                                            "text-text-primary"
-                                          )}
-                                          key={value + indexItem}
-                                          onClick={() =>
-                                            handleSelectValue(
-                                              indexExpense + 1,
-                                              headers[indexDropdown],
-                                              value
-                                            )
-                                          }
-                                        >
-                                          {value}
-                                        </DropdownMenuItem>
-                                      ))}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                            <DropdownMenu modal={false}>
+                              <div className="flex flex-col gap-1">
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    // disabled={disabled}
+                                    variant={
+                                      selectedValue && !errorMessage ? "secondary" : "outline"
+                                    }
+                                    className="w-full justify-between"
+                                    classNameChildren="flex items-center justify-between"
+                                  >
+                                    {selectedValue || "Select a value"}
+                                    <ChevronDown className="ml-2 h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                              </div>
+                              <DropdownMenuContent className="w-56 flex flex-col gap-1">
+                                {headers[indexDropdown] === "category"
+                                  ? Object.values(ExpenseCategory).map((category) => (
+                                      <DropdownMenuItem
+                                        className={cn(
+                                          value === category && "bg-primary text-text-primary"
+                                        )}
+                                        key={category}
+                                        onClick={() => {
+                                          handleSelectValue(
+                                            indexExpense + 1,
+                                            headers[indexDropdown],
+                                            category
+                                          );
+                                        }}
+                                      >
+                                        {CATEGORIES[category as ExpenseCategory]}
+                                      </DropdownMenuItem>
+                                    ))
+                                  : rows?.map((value, indexItem) => (
+                                      <DropdownMenuItem
+                                        className={cn(
+                                          value === selectedValue ? "bg-primary" : "bg-popover",
+                                          "text-text-primary"
+                                        )}
+                                        key={value + indexItem}
+                                        onClick={() =>
+                                          handleSelectValue(
+                                            indexExpense + 1,
+                                            headers[indexDropdown],
+                                            value
+                                          )
+                                        }
+                                      >
+                                        {value}
+                                      </DropdownMenuItem>
+                                    ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
 
-                              {headers[indexDropdown] === "date" && (
-                                <Button
-                                  variant="primary"
-                                  onClick={() => handleSetDefaultDate(indexExpense + 1, "date")}
-                                >
-                                  Today
-                                </Button>
-                              )}
+                            {headers[indexDropdown] === "date" && (
+                              <Button
+                                variant="primary"
+                                onClick={() => handleSetDefaultDate(indexExpense + 1, "date")}
+                              >
+                                Today
+                              </Button>
+                            )}
 
-                              {/* {errors[indexExpense + 1] && ( */}
-                              {/* )} */}
-                            </div>
-                            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+                            {/* {errors[indexExpense + 1] && ( */}
+                            {/* )} */}
                           </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
+                          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
           </Suspense>
         </DialogContent>
