@@ -1,25 +1,27 @@
+import { SkeletonForm } from "@/components/shared/SkeletonForm";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useBudgetsStore } from "@/store/useBudgetsStore";
 import { lazy, Suspense } from "react";
-import { SkeletonForm } from "../SkeletonForm";
 
-const CreateNewExpenseForm = lazy(() =>
-  import("./CreateNewExpenseForm").then((module) => ({
-    default: module.CreateNewExpenseForm,
+const CreateNewBudgetForm = lazy(() =>
+  import("./CreateNewBudgetForm").then((module) => ({
+    default: module.CreateNewBudgetForm,
   }))
 );
 
-export function CreateNewExpenseDialog() {
+export function CreateNewBudgetDialog() {
+  const budgetType = useBudgetsStore((state) => state.budgetType);
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Add new expense</Button>
+        <Button variant="accent">Add new {budgetType}</Button>
       </DialogTrigger>
 
       <DialogContent className="lg:max-w-200 overflow-y-auto lg:h-auto h-full">
         <h4 className="text-lg font-semibold">Add new expense</h4>
         <Suspense fallback={<SkeletonForm className="lg:h-98.5" />}>
-          <CreateNewExpenseForm />
+          <CreateNewBudgetForm />
         </Suspense>
       </DialogContent>
     </Dialog>

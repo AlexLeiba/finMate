@@ -18,8 +18,9 @@ import { Route as publicPublicForgotPasswordRouteImport } from './routes/(public
 import { Route as appProtectedProfileRouteImport } from './routes/(app)/_protected/profile'
 import { Route as appProtectedExpensesRouteImport } from './routes/(app)/_protected/expenses'
 import { Route as appProtectedDashboardRouteImport } from './routes/(app)/_protected/dashboard'
-import { Route as appProtectedBudgetsRouteImport } from './routes/(app)/_protected/budgets'
 import { Route as appProtectedAnalyticsRouteImport } from './routes/(app)/_protected/analytics'
+import { Route as appProtectedBudgetsIndexRouteImport } from './routes/(app)/_protected/budgets/index'
+import { Route as appProtectedBudgetsBudgetIdRouteImport } from './routes/(app)/_protected/budgets/$budgetId'
 
 const publicPublicRoute = publicPublicRouteImport.update({
   id: '/(public)/_public',
@@ -65,20 +66,26 @@ const appProtectedDashboardRoute = appProtectedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => appProtectedRoute,
 } as any)
-const appProtectedBudgetsRoute = appProtectedBudgetsRouteImport.update({
-  id: '/budgets',
-  path: '/budgets',
-  getParentRoute: () => appProtectedRoute,
-} as any)
 const appProtectedAnalyticsRoute = appProtectedAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
   getParentRoute: () => appProtectedRoute,
 } as any)
+const appProtectedBudgetsIndexRoute =
+  appProtectedBudgetsIndexRouteImport.update({
+    id: '/budgets/',
+    path: '/budgets/',
+    getParentRoute: () => appProtectedRoute,
+  } as any)
+const appProtectedBudgetsBudgetIdRoute =
+  appProtectedBudgetsBudgetIdRouteImport.update({
+    id: '/budgets/$budgetId',
+    path: '/budgets/$budgetId',
+    getParentRoute: () => appProtectedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/analytics': typeof appProtectedAnalyticsRoute
-  '/budgets': typeof appProtectedBudgetsRoute
   '/dashboard': typeof appProtectedDashboardRoute
   '/expenses': typeof appProtectedExpensesRoute
   '/profile': typeof appProtectedProfileRoute
@@ -86,10 +93,11 @@ export interface FileRoutesByFullPath {
   '/signin': typeof publicPublicSigninRoute
   '/signup': typeof publicPublicSignupRoute
   '/': typeof publicPublicIndexRoute
+  '/budgets/$budgetId': typeof appProtectedBudgetsBudgetIdRoute
+  '/budgets/': typeof appProtectedBudgetsIndexRoute
 }
 export interface FileRoutesByTo {
   '/analytics': typeof appProtectedAnalyticsRoute
-  '/budgets': typeof appProtectedBudgetsRoute
   '/dashboard': typeof appProtectedDashboardRoute
   '/expenses': typeof appProtectedExpensesRoute
   '/profile': typeof appProtectedProfileRoute
@@ -97,13 +105,14 @@ export interface FileRoutesByTo {
   '/signin': typeof publicPublicSigninRoute
   '/signup': typeof publicPublicSignupRoute
   '/': typeof publicPublicIndexRoute
+  '/budgets/$budgetId': typeof appProtectedBudgetsBudgetIdRoute
+  '/budgets': typeof appProtectedBudgetsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(app)/_protected': typeof appProtectedRouteWithChildren
   '/(public)/_public': typeof publicPublicRouteWithChildren
   '/(app)/_protected/analytics': typeof appProtectedAnalyticsRoute
-  '/(app)/_protected/budgets': typeof appProtectedBudgetsRoute
   '/(app)/_protected/dashboard': typeof appProtectedDashboardRoute
   '/(app)/_protected/expenses': typeof appProtectedExpensesRoute
   '/(app)/_protected/profile': typeof appProtectedProfileRoute
@@ -111,12 +120,13 @@ export interface FileRoutesById {
   '/(public)/_public/signin': typeof publicPublicSigninRoute
   '/(public)/_public/signup': typeof publicPublicSignupRoute
   '/(public)/_public/': typeof publicPublicIndexRoute
+  '/(app)/_protected/budgets/$budgetId': typeof appProtectedBudgetsBudgetIdRoute
+  '/(app)/_protected/budgets/': typeof appProtectedBudgetsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/analytics'
-    | '/budgets'
     | '/dashboard'
     | '/expenses'
     | '/profile'
@@ -124,10 +134,11 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signup'
     | '/'
+    | '/budgets/$budgetId'
+    | '/budgets/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/analytics'
-    | '/budgets'
     | '/dashboard'
     | '/expenses'
     | '/profile'
@@ -135,12 +146,13 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signup'
     | '/'
+    | '/budgets/$budgetId'
+    | '/budgets'
   id:
     | '__root__'
     | '/(app)/_protected'
     | '/(public)/_public'
     | '/(app)/_protected/analytics'
-    | '/(app)/_protected/budgets'
     | '/(app)/_protected/dashboard'
     | '/(app)/_protected/expenses'
     | '/(app)/_protected/profile'
@@ -148,6 +160,8 @@ export interface FileRouteTypes {
     | '/(public)/_public/signin'
     | '/(public)/_public/signup'
     | '/(public)/_public/'
+    | '/(app)/_protected/budgets/$budgetId'
+    | '/(app)/_protected/budgets/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -220,13 +234,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appProtectedDashboardRouteImport
       parentRoute: typeof appProtectedRoute
     }
-    '/(app)/_protected/budgets': {
-      id: '/(app)/_protected/budgets'
-      path: '/budgets'
-      fullPath: '/budgets'
-      preLoaderRoute: typeof appProtectedBudgetsRouteImport
-      parentRoute: typeof appProtectedRoute
-    }
     '/(app)/_protected/analytics': {
       id: '/(app)/_protected/analytics'
       path: '/analytics'
@@ -234,23 +241,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appProtectedAnalyticsRouteImport
       parentRoute: typeof appProtectedRoute
     }
+    '/(app)/_protected/budgets/': {
+      id: '/(app)/_protected/budgets/'
+      path: '/budgets'
+      fullPath: '/budgets/'
+      preLoaderRoute: typeof appProtectedBudgetsIndexRouteImport
+      parentRoute: typeof appProtectedRoute
+    }
+    '/(app)/_protected/budgets/$budgetId': {
+      id: '/(app)/_protected/budgets/$budgetId'
+      path: '/budgets/$budgetId'
+      fullPath: '/budgets/$budgetId'
+      preLoaderRoute: typeof appProtectedBudgetsBudgetIdRouteImport
+      parentRoute: typeof appProtectedRoute
+    }
   }
 }
 
 interface appProtectedRouteChildren {
   appProtectedAnalyticsRoute: typeof appProtectedAnalyticsRoute
-  appProtectedBudgetsRoute: typeof appProtectedBudgetsRoute
   appProtectedDashboardRoute: typeof appProtectedDashboardRoute
   appProtectedExpensesRoute: typeof appProtectedExpensesRoute
   appProtectedProfileRoute: typeof appProtectedProfileRoute
+  appProtectedBudgetsBudgetIdRoute: typeof appProtectedBudgetsBudgetIdRoute
+  appProtectedBudgetsIndexRoute: typeof appProtectedBudgetsIndexRoute
 }
 
 const appProtectedRouteChildren: appProtectedRouteChildren = {
   appProtectedAnalyticsRoute: appProtectedAnalyticsRoute,
-  appProtectedBudgetsRoute: appProtectedBudgetsRoute,
   appProtectedDashboardRoute: appProtectedDashboardRoute,
   appProtectedExpensesRoute: appProtectedExpensesRoute,
   appProtectedProfileRoute: appProtectedProfileRoute,
+  appProtectedBudgetsBudgetIdRoute: appProtectedBudgetsBudgetIdRoute,
+  appProtectedBudgetsIndexRoute: appProtectedBudgetsIndexRoute,
 }
 
 const appProtectedRouteWithChildren = appProtectedRoute._addFileChildren(

@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import type { ExpenseType } from "@/lib/types/expense.types";
 import { lazy, Suspense, useCallback } from "react";
 
-import { SkeletonForm } from "../../Expenses/SkeletonForm";
+import { SkeletonForm } from "../SkeletonForm";
 
 const EditExpenseForm = lazy(() =>
   import("./EditExpenseForm").then((module) => ({

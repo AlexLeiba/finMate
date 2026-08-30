@@ -23,6 +23,13 @@ import {
   getSpendingByCategoryTimePeriod,
 } from "./apis/dashboardApi";
 import { getProfile, updateProfile } from "./apis/profileApi";
+import {
+  getAllBudgets,
+  createBudget,
+  updateBudget,
+  deleteBudget,
+  getSingleBudget,
+} from "./apis/budgetsApi";
 
 export function apiFactory() {
   return {
@@ -46,5 +53,10 @@ export function apiFactory() {
     getSpendingTrends,
     getSpendingByCategoryTimePeriod,
     createMultipleExpenses,
+    getAllBudgets,
+    createBudget,
+    updateBudget,
+    deleteBudget,
+    getSingleBudget,
   };
 }

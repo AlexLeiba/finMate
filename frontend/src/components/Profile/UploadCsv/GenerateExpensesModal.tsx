@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Suspense, useEffect, useRef, useState, type ChangeEvent } from "react";
-import { SkeletonForm } from "../../Expenses/SkeletonForm";
+import { SkeletonForm } from "../../shared/SkeletonForm";
 import { Download } from "lucide-react";
 import { toast } from "react-toastify";
 import {

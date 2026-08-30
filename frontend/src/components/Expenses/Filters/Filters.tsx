@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Filter, X } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
-import { SkeletonForm } from "../SkeletonForm";
+import { SkeletonForm } from "../../shared/SkeletonForm";
 import { DEFAULT_FILTERS, useExpenseStore } from "@/store/useExpensesStore";
 import { parseActiveFilters } from "@/lib/utils/parseActiveFilters";
 import { ActiveFilterChips } from "./ActiveFilterChips";
