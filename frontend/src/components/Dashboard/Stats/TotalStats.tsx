@@ -1,5 +1,5 @@
 import { StatCard } from "./StatCard";
-import { DollarSign, TrendingDown, ChartNoAxesColumn, CalendarArrowDown, Form } from "lucide-react";
+import { DollarSign, TrendingDown, ChartNoAxesColumn, CalendarArrowDown } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useExpenseStore } from "@/store/useExpensesStore";
 import { useShallow } from "zustand/react/shallow";
@@ -27,14 +27,17 @@ export function TotalStats({ currency }: { currency: string }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    try {
-      getDashboardStats({
-        startDate: datePeriod.startDate.toISOString(),
-        endDate: datePeriod.endDate.toISOString(),
-      });
-    } catch (error: unknown) {
-      toast.error(error as string);
+    async function fetchStats() {
+      try {
+        await getDashboardStats({
+          startDate: datePeriod.startDate.toISOString(),
+          endDate: datePeriod.endDate.toISOString(),
+        });
+      } catch (error: unknown) {
+        toast.error(error as string);
+      }
     }
+    fetchStats();
   }, []);
   function handleFilterbyMonth(month: "thisMonth" | "prevMonth" | "highest" | "lowest") {
     const now = new Date();

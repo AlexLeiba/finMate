@@ -17,6 +17,7 @@ import profileRoutes from "./routes/profileRoutes";
 import analyticsRoutes from "./routes/analyticsRoutes";
 import { corsOptions } from "./config/origin";
 import { connectDB } from "./config/mongoDBConnection";
+import budgetsRoutes from "./routes/budgetsRoutes";
 
 const app: Application = express();
 const PORT = process.env.PORT || 8000;
@@ -30,6 +31,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/expenses", requireAuth, expensesRoutes);
 app.use("/api/profile", requireAuth, profileRoutes);
 app.use("/api/analytics", requireAuth, analyticsRoutes);
+app.use("/api/budgets", requireAuth, budgetsRoutes);
 //
 
 // request/route handler

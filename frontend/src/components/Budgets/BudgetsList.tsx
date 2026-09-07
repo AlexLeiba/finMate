@@ -1,5 +1,5 @@
 import { Spacer } from "@/components/ui/spacer";
-import type { CreateBudgetSchemaType } from "@/lib/schemas/forms/budgetsSchema";
+import type { BudgetSchemaTypeList } from "@/lib/schemas/apis/budgetsSchema";
 
 import { cn } from "@/lib/utils/tailwindUtils";
 import { Link } from "@tanstack/react-router";
@@ -9,7 +9,7 @@ export function BudgetsList({
   budgets,
 }: {
   currency: string;
-  budgets: CreateBudgetSchemaType[];
+  budgets: BudgetSchemaTypeList["data"];
 }) {
   return (
     <div>

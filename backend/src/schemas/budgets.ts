@@ -10,25 +10,22 @@ export const budgetSchema = zod.object({
   description: zod.string().optional(),
   budgetType: zod.enum(BudgetType).default(BudgetType.SAVINGS).optional(),
   budgetTargetAmount: zod.number().min(1, "Amount must be higher than 0").optional(),
-  date: zod.date().default(new Date()).optional(),
+  date: zod.coerce.date().default(new Date()),
 });
 
-export const createBudgetSchema = zod.object({
-  title: zod.string().min(1, "Title is required"),
-  budgetType: zod.enum(BudgetType).default(BudgetType.SAVINGS).optional(),
-});
-
-export const budgetOptionsSchema = zod.object({
-  options: zod.array(
-    zod.object({
+export const budgetOptionsSchema = zod.array(
+  zod
+    .object({
       title: zod.string().min(1, "Title is required"),
       amount: zod.number().min(1, "Amount must be higher than 1"),
     })
-  ),
-});
+    .optional()
+);
 
 export type BudgetOptionsSchemaType = zod.infer<typeof budgetOptionsSchema>;
 
-export type CreateBudgetSchemaType = zod.infer<typeof createBudgetSchema>;
-
 export type BudgetSchemaType = zod.infer<typeof budgetSchema>;
+
+export const budgetQuerySchema = zod.object({
+  budgetType: zod.enum(BudgetType).default(BudgetType.SAVINGS).optional(),
+});

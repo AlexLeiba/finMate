@@ -14,6 +14,7 @@ function Budgets() {
       budgets: state.budgets,
       getAllBudgets: state.getAllBudgets,
       budgetType: state.budgetType,
+      error: state.error,
     }))
   );
 
@@ -21,13 +22,17 @@ function Budgets() {
 
   useEffect(() => {
     toast.loading("Loading...", { toastId: "fetchExpenses" });
-    try {
-      getAllBudgets();
-    } catch (error: unknown) {
-      toast.error(error as string);
-    } finally {
-      toast.dismiss("fetchExpenses");
+
+    async function fetchBudgets() {
+      try {
+        await getAllBudgets();
+      } catch (error: unknown) {
+        toast.error(error as string);
+      } finally {
+        toast.dismiss("fetchExpenses");
+      }
     }
+    fetchBudgets();
   }, [budgetType]);
   return (
     <div className="flex flex-col gap-4">
