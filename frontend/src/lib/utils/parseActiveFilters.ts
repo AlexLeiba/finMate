@@ -7,13 +7,13 @@ export function parseActiveFilters(
   if (type === "sort") {
     switch (filter) {
       case "date":
-        return "by date: asc";
+        return "sort by date: ↑";
       case "-date":
-        return "by date: desc";
+        return "sort by date: ↓";
       case "amount":
-        return "by amount: asc";
+        return "sort by amount: ↑";
       case "-amount":
-        return "by amount: desc";
+        return "sort by amount: ↓";
       default:
         return filter;
     }

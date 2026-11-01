@@ -7,18 +7,10 @@ function InputSearch({
   type,
   error,
   label,
+  onClear,
   ...props
-}: React.ComponentProps<"input"> & { error?: string; label?: string }) {
-  function handleClear() {
-    if (props.onChange) {
-      const event = {
-        target: {
-          value: "",
-        },
-      } as React.ChangeEvent<HTMLInputElement>;
-      props.onChange(event);
-    }
-  }
+}: React.ComponentProps<"input"> & { error?: string; label?: string, onClear?: () => void }) {
+ 
   return (
     <div className="flex flex-col justify-start items-start gap-1 relative">
       {label && (
@@ -49,7 +41,7 @@ function InputSearch({
           style={{
             display: props.value ? "block" : "none",
           }}
-          onClick={handleClear}
+          onClick={onClear}
           className={cn("absolute right-2 top-1/2 -translate-y-1/2")}
         >
           <X size={20} className={cn("text-white")} />

@@ -82,6 +82,12 @@ export function Filters() {
                       e.stopPropagation();
                       revalidateAllExpenses();
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.stopPropagation();
+                        revalidateAllExpenses();
+                      }
+                    }}
                     className="flex items-center gap-2 text-destructive p-1 rounded-md hover:bg-destructive/50 hover:text-white"
                   >
                     <X className="size-6" />

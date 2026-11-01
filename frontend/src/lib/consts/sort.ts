@@ -10,12 +10,12 @@ export const SORT_TYPE = [
 ];
 export const SORT_DIRECTION = [
   {
-    label: "desc",
+    label: "↓",
     value: "desc",
     symbol: "-",
   },
   {
-    label: "asc",
+    label: "↑",
     value: "asc",
     symbol: "",
   },

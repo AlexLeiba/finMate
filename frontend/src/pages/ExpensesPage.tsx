@@ -17,12 +17,12 @@ import { toast } from "react-toastify";
 function ExpensesPage() {
   const { page, totalCount, expenses, fetchAllExpenses, filters } = useExpenseStore(
     useShallow((state) => ({
+      isLoading: state.isLoading,
       expenses: state.expenses,
       page: state.page,
       totalCount: state.stats.totalCount,
-      isLoading: state.isLoading,
-      fetchAllExpenses: state.getAllExpenses,
       filters: state.filters,
+      fetchAllExpenses: state.getAllExpenses,
       setFilters: state.setFilters,
     }))
   );

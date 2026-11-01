@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
-import { useExpenseStore } from "@/store/useExpensesStore";
+import { DEFAULT_FILTERS, useExpenseStore } from "@/store/useExpensesStore";
 import { DatePicker } from "../../shared/DatePicker";
 import { toast } from "react-toastify";
 import {
@@ -15,6 +15,8 @@ import { generateActiveFilterPayload } from "@/lib/utils/generateActiveFilterPay
 import { useEffect } from "react";
 import { Sort } from "./Sort";
 import { useShallow } from "zustand/react/shallow";
+import { X } from "lucide-react";
+
 
 export function FilterForm() {
   const { filterAllExpenses, filters, setFilters, isLoading } = useExpenseStore(
@@ -26,12 +28,13 @@ export function FilterForm() {
     }))
   );
 
+
   const formMethods = useForm<FilterExpenseFormDataType>({
     resolver: zodResolver(filterExpenseSchema),
     defaultValues: {
       category: filters.category,
       sort: filters.sort,
-      searchTerm: filters.searchTerm,
+      searchTerm: filters.searchTerm ,
       startDate: filters.startDate,
       endDate: filters.endDate,
       minAmount: filters.minAmount,
@@ -82,6 +85,17 @@ export function FilterForm() {
   ]);
 
   const activeFilters = Object.values(filters).length > 2 ? Object.values(filters).length - 2 : 0;
+
+  function handleRemoveFilter() {
+   
+    setFilters(DEFAULT_FILTERS);
+   
+  }
+
+  function handleClearSearch() {
+    formMethods.setValue("searchTerm", "");
+    setFilters({...filters, searchTerm: "" });
+  }
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -100,7 +114,8 @@ export function FilterForm() {
             title="Search expenses by description, category or amount"
             placeholder="Search expenses by description, category or amount"
             onChange={(e) => onChange(e.target.value)}
-            value={value}
+            value={value ?? ""}
+             onClear={() => handleClearSearch()}
           />
         )}
       />
@@ -117,6 +132,7 @@ export function FilterForm() {
               type="number"
               error={errors.minAmount?.message}
               {...field}
+              value={field.value ?? ""}
               onChange={(e) => field.onChange(e.target.value)}
             />
           )}
@@ -132,6 +148,7 @@ export function FilterForm() {
               type="number"
               error={errors.maxAmount?.message}
               {...field}
+              value={field.value ?? ""}
               onChange={(e) => field.onChange(e.target.value)}
             />
           )}
@@ -149,24 +166,35 @@ export function FilterForm() {
         </div>
       </FormProvider>
 
-      <div className="flex gap-4 w-full">
+      <div className="flex gap-4 w-full justify-end">
         <Button
           type="submit"
           title="Apply Filter"
           aria-label="Apply Filter"
-          className="w-full"
+          className={activeFilters > 0 ? "w-full lg:w-auto" : "w-full"}
           loading={isLoading}
           variant={"accent"}
         >
           <div className="flex justify-center items-center gap-2">
             <p>Apply Filter</p>
-            {activeFilters > 0 && (
-              <span className="size-6 p-1 bg-accent rounded-md text-black flex items-center justify-center">
+               {activeFilters > 0 && (
+                         <span className="size-6 p-1 bg-accent rounded-md text-black flex items-center justify-center">
                 {activeFilters}
               </span>
             )}
           </div>
         </Button>
+
+        {activeFilters > 0 && 
+        <Button className="flex gap-2" variant={"destructive"} title="Clear Filter" aria-label="Clear Filter" disabled={isLoading}  onClick={(e) => {
+          e.stopPropagation();
+          handleRemoveFilter();
+        }}
+        >
+                    <X className="size-6" />
+
+                    </Button>
+          }
       </div>
     </form>
   );
