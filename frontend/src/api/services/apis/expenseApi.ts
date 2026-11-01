@@ -2,7 +2,8 @@ import { axiosInstance } from "@/api/axios";
 import { ENDPOINTS } from "../endpoints";
 import { arrayExpenseSchema, expenseSchema } from "@/lib/schemas/apis/expenseSchema";
 import type { ExpenseCategory, ExpenseSort, ExpenseType } from "@/lib/types/expense.types";
-import type { ApiErrorResponse, ApiResponse } from "@/lib/types/auth.types";
+import type { ApiResponse } from "@/lib/types/auth.types";
+import { getErrorMessage } from "@/lib/utils/errorMessage";
 import type {
   ExpenseFormDataType,
   UploadNewExpensesFormDataType,
@@ -17,10 +18,7 @@ async function createExpense(body: ExpenseFormDataType) {
 
     return parsed?.data?.data;
   } catch (error: unknown) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong, please try again or contact support";
+    throw getErrorMessage(error);
   }
 }
 async function createMultipleExpenses(body: UploadNewExpensesFormDataType) {
@@ -33,10 +31,7 @@ async function createMultipleExpenses(body: UploadNewExpensesFormDataType) {
 
     // return parsed?.data?.data;
   } catch (error: unknown) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong, please try again or contact support";
+    throw getErrorMessage(error);
   }
 }
 async function getAllExpenses(query?: {
@@ -57,10 +52,7 @@ async function getAllExpenses(query?: {
     return parsed?.data?.data;
   } catch (error: unknown) {
     console.log("🚀 ~ getAllExpenses ~ error:", error);
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+    throw getErrorMessage(error);
   }
 }
 
@@ -75,10 +67,7 @@ async function getExpenseById(id: string) {
 
     return parsed?.data?.data;
   } catch (error: unknown) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+    throw getErrorMessage(error);
   }
 }
 async function updateExpense(body: ExpenseFormDataType, id: string) {
@@ -93,10 +82,7 @@ async function updateExpense(body: ExpenseFormDataType, id: string) {
 
     return parsed?.data?.data;
   } catch (error: unknown) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+    throw getErrorMessage(error);
   }
 }
 async function deleteExpense(id: string) {
@@ -110,10 +96,7 @@ async function deleteExpense(id: string) {
 
     return parsed?.data?.data;
   } catch (error: unknown) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+    throw getErrorMessage(error);
   }
 }
 

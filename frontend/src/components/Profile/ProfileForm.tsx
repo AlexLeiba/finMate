@@ -8,6 +8,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { toast } from "react-toastify";
+import { getErrorMessage } from "@/lib/utils/errorMessage";
 import { DropDownCurrency } from "./DropDownCurrency";
 
 export function ProfileForm({
@@ -54,9 +55,7 @@ export function ProfileForm({
       toast.success("Profile updated successfully");
       onCloseEditProfile();
     } catch (error: unknown) {
-      const errorMessage =
-        typeof error === "string" ? error : "Something went wrong";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error));
     } finally {
       toast.dismiss("update");
     }

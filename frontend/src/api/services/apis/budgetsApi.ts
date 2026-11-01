@@ -9,7 +9,8 @@ import {
 } from "@/lib/schemas/apis/budgetsSchema";
 import type { BudgetSchemaType, CreateBudgetSchemaType } from "@/lib/schemas/forms/budgetsSchema";
 
-import type { ApiErrorResponse, ApiResponse } from "@/lib/types/auth.types";
+import type { ApiResponse } from "@/lib/types/auth.types";
+import { getErrorMessage } from "@/lib/utils/errorMessage";
 
 async function getAllBudgets(type: BudgetType) {
   const queryString = new URLSearchParams({ budgetType: type }).toString();
@@ -24,11 +25,8 @@ async function getAllBudgets(type: BudgetType) {
     if (!validatedResponse?.success) throw new Error("Backend returned invalid budget shape");
 
     return validatedResponse?.data?.data;
-  } catch (error: any) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 
@@ -44,11 +42,8 @@ async function createBudget(body: CreateBudgetSchemaType) {
     if (!validatedResponse.success) throw new Error("Backend returned invalid budget shape");
 
     return validatedResponse.data.data;
-  } catch (error: any) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 
@@ -65,11 +60,8 @@ async function updateBudget(id: string, body: BudgetSchemaType) {
     if (!validatedResponse.success) throw new Error("Backend returned invalid budget shape");
 
     return validatedResponse.data.data;
-  } catch (error: any) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 
@@ -78,11 +70,8 @@ async function deleteBudget(id: string) {
     await axiosInstance.delete<ApiResponse<BudgetSchemaTypeApi["data"]>>(
       `${ENDPOINTS.budgets}/${id}`
     );
-  } catch (error: any) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 
@@ -98,11 +87,8 @@ async function getSingleBudget(id: string) {
     if (!validatedResponse.success) throw new Error("Backend returned invalid budget shape");
 
     return validatedResponse.data.data;
-  } catch (error: any) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 

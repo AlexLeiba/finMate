@@ -22,8 +22,8 @@ export function BudgetsList({
       gap-4"
       >
         {budgets?.length > 0 ? (
-          budgets.map((expense) => (
-            <Link key={expense._id} to={`/budgets/${expense._id}`} className="hover:opacity-70">
+          budgets.map((expense, index) => {
+            const card = (
               <div
                 className={cn(
                   expense.budgetType === "savings"
@@ -43,8 +43,21 @@ export function BudgetsList({
                 <p>{expense.title}</p>
                 <p className="text-sm text-gray-400">{expense.date?.toDateString()}</p>
               </div>
-            </Link>
-          ))
+            );
+
+            return expense._id ? (
+              <Link
+                key={expense._id}
+                to="/budgets/$budgetId"
+                params={{ budgetId: expense._id }}
+                className="hover:opacity-70"
+              >
+                {card}
+              </Link>
+            ) : (
+              <div key={`budget-${index}`}>{card}</div>
+            );
+          })
         ) : (
           <p>No budgets found</p>
         )}

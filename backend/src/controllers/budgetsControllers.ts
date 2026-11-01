@@ -2,6 +2,7 @@ import { type Request, type Response } from "express";
 import { asyncHandler, sendError, sendSuccess } from "../utils/responseHelpers";
 import { Budget } from "../models/Budget";
 import { budgetOptionsSchema, budgetQuerySchema, budgetSchema } from "../schemas/budgets";
+import { DEFAULT_ERROR_MESSAGE } from "../consts/consts";
 
 const getAllBudgets = asyncHandler(async function getAllBudgets(req: Request, res: Response) {
   const userId = req.userId;
@@ -34,7 +35,7 @@ const getAllBudgets = asyncHandler(async function getAllBudgets(req: Request, re
     return;
   }
 
-  sendError(res, "Something went wrong", 500);
+  sendError(res, DEFAULT_ERROR_MESSAGE, 500);
 });
 
 const getBudgetById = asyncHandler(async function getBudgetById(req: Request, res: Response) {
@@ -94,7 +95,7 @@ const createBudget = asyncHandler(async function createBudget(req: Request, res:
   });
 
   if (!createdBudget) {
-    sendError(res, "Something went wrong", 500);
+    sendError(res, DEFAULT_ERROR_MESSAGE, 500);
     return;
   }
 
@@ -155,7 +156,7 @@ const updateBudget = asyncHandler(async function updateBudget(req: Request, res:
   );
 
   if (!updatedBudget) {
-    sendError(res, "Something went wrong", 500);
+    sendError(res, DEFAULT_ERROR_MESSAGE, 500);
     return;
   }
 
@@ -198,7 +199,7 @@ const updateBudgetOptions = asyncHandler(async function updateBudget(req: Reques
   );
 
   if (!updatedBudget) {
-    sendError(res, "Something went wrong", 500);
+    sendError(res, DEFAULT_ERROR_MESSAGE, 500);
     return;
   }
 
@@ -226,7 +227,7 @@ const deleteBudget = asyncHandler(async function deleteBudget(req: Request, res:
   const deletedBudget = await Budget.deleteOne({ _id: req.params.id, userId: userId });
 
   if (!deletedBudget) {
-    sendError(res, "Something went wrong", 500);
+    sendError(res, DEFAULT_ERROR_MESSAGE, 500);
     return;
   }
 

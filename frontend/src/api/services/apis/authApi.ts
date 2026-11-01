@@ -10,10 +10,10 @@ import {
 import { ENDPOINTS } from "../endpoints";
 import { userAuthSchema } from "@/lib/schemas/apis/authSchema";
 import type {
-  ApiErrorResponse,
   ApiResponse,
   AuthResponseType,
 } from "@/lib/types/auth.types";
+import { getErrorMessage } from "@/lib/utils/errorMessage";
 
 async function signin({ email, password }: SigninType) {
   try {
@@ -29,11 +29,8 @@ async function signin({ email, password }: SigninType) {
     if (!parsed.success) throw new Error("Backend returned invalid user shape");
 
     return parsed?.data?.data?.user;
-  } catch (error: any) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 async function signup(body: SignupType) {
@@ -46,11 +43,8 @@ async function signup(body: SignupType) {
     const parsed = userAuthSchema.safeParse(response?.data);
     if (!parsed.success) throw new Error("Backend returned invalid user shape");
     return parsed?.data?.data?.user;
-  } catch (error: any) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 
@@ -61,11 +55,8 @@ async function logout() {
     );
 
     return response;
-  } catch (error: any) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 
@@ -79,11 +70,8 @@ async function verifyEmail({ email }: VerifyEmailType) {
     );
 
     return response;
-  } catch (error: any) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 
@@ -98,11 +86,8 @@ async function verifyOTP({ otpCode, email }: ResetPasswordVerifyOtpType) {
     );
 
     return response;
-  } catch (error: any) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 async function resetPassword({ email, newPassword }: ResetPasswordType) {
@@ -116,11 +101,8 @@ async function resetPassword({ email, newPassword }: ResetPasswordType) {
     );
 
     return response;
-  } catch (error: any) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 async function refreshToken() {
@@ -129,11 +111,8 @@ async function refreshToken() {
       ENDPOINTS.refreshToken,
     );
     return response;
-  } catch (error: any) {
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 

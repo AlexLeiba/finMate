@@ -351,7 +351,7 @@ const getDashboardStats = asyncHandler(async function getDashboardStats(
     (exp) => Number(exp.amount) === highestAndLowestExpenses.lowestExpense
   );
   if (!highestExpense || !lowestExpense) {
-    return sendError(res, "No expenses were found");
+    return sendSuccess(res, [], "No expenses were found. Create an expense to get started", 200)
   }
 
   const currentMonth = getCurrentMonth();

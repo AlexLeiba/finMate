@@ -2,6 +2,7 @@ import { apiFactory } from "@/api/services/apiFactory";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
+import { getErrorMessage } from "@/lib/utils/errorMessage";
 
 export function AuthInitializer({ children }: React.PropsWithChildren) {
   const setUser = useAuthStore((s) => s.setUser);
@@ -14,8 +15,8 @@ export function AuthInitializer({ children }: React.PropsWithChildren) {
         const response = await apiFactory().getProfile();
 
         setUser(response);
-      } catch (error: any) {
-        toast.error(error?.response?.data?.message || "Something went wrong");
+      } catch (error: unknown) {
+        toast.error(getErrorMessage(error));
         setUser(null);
       } finally {
         setLoading(false);

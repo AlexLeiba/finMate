@@ -1,6 +1,6 @@
 import { axiosInstance } from "@/api/axios";
 import { DASHBOARD_ENDPOINTS } from "../endpoints";
-import type { ApiErrorResponse, ApiResponse } from "@/lib/types/auth.types";
+import type { ApiResponse } from "@/lib/types/auth.types";
 import {
   categoriesBreakdownSchema,
   monthlyTotalsSchema,
@@ -13,23 +13,24 @@ import {
   spendingByCategoryTimePeriodSchema,
 } from "@/lib/schemas/apis/dashboardSchema";
 
+import { getErrorMessage } from "@/lib/utils/errorMessage";
+
 async function getDashboardStats(query?: { startDate?: string; endDate?: string }) {
   const queryString = new URLSearchParams(query as string).toString();
   try {
-    const response = await axiosInstance.get<ApiResponse<DashboardStatsType>>(
+    const response = await axiosInstance.get<ApiResponse<DashboardStatsType["data"] | []>>(
       `${DASHBOARD_ENDPOINTS.getStats}?${queryString}`
     );
+
+    // Backend returns an empty array when the user has no expenses
+    if (Array.isArray(response?.data?.data)) return null;
 
     const parsed = dashboardStatsSchema.safeParse(response?.data);
     if (!parsed.success) throw new Error("Backend returned invalid expense shape");
 
     return parsed?.data?.data;
   } catch (error: unknown) {
-    console.log("🚀 ~ getAllExpenses ~ error:", error);
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+    throw getErrorMessage(error);
   }
 }
 
@@ -46,10 +47,7 @@ async function getCategoriesBreakdown(query?: { timePeriodInDays?: number }) {
     return parsed?.data?.data;
   } catch (error: unknown) {
     console.log("🚀 ~ getAllExpenses ~ error:", error);
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+    throw getErrorMessage(error);
   }
 }
 
@@ -66,10 +64,7 @@ async function getMonthlyTotalsOfOneYear(query: { year?: string; month?: string 
     return parsed?.data?.data;
   } catch (error: unknown) {
     console.log("🚀 ~ getAllExpenses ~ error:", error);
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+    throw getErrorMessage(error);
   }
 }
 
@@ -87,10 +82,7 @@ async function getSpendingTrends(query: { timePeriodInMonths?: number }) {
     return parsed?.data?.data;
   } catch (error: unknown) {
     console.log("🚀 ~ getAllExpenses ~ error:", error);
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+    throw getErrorMessage(error);
   }
 }
 async function getSpendingByCategoryTimePeriod(query: { timePeriodInDays?: number }) {
@@ -106,10 +98,7 @@ async function getSpendingByCategoryTimePeriod(query: { timePeriodInDays?: numbe
     return parsed?.data?.data;
   } catch (error: unknown) {
     console.log("🚀 ~ getAllExpenses ~ error:", error);
-    const err = error as ApiErrorResponse;
-    throw typeof err?.response?.data?.message === "string"
-      ? err?.response?.data?.message
-      : "Something went wrong";
+    throw getErrorMessage(error);
   }
 }
 

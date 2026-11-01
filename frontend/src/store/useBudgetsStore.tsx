@@ -32,7 +32,7 @@ export type BudgetStoreType = {
 
   // Apis
   getAllBudgets: () => Promise<void>;
-  createBudget: (body: BudgetSchemaType) => Promise<BudgetSchemaType | undefined>;
+  createBudget: (body: BudgetSchemaType) => Promise<BudgetSchemaTypeApi["data"] | undefined>;
   updateBudget: (body: BudgetSchemaType, id: string) => Promise<void>;
   deleteBudget: (id: string) => Promise<void>;
   getSingleBudget: (id: string) => Promise<BudgetSchemaTypeApi["data"] | null>;

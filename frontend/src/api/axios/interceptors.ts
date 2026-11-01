@@ -4,7 +4,7 @@ import { axiosInstance } from "./axiosInstance";
 import { AUTH_ENDPOINTS } from "../services/endpoints";
 import { router } from "@/main";
 
-let isRefreshing = false;
+let isRefreshing = false;// TO AVOID REFRESHING EXPIRED TOKEN FOR MULTIPLE FAILED REQUESTS SIMULTANEOUSLY, WE WILL USE THIS FLAG TO CHECK IF A REFRESH IS ALREADY IN PROGRESS
 let failedQueue: any[] = [];
 
 const processQueue = (error: any, token: string | null = null) => {
@@ -22,7 +22,6 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const requestUrl = originalRequest?.url ?? "";
-    console.log("🚀 ~ requestUrl<<<<<<<<<<:", requestUrl);
 
     const shouldSkipRefresh = AUTH_ENDPOINTS.some((endpoint) =>
       requestUrl.includes(endpoint),
@@ -31,7 +30,6 @@ axiosInstance.interceptors.response.use(
     if (shouldSkipRefresh) {
       return Promise.reject(error);
     }
-    console.log("🚀 ~ shouldSkipRefresh>>>>>>>:", shouldSkipRefresh);
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -48,13 +46,13 @@ axiosInstance.interceptors.response.use(
         // call refresh endpoint
         await apiFactory().refreshToken();
 
-        processQueue(null, null);
+        processQueue(null, null);// CLEAN UP QUEUE AFTER SUCCESSFUL REFRESH
 
         return axiosInstance(originalRequest); // retry original request
       } catch (err) {
         processQueue(err, null);
 
-        useAuthStore.getState().logout();
+        useAuthStore.getState().logout(); // LOGOUT USER ON REFRESH FAILURE
         router.invalidate();
 
         // optional: redirect to login

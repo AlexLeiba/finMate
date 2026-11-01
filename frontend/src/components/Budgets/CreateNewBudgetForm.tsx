@@ -42,9 +42,10 @@ export function CreateNewBudgetForm() {
     try {
       const response = await createBudget(data);
       console.log("🚀 ~ onSubmit ~ response:", response);
-      if (response) {
+      if (response?._id) {
         navigate({
-          to: `/budgets/${response._id}`,
+          to: "/budgets/$budgetId",
+          params: { budgetId: response._id },
         });
       }
     } catch (error: unknown) {

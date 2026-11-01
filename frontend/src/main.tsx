@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import "./index.css";
 import { useAuthStore } from "./store/useAuthStore";
+import { getErrorMessage } from "./lib/utils/errorMessage";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -26,9 +27,7 @@ async function renderRoute() {
   try {
     await useAuthStore.getState().getProfile(); //get user profile in the store on load
   } catch (error: unknown) {
-    const errorMessage = typeof error === "string" ? error : "Something went wrong";
-
-    console.log(errorMessage);
+    console.log(getErrorMessage(error));
   }
   //vanilla store, no reactive, no re-renders, used outside React
   // run authentication before load the app UIб All is ready before the app loads.

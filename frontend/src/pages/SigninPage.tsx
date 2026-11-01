@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signinSchema, type SigninType } from "@/lib/schemas/forms/authSchema";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "react-toastify";
+import { getErrorMessage } from "@/lib/utils/errorMessage";
 import { useAuthStore } from "@/store/useAuthStore";
 
 function SigninPage() {
@@ -39,9 +40,7 @@ function SigninPage() {
       toast.success("Welcome back!");
       navigate({ to: "/dashboard", replace: true });
     } catch (error: unknown) {
-      const errorMessage =
-        typeof error === "string" ? error : "Something went wrong";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error));
     } finally {
       toast.dismiss("signin");
     }

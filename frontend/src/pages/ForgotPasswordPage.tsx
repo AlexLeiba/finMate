@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/input-otp";
 import { apiFactory } from "@/api/services/apiFactory";
 import { toast } from "react-toastify";
+import { getErrorMessage } from "@/lib/utils/errorMessage";
 
 function ForgotPasswordPage() {
   const [step, setStep] = useState<
@@ -67,10 +68,7 @@ function ForgotPasswordPage() {
       await apiFactory().verifyEmail(data);
       setStep("verifyOtp");
     } catch (error: unknown) {
-      const errorMessage =
-        typeof error === "string" ? error : "Something went wrong";
-
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error));
     } finally {
       toast.dismiss(step);
     }
@@ -85,10 +83,7 @@ function ForgotPasswordPage() {
       await apiFactory().verifyOTP(data);
       setStep("resetPassword");
     } catch (error: unknown) {
-      const errorMessage =
-        typeof error === "string" ? error : "Something went wrong";
-
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error));
     } finally {
       toast.dismiss(step);
     }
@@ -101,9 +96,7 @@ function ForgotPasswordPage() {
       setStep("verifyEmail");
       toast.success("Password reset successfully");
     } catch (error: unknown) {
-      const errorMessage =
-        typeof error === "string" ? error : "Something went wrong";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error));
     } finally {
       toast.dismiss(step);
     }

@@ -34,6 +34,7 @@ export function TotalStats({ currency }: { currency: string }) {
           endDate: datePeriod.endDate.toISOString(),
         });
       } catch (error: unknown) {
+       
         toast.error(error as string);
       }
     }

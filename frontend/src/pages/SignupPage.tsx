@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupType } from "@/lib/schemas/forms/authSchema";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "react-toastify";
+import { getErrorMessage } from "@/lib/utils/errorMessage";
 import { useAuthStore } from "@/store/useAuthStore";
 
 function SignupPage() {
@@ -34,9 +35,7 @@ function SignupPage() {
         replace: true,
       });
     } catch (error: unknown) {
-      const errorMessage =
-        typeof error === "string" ? error : "Something went wrong";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error));
     } finally {
       toast.dismiss("signup");
     }

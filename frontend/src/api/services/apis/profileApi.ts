@@ -3,6 +3,7 @@ import { ENDPOINTS } from "../endpoints";
 import { profileSchema } from "@/lib/schemas/apis/profileSchema";
 import type { UserProfileType, UserType } from "@/lib/types/user.types";
 import type { ApiResponse } from "@/lib/types/auth.types";
+import { getErrorMessage } from "@/lib/utils/errorMessage";
 
 async function getProfile() {
   try {
@@ -14,8 +15,8 @@ async function getProfile() {
     if (!parsed.success)
       throw new Error("Backend returned invalid profile shape");
     return parsed?.data?.data?.user;
-  } catch (error: any) {
-    throw error?.message || "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 async function updateProfile(profilePayload: UserProfileType) {
@@ -31,8 +32,8 @@ async function updateProfile(profilePayload: UserProfileType) {
     if (!parsed.success)
       throw new Error("Backend returned invalid profile shape");
     return parsed?.data?.data?.user;
-  } catch (error: any) {
-    throw error?.message || "Something went wrong";
+  } catch (error: unknown) {
+    throw getErrorMessage(error);
   }
 }
 
