@@ -1,6 +1,7 @@
 import { CATEGORIES } from "@/lib/consts/categories";
-import { CURRENCY_SYMBOLS, DEFAULT_CURRENCY } from "@/lib/consts/currency";
+import { DEFAULT_CURRENCY } from "@/lib/consts/currency";
 import type { SpendingByCategoryTimePeriodType } from "@/lib/schemas/apis/dashboardSchema";
+import { formatCurrency } from "@/lib/utils/formatCurrency";
 
 type CustomTooltipProps = {
   active?: boolean;
@@ -18,10 +19,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
       <div className="p-2 rounded-md bg-black">
         {data?.month && <p className="font-bold">{data.month}</p>}
         <p className="font-bold">{CATEGORIES[data.category]}</p>
-        <p>
-          {CURRENCY_SYMBOLS[DEFAULT_CURRENCY]}
-          {data.total}
-        </p>
+        <p>{formatCurrency(data.total, DEFAULT_CURRENCY)}</p>
         {data.percentage && <p>{data.percentage}% of total categories</p>}
         <p>{data.count} expenses</p>
       </div>

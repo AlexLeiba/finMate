@@ -11,6 +11,7 @@ export const budgetSchema = zod.object({
   budgetType: zod.enum(BudgetType).default(BudgetType.SAVINGS).optional(),
   budgetTargetAmount: zod.number().min(1, "Amount must be higher than 0").optional(),
   date: zod.date().default(new Date()).optional(),
+  options: zod.array(zod.object({ title: zod.string(), amount: zod.number() })).optional(),
 });
 
 export const createBudgetSchema = zod.object({

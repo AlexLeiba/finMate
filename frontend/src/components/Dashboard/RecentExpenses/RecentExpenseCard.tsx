@@ -1,8 +1,8 @@
 import type { ExpenseType } from "@/lib/types/expense.types";
-import { CURRENCY_SYMBOLS } from "@/lib/consts/currency";
 import { Calendar } from "lucide-react";
 import { Category } from "@/components/shared/ExpenseCategory";
 import { HandleExpense } from "@/components/shared/HandleExpense";
+import { formatCurrency } from "@/lib/utils/formatCurrency";
 
 export function RecentExpenseCard({
   expense,
@@ -16,10 +16,7 @@ export function RecentExpenseCard({
       <div className="flex justify-between items-center">
         <Category category={expense.category} />
 
-        <p className="text-xl">
-          {CURRENCY_SYMBOLS[currency] || currency}
-          <span className="ml-0.5">{expense.amount}</span>
-        </p>
+        <p className="text-xl">{formatCurrency(expense.amount, currency)}</p>
       </div>
 
       <div className="flex justify-between items-center">

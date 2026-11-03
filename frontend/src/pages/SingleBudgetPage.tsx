@@ -54,18 +54,21 @@ function SingleBudgetPage() {
       date: singleBudget?.date || new Date(),
     },
   });
+  console.log("🚀 ~ SingleBudgetPage ~ formMethods:", formMethods?.formState?.errors);
   const formMethodsOptions = useForm<BudgetOptionsSchemaType>({
     resolver: zodResolver(budgetOptionsSchema),
     mode: "onChange",
     defaultValues: {
-      options: singleBudget?.options || [{ title: "", amount: 0 }],
+      options: singleBudget?.options || [],
     },
   });
+  console.log("🚀 ~ SingleBudgetPage ~ formMethodsOptions:", formMethodsOptions?.formState?.errors);
 
   const {
     watch: watchOptions,
-    handleSubmit: handleSubmitOptions,
     trigger: triggerOptions,
+    getValues: getOptionValues,
+    reset: resetOptions,
     formState: { errors: errorsOptions },
     register: registerOptions,
   } = formMethodsOptions;
@@ -89,6 +92,7 @@ function SingleBudgetPage() {
         setValue("description", response?.description);
         setValue("date", response?.date);
         setValue("budgetTargetAmount", response?.budgetTargetAmount);
+        resetOptions({ options: response?.options || [] });
       } catch (error: unknown) {
         toast.error(error as string);
       } finally {
@@ -103,21 +107,13 @@ function SingleBudgetPage() {
   const options = watchOptions("options");
   const budgetTargetAmount = watch("budgetTargetAmount");
 
-  const totalAddedOptions = useMemo(() => {
-    if (budgetType === "savings") {
-      return options?.reduce((acc, option) => {
-        return acc + Number(option?.amount) || 0;
-      }, 0);
-    }
-
-    if (budgetType === "expenses") {
-      return options?.reduce((acc, option) => {
-        return acc - Number(option?.amount);
-      }, budgetTargetAmount || 0);
-    }
-
-    return 0;
-  }, [options, budgetType]);
+  const totalAddedOptions = useMemo(
+    () => options?.reduce((total, option) => total + Number(option?.amount || 0), 0) || 0,
+    [options]
+  );
+  const budgetRemaining = Math.max((budgetTargetAmount || 0) - totalAddedOptions, 0);
+  const targetPeriods = budgetRemaining / (totalAddedOptions || 1);
+  const yearsToOneDecimal = (value: number) => Math.round(value * 10) / 10;
 
   const { fields, append, remove } = useFieldArray({
     control: formMethodsOptions.control,
@@ -126,10 +122,12 @@ function SingleBudgetPage() {
 
   // on SAVE
   async function onSubmit(data: BudgetSchemaType) {
-    console.log("🚀 ~ onSubmit ~ data:", data);
+    const optionsAreValid = await triggerOptions("options");
+    if (!optionsAreValid) return;
+
     toast.loading("Loading...", { toastId: "createExpense" });
     try {
-      await updateBudget(data, params.budgetId);
+      await updateBudget({ ...data, options: getOptionValues("options") || [] }, params.budgetId);
 
       setIsEdit(false);
     } catch (error: unknown) {
@@ -143,18 +141,6 @@ function SingleBudgetPage() {
     const isValid = await triggerOptions("options");
     if (isValid) {
       append({ title: "", amount: 0 });
-    }
-  }
-
-  function onSubmitOptions(data: BudgetOptionsSchemaType) {
-    console.log("🚀 ~ onSubmitOptions ~ data:", data);
-    toast.loading("Loading...", { toastId: "createExpense" });
-    try {
-      // await updateBudgetOptions(data, params.budgetId);
-    } catch (error: unknown) {
-      toast.error(error as string);
-    } finally {
-      toast.dismiss("createExpense");
     }
   }
 
@@ -219,10 +205,7 @@ function SingleBudgetPage() {
 
         <div className="flex justify-end">
           <Button
-            onClick={() => {
-              handleSubmit(onSubmit);
-              handleSubmitOptions(onSubmitOptions);
-            }}
+            onClick={handleSubmit(onSubmit)}
             loading={isLoading}
             variant={"accent"}
             className="w-50"
@@ -255,64 +238,59 @@ function SingleBudgetPage() {
       <div className="flex gap-4 items-start">
         <div className=" flex flex-col gap-4 w-1/2 h-full">
           {!addOption && (
-            <Button className="w-full" onClick={() => setAddOption(true)}>
-              <div className="flex items-center gap-1 justify-center">
-                Add {singleBudget?.budgetType} <Plus />
-              </div>
-            </Button>
+            <div className="flex flex-col gap-3">
+              <h4 className="text-center">Your added {singleBudget?.budgetType}</h4>
+              {fields.map((field, index) => (
+                <div key={field.id} className="flex flex-col gap-2 border rounded-md p-4">
+                  <div className="flex items-center justify-between gap-1">
+                    <p>
+                      {singleBudget?.budgetType?.toUpperCase()} {index + 1}
+                    </p>
+                    <button
+                      type="button"
+                      aria-label={`Delete ${singleBudget?.budgetType} option ${index + 1}`}
+                      className="cursor-pointer w-8 h-8 rounded-full"
+                      onClick={() => remove(index)}
+                    >
+                      <X />
+                    </button>
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <Input disabled label="Title" value={options?.[index]?.title || ""} />
+                    <Input
+                      disabled
+                      label="Amount"
+                      type="number"
+                      value={options?.[index]?.amount ?? ""}
+                    />
+                  </div>
+                </div>
+              ))}
+              {fields.length === 0 && <p>No options added yet</p>}
+              <Button
+                className="w-full"
+                onClick={() => {
+                  append({ title: "", amount: 0 });
+                  setAddOption(true);
+                }}
+              >
+                <div className="flex items-center gap-1 justify-center">
+                  Add {singleBudget?.budgetType} <Plus />
+                </div>
+              </Button>
+            </div>
           )}
 
           {addOption && (
             <div className="flex flex-col gap-2 border rounded-md p-2">
               <h4 className="text-center">Your added {singleBudget?.budgetType}</h4>
 
-              {/* FIRST OPTION */}
-              {fields?.length === 0 ? (
-                <div className="flex flex-col gap-2 border rounded-md p-4">
-                  <div className="flex items-center justify-between gap-1 ">
-                    <p>{singleBudget?.budgetType?.toUpperCase()} 1</p>
-                    <button
-                      className="cursor-pointer w-8 h-8 rounded-full"
-                      onClick={() => setAddOption(false)}
-                    >
-                      <X />
-                    </button>
-                  </div>
-                  <div className="flex items-end gap-2">
-                    <Input
-                      label="Title"
-                      disabled={isLoading}
-                      placeholder="Type your title"
-                      error={errorsOptions?.options?.[0]?.title?.message ?? ""}
-                      {...registerOptions(`options.${0}.title`)}
-                    />
-
-                    <Controller
-                      control={formMethodsOptions.control}
-                      name={`options.${0}.amount`}
-                      render={({ field }) => (
-                        <Input
-                          label="Amount"
-                          disabled={isLoading}
-                          placeholder="99.99"
-                          type="number"
-                          error={errorsOptions?.options?.[0]?.amount?.message ?? ""}
-                          {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      )}
-                    />
-
-                    <Button onClick={handleAppendOption}>
-                      <div className="flex items-center gap-1 justify-center">
-                        <Plus />
-                      </div>
-                    </Button>
-                  </div>
-                </div>
+              {fields.length === 0 ? (
+                <Button onClick={handleAppendOption}>
+                  <Plus />
+                </Button>
               ) : (
-                // MORE OPTIONS
-                fields?.map((field, index) => {
+                fields.map((field, index) => {
                   return (
                     <div key={field.id} className="flex flex-col gap-2 border rounded-md p-4">
                       <div className="flex items-center justify-between gap-1 ">
@@ -375,53 +353,31 @@ function SingleBudgetPage() {
 
           <p>Budget target: {budgetTargetAmount}</p>
           <p>
-            Total {budgetType}: {totalAddedOptions || 0}
+            Total {budgetType}: {totalAddedOptions}
           </p>
           <p>
-            {budgetType.charAt(0).toUpperCase() + budgetType.slice(1)} left to add:
-            {(budgetTargetAmount || 0) - (totalAddedOptions || 0)}
+            {budgetType === "expenses" ? "Budget left" : "Savings left to add"}: {budgetRemaining}
           </p>
-          {(totalAddedOptions || 0) > 0 && (
+          {totalAddedOptions > 0 && budgetRemaining > 0 && (
             <ul className="list-disc list-inside ml-4">
-              <p>Days to reach your target:</p>
+              <p>Estimated time to reach your target:</p>
 
               <p>If Daily:</p>
-              <li>Days: {Math.floor((budgetTargetAmount || 0) / (totalAddedOptions || 0))}</li>
-              <li>
-                Weeks:
-                {Math.round(Math.floor((budgetTargetAmount || 0) / (totalAddedOptions || 0)) / 7)}
-              </li>
-              <li>
-                Months:
-                {Math.round(Math.floor((budgetTargetAmount || 0) / (totalAddedOptions || 0)) / 30)}
-              </li>
-              <li>
-                Years:
-                {Math.round(Math.floor((budgetTargetAmount || 0) / (totalAddedOptions || 0)) / 365)}
-              </li>
+              <li>Days: {Math.ceil(targetPeriods)}</li>
+              <li>Weeks: {Math.ceil(targetPeriods / 7)}</li>
+              <li>Months: {Math.ceil(targetPeriods / 30)}</li>
+              <li>Years: {yearsToOneDecimal(targetPeriods / 365)}</li>
 
               <p className="mt-4">If Weekly:</p>
 
-              <li>Weeks:{Math.floor((budgetTargetAmount || 0) / (totalAddedOptions || 0))}</li>
-              <li>
-                Months:
-                {Math.round(Math.floor((budgetTargetAmount || 0) / (totalAddedOptions || 0)) / 30)}
-              </li>
-              <li>
-                Years:
-                {Math.round(Math.floor((budgetTargetAmount || 0) / (totalAddedOptions || 0)) / 365)}
-              </li>
+              <li>Weeks: {Math.ceil(targetPeriods)}</li>
+              <li>Months: {Math.round((targetPeriods * 7) / 30)}</li>
+              <li>Years: {yearsToOneDecimal((targetPeriods * 7) / 365)}</li>
 
               <p className="mt-4">If Monthly:</p>
 
-              <li>
-                Months:
-                {Math.round(Math.floor((budgetTargetAmount || 0) / (totalAddedOptions || 0)))}
-              </li>
-              <li>
-                Years:
-                {Math.round(Math.floor((budgetTargetAmount || 0) / (totalAddedOptions || 0)) / 365)}
-              </li>
+              <li>Months: {Math.ceil(targetPeriods)}</li>
+              <li>Years: {yearsToOneDecimal(targetPeriods / 12)}</li>
             </ul>
           )}
         </div>

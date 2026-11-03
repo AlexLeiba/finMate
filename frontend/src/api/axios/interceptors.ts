@@ -1,11 +1,13 @@
-import { useAuthStore } from "@/store/useAuthStore";
-import { apiFactory } from "../services/apiFactory";
 import { axiosInstance } from "./axiosInstance";
-import { AUTH_ENDPOINTS } from "../services/endpoints";
-import { router } from "@/main";
+import { AUTH_ENDPOINTS, ENDPOINTS } from "../services/endpoints";
 
-let isRefreshing = false;// TO AVOID REFRESHING EXPIRED TOKEN FOR MULTIPLE FAILED REQUESTS SIMULTANEOUSLY, WE WILL USE THIS FLAG TO CHECK IF A REFRESH IS ALREADY IN PROGRESS
+let isRefreshing = false; // TO AVOID REFRESHING EXPIRED TOKEN FOR MULTIPLE FAILED REQUESTS SIMULTANEOUSLY, WE WILL USE THIS FLAG TO CHECK IF A REFRESH IS ALREADY IN PROGRESS
 let failedQueue: any[] = [];
+let handleAuthFailure: (() => void | Promise<void>) | undefined;
+
+export function setAuthFailureHandler(handler: () => void | Promise<void>) {
+  handleAuthFailure = handler;
+}
 
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {
@@ -23,9 +25,7 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
     const requestUrl = originalRequest?.url ?? "";
 
-    const shouldSkipRefresh = AUTH_ENDPOINTS.some((endpoint) =>
-      requestUrl.includes(endpoint),
-    );
+    const shouldSkipRefresh = AUTH_ENDPOINTS.some((endpoint) => requestUrl.includes(endpoint));
 
     if (shouldSkipRefresh) {
       return Promise.reject(error);
@@ -43,24 +43,15 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // call refresh endpoint
-        await apiFactory().refreshToken();
+        await axiosInstance.get(ENDPOINTS.refreshToken);
 
-        processQueue(null, null);// CLEAN UP QUEUE AFTER SUCCESSFUL REFRESH
+        processQueue(null, null); // CLEAN UP QUEUE AFTER SUCCESSFUL REFRESH
 
         return axiosInstance(originalRequest); // retry original request
       } catch (err) {
         processQueue(err, null);
 
-        useAuthStore.getState().logout(); // LOGOUT USER ON REFRESH FAILURE
-        router.invalidate();
-
-        // optional: redirect to login
-        // call logout endpoint, to clean token of the user from cookies and DB
-
-        useAuthStore.getState().logout();
-
-        await router.invalidate();
+        await handleAuthFailure?.();
 
         return Promise.reject(err);
       } finally {
@@ -69,5 +60,5 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  },
+  }
 );

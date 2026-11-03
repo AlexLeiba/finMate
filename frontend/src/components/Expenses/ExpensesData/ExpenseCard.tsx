@@ -1,8 +1,8 @@
 import type { ExpenseType } from "@/lib/types/expense.types";
 import { Category } from "../../shared/ExpenseCategory";
-import { CURRENCY_SYMBOLS } from "@/lib/consts/currency";
 import { Calendar } from "lucide-react";
 import { HandleExpense } from "../../shared/HandleExpense";
+import { formatCurrency } from "@/lib/utils/formatCurrency";
 
 export function ExpenseCard({ expense, currency }: { expense: ExpenseType; currency: string }) {
   return (
@@ -10,10 +10,7 @@ export function ExpenseCard({ expense, currency }: { expense: ExpenseType; curre
       <div className="flex justify-between items-center">
         <Category category={expense.category} />
 
-        <p className="text-xl">
-          {CURRENCY_SYMBOLS[currency] || currency}
-          <span className="ml-0.5">{expense.amount}</span>
-        </p>
+        <p className="text-xl">{formatCurrency(expense.amount, currency)}</p>
       </div>
       <p className="text-text-secondary">{expense.description}</p>
 

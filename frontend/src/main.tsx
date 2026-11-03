@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import "./index.css";
 import { useAuthStore } from "./store/useAuthStore";
 import { getErrorMessage } from "./lib/utils/errorMessage";
+import { setAuthFailureHandler } from "./api/axios/interceptors";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -12,6 +13,14 @@ import { routeTree } from "./routeTree.gen";
 export const router = createRouter({
   routeTree,
   context: { auth: useAuthStore }, //passing the store to context, so inside routes we can edit store through context.
+});
+
+setAuthFailureHandler(async () => {
+  try {
+    await useAuthStore.getState().logout();
+  } finally {
+    await router.invalidate();
+  }
 });
 
 // Register the router instance for type safety

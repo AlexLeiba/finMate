@@ -1,5 +1,5 @@
-import { CURRENCY_SYMBOLS } from "@/lib/consts/currency";
 import { useExpenseStore } from "@/store/useExpensesStore";
+import { formatCurrency } from "@/lib/utils/formatCurrency";
 
 export function TotalStats({ currency }: { currency: string }) {
   const stats = useExpenseStore((state) => state.stats);
@@ -13,17 +13,11 @@ export function TotalStats({ currency }: { currency: string }) {
         <div className="flex flex-col gap-1">
           <p className="text-text-secondary">Total Amount</p>
 
-          <p className="text-xl font-bold">
-            {CURRENCY_SYMBOLS[currency] || currency}
-            {stats.totalAmount}
-          </p>
+          <p className="text-xl font-bold">{formatCurrency(stats.totalAmount, currency)}</p>
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-text-secondary">Average Amount</p>
-          <p className="text-xl font-bold">
-            {CURRENCY_SYMBOLS[currency] || currency}
-            {stats.averageAmount}
-          </p>
+          <p className="text-xl font-bold">{formatCurrency(stats.averageAmount, currency)}</p>
         </div>
       </div>
     </section>

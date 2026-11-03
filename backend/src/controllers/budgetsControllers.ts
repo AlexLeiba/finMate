@@ -149,6 +149,9 @@ const updateBudget = asyncHandler(async function updateBudget(req: Request, res:
       budgetTargetAmount: validatedProvidedBody.data?.budgetTargetAmount,
       date: validatedProvidedBody.data.date,
       description: validatedProvidedBody.data.description,
+      ...(validatedProvidedBody.data.options !== undefined && {
+        options: validatedProvidedBody.data.options,
+      }),
     },
     {
       new: true,

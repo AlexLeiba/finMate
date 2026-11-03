@@ -9,9 +9,8 @@ import { toast } from "react-toastify";
 import { useShallow } from "zustand/react/shallow";
 
 function Budgets() {
-  const { getAllBudgets, budgets, budgetType } = useBudgetsStore(
+  const { getAllBudgets, budgetType } = useBudgetsStore(
     useShallow((state) => ({
-      budgets: state.budgets,
       getAllBudgets: state.getAllBudgets,
       budgetType: state.budgetType,
       error: state.error,
@@ -25,7 +24,7 @@ function Budgets() {
 
     async function fetchBudgets() {
       try {
-        await getAllBudgets();
+        await getAllBudgets(budgetType);
       } catch (error: unknown) {
         toast.error(error as string);
       } finally {
@@ -33,7 +32,7 @@ function Budgets() {
       }
     }
     fetchBudgets();
-  }, [budgetType]);
+  }, [budgetType, getAllBudgets]);
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center">
@@ -50,7 +49,7 @@ function Budgets() {
         <CreateNewBudgetDialog />
       </div>
 
-      <BudgetsList currency={currency} budgets={budgets} />
+      <BudgetsList currency={currency} />
     </div>
   );
 }

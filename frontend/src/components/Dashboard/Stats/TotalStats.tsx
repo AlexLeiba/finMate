@@ -9,7 +9,7 @@ import { DatePicker } from "@/components/Dashboard/SpendingTrends/DatePicker";
 import { toast } from "react-toastify";
 import { useStatsStore } from "@/store/useStatsStore";
 import { Separator } from "@/components/ui/separator";
-import { CURRENCY_SYMBOLS } from "@/lib/consts/currency";
+import { formatCurrency } from "@/lib/utils/formatCurrency";
 
 export function TotalStats({ currency }: { currency: string }) {
   const [datePeriod, setDatePeriod] = useState<{ startDate: Date; endDate: Date }>({
@@ -34,7 +34,6 @@ export function TotalStats({ currency }: { currency: string }) {
           endDate: datePeriod.endDate.toISOString(),
         });
       } catch (error: unknown) {
-       
         toast.error(error as string);
       }
     }
@@ -121,24 +120,24 @@ export function TotalStats({ currency }: { currency: string }) {
             <StatCard
               icon={<DollarSign size={18} />}
               title="Total Expenses"
-              value={`${CURRENCY_SYMBOLS[currency]} ${dashboardStats?.totalExpenses || 0} `}
+              value={formatCurrency(dashboardStats?.totalExpenses || 0, currency)}
             />
             <StatCard
               icon={<ChartNoAxesColumn size={18} />}
               title="Average Expense"
-              value={`${CURRENCY_SYMBOLS[currency]} ${dashboardStats?.averageExpense || 0} `}
+              value={formatCurrency(dashboardStats?.averageExpense || 0, currency)}
             />
             <StatCard
               onClick={() => handleFilterbyMonth("lowest")}
               icon={<CalendarArrowDown size={18} />}
               title="Lowest Expense"
-              value={`${CURRENCY_SYMBOLS[currency]} ${dashboardStats?.lowestExpense?.amount || 0} `}
+              value={formatCurrency(dashboardStats?.lowestExpense?.amount || 0, currency)}
             />
             <StatCard
               onClick={() => handleFilterbyMonth("highest")}
               icon={<CalendarArrowDown size={18} />}
               title="Highest Expense"
-              value={`${CURRENCY_SYMBOLS[currency]} ${dashboardStats?.highestExpense?.amount || 0} `}
+              value={formatCurrency(dashboardStats?.highestExpense?.amount || 0, currency)}
             />
           </div>
         </div>
@@ -149,13 +148,13 @@ export function TotalStats({ currency }: { currency: string }) {
             onClick={() => handleFilterbyMonth("thisMonth")}
             icon={<CalendarArrowDown size={18} />}
             title="This Month"
-            value={`${CURRENCY_SYMBOLS[currency]} ${dashboardStats?.currentMonthTotal || 0} `}
+            value={formatCurrency(dashboardStats?.currentMonthTotal || 0, currency)}
           />
           <StatCard
             onClick={() => handleFilterbyMonth("prevMonth")}
             icon={<CalendarArrowDown size={18} />}
             title="Previous Month"
-            value={`${CURRENCY_SYMBOLS[currency]} ${dashboardStats?.prevMonthTotal || 0} `}
+            value={formatCurrency(dashboardStats?.prevMonthTotal || 0, currency)}
           />
           <StatCard
             icon={<CalendarArrowDown size={18} />}

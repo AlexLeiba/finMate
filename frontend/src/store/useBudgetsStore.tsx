@@ -31,7 +31,7 @@ export type BudgetStoreType = {
   setBudgetType: (type: BudgetType) => void;
 
   // Apis
-  getAllBudgets: () => Promise<void>;
+  getAllBudgets: (type?: BudgetType) => Promise<void>;
   createBudget: (body: BudgetSchemaType) => Promise<BudgetSchemaTypeApi["data"] | undefined>;
   updateBudget: (body: BudgetSchemaType, id: string) => Promise<void>;
   deleteBudget: (id: string) => Promise<void>;
@@ -50,9 +50,9 @@ export const useBudgetsStore = create<BudgetStoreType>((set, get) => ({
   },
 
   // Apis
-  getAllBudgets: async () => {
+  getAllBudgets: async (type) => {
     set({ isLoading: true });
-    const budgetType = get().budgetType;
+    const budgetType = type ?? get().budgetType;
     try {
       const response = await apiFactory().getAllBudgets(budgetType);
 
