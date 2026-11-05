@@ -1,5 +1,5 @@
 "use client";
-import { ComponentProps } from "react";
+import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils/tailwindUtils";
 import { Loader2 } from "lucide-react";
 
@@ -28,23 +28,18 @@ export function IconButton({
             ? "pointer-events-none"
             : "opacity-50 "
           : "cursor-pointer hover:opacity-70",
-        className,
+        className
       )}
       {...props}
     >
-      <div
-        className={cn(
-          loading ? "opacity-0" : "opacity-100 w-full",
-          classNameChildren,
-        )}
-      >
+      <div className={cn(loading ? "opacity-0" : "opacity-100 w-full", classNameChildren)}>
         {children}
       </div>
       {loading && (
         <Loader2
           className={cn(
             loading ? "opacity-100" : "opacity-0",
-            "animate-spin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+            "animate-spin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
           )}
         />
       )}

@@ -3,14 +3,11 @@ import type { AuthResponse, UserType } from "../types";
 import { asyncHandler, sendError, sendSuccess } from "../utils/responseHelpers";
 import { DEFAULT_VALIDATION_ERROR_MESSAGE } from "../consts/consts";
 import { updateProfileSchema } from "../schemas/profile";
-import { User } from "../models/user";
+import { User } from "../models/User";
 import bcrypt from "bcrypt";
 
 // GET PROFILE
-const getProfile = asyncHandler(async function getProfile(
-  req: Request,
-  res: Response,
-) {
+const getProfile = asyncHandler(async function getProfile(req: Request, res: Response) {
   const userId = req.userId;
 
   if (!userId) {
@@ -29,7 +26,7 @@ const getProfile = asyncHandler(async function getProfile(
         verifiedOtpToken: 0,
         refreshToken: 0,
         refreshTokenExpiresAt: 0,
-      },
+      }
     )
   )?.toObject();
   if (!userDB) {
@@ -44,10 +41,7 @@ const getProfile = asyncHandler(async function getProfile(
 });
 
 // UPDATE PROFILE
-const updateProfile = asyncHandler(async function updateProfile(
-  req: Request,
-  res: Response,
-) {
+const updateProfile = asyncHandler(async function updateProfile(req: Request, res: Response) {
   const userId = req.userId;
 
   if (!userId) {
@@ -63,9 +57,8 @@ const updateProfile = asyncHandler(async function updateProfile(
   if (!validatedUserInput.success) {
     sendError(
       res,
-      JSON.parse(validatedUserInput?.error?.message)[0].message ||
-        DEFAULT_VALIDATION_ERROR_MESSAGE,
-      400,
+      JSON.parse(validatedUserInput?.error?.message)[0].message || DEFAULT_VALIDATION_ERROR_MESSAGE,
+      400
     );
     return;
   }
@@ -82,10 +75,7 @@ const updateProfile = asyncHandler(async function updateProfile(
   };
 
   if (validatedUserInput.data.password) {
-    const encryptedPassword = await bcrypt.hash(
-      validatedUserInput.data.password,
-      10,
-    );
+    const encryptedPassword = await bcrypt.hash(validatedUserInput.data.password, 10);
     updatedData.password = encryptedPassword;
   }
   const updatedUserData = await User.findOneAndUpdate(
@@ -100,7 +90,7 @@ const updateProfile = asyncHandler(async function updateProfile(
         refreshToken: 0,
         refreshTokenExpiresAt: 0,
       },
-    },
+    }
   );
 
   if (!updatedUserData) {

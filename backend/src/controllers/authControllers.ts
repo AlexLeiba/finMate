@@ -20,11 +20,11 @@ import {
 import {
   ACCESS_TOKEN,
   ACCESS_TOKEN_EXPIRES_AT,
-  DEVELOPMENT_ENVIRONMENT,
+  AUTH_COOKIE_OPTIONS,
   REFRESH_TOKEN,
   REFRESH_TOKEN_EXPIRES_AT,
 } from "../config/token";
-import { User } from "../models/user";
+import { User } from "../models/User";
 import { OTP_EXPIRE_AT } from "../config/otp";
 
 //SIGN UP
@@ -114,15 +114,11 @@ const signIn = asyncHandler(async function signIn(req: Request, res: Response) {
 
   // SET COOKIE TO BE SEND TO CLIENT BROWSER
   res.cookie(ACCESS_TOKEN, accessToken, {
-    httpOnly: true, //prevents access through javascript, document.cookie/ helps protect against CSRF attacks
-    secure: process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT, //sends the cookies only through https
-    sameSite: "strict", //prevents cross-site request forgery
+    ...AUTH_COOKIE_OPTIONS,
     maxAge: ACCESS_TOKEN_EXPIRES_AT, //15min / expire time of cookies
   });
   res.cookie(REFRESH_TOKEN, refreshToken, {
-    httpOnly: true, //prevents access through javascript, document.cookie/ helps protect against CSRF attacks
-    secure: process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT, //sends the cookies only through https
-    sameSite: "strict", //prevents cross-site request forgery
+    ...AUTH_COOKIE_OPTIONS,
     maxAge: REFRESH_TOKEN_EXPIRES_AT, //30 days / expire time of cookies
   });
 
@@ -148,8 +144,6 @@ const signIn = asyncHandler(async function signIn(req: Request, res: Response) {
   sendSuccess(res, userResponse, "User logged in successfully", 200);
 });
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const sendOTPforgotPassword = asyncHandler(async function sendOTPforgotPassword(
   req: Request,
   res: Response
@@ -170,6 +164,13 @@ const sendOTPforgotPassword = asyncHandler(async function sendOTPforgotPassword(
     sendError(res, "User not found", 404);
     return;
   }
+
+  if (!process.env.RESEND_API_KEY) {
+    sendError(res, "Email service is not configured", 503);
+    return;
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   const otpCode = generateOtp();
   const { error } = await resend.emails.send({
@@ -282,13 +283,20 @@ const resetPassword = asyncHandler(async function resetPassword(req: Request, re
 
   const encrytedPassword = await bcrypt.hash(validatedUserInput?.data?.newPassword, 10);
 
-  await User.findOneAndUpdate(
-    { email: validatedUserInput?.data?.newPassword },
+  const updatedUser = await User.findOneAndUpdate(
+    { email: validatedUserInput.data.email, verifiedOtp: true },
     {
       password: encrytedPassword,
       verifiedOtp: false,
+      refreshToken: null,
+      refreshTokenExpiresAt: null,
     }
   );
+
+  if (!updatedUser) {
+    sendError(res, "Password reset failed, please verify your email again", 400);
+    return;
+  }
 
   sendSuccess(
     res,
@@ -310,16 +318,10 @@ const logOut = asyncHandler(async function logOut(req: Request, res: Response) {
   );
 
   res.clearCookie("refreshToken", {
-    httpOnly: true, //prevents access through javascript, document.cookie/ helps protect against CSRF attacks
-    secure: process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT, //sends the cookies only through https
-    sameSite: "strict", //prevents cross-site request forgery
-    maxAge: REFRESH_TOKEN_EXPIRES_AT, //30 days / expire time of cookies
+    ...AUTH_COOKIE_OPTIONS,
   });
   res.clearCookie("accessToken", {
-    httpOnly: true, //prevents access through javascript, document.cookie/ helps protect against CSRF attacks
-    secure: process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT, //sends the cookies only through https
-    sameSite: "strict", //prevents cross-site request forgery
-    maxAge: ACCESS_TOKEN_EXPIRES_AT, //30 days / expire time of cookies
+    ...AUTH_COOKIE_OPTIONS,
   });
   sendSuccess(res, null, "Logged out successfully", 200);
 });
@@ -366,9 +368,7 @@ const refreshToken = asyncHandler(async function refreshToken(req: Request, res:
   const accessToken = generateAccessToken(userDB?._id, userDB?.email);
 
   res.cookie(ACCESS_TOKEN, accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT,
-    sameSite: "strict",
+    ...AUTH_COOKIE_OPTIONS,
   });
 
   sendSuccess(res, "", "Token refreshed successfully", 204);

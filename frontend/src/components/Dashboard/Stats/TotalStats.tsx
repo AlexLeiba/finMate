@@ -131,13 +131,13 @@ export function TotalStats({ currency }: { currency: string }) {
               onClick={() => handleFilterbyMonth("lowest")}
               icon={<CalendarArrowDown size={18} />}
               title="Lowest Expense"
-              value={formatCurrency(dashboardStats?.lowestExpense?.amount || 0, currency)}
+              value={formatCurrency(Number(dashboardStats?.lowestExpense?.amount || 0), currency)}
             />
             <StatCard
               onClick={() => handleFilterbyMonth("highest")}
               icon={<CalendarArrowDown size={18} />}
               title="Highest Expense"
-              value={formatCurrency(dashboardStats?.highestExpense?.amount || 0, currency)}
+              value={formatCurrency(Number(dashboardStats?.highestExpense?.amount || 0), currency)}
             />
           </div>
         </div>

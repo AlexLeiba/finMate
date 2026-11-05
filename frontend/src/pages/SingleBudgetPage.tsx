@@ -20,8 +20,6 @@ import {
   type BudgetSchemaType,
 } from "@/lib/schemas/forms/budgetsSchema";
 
-import { DropDownBudgetType } from "@/components/Budgets/DropDownBudgetType";
-
 import { Edit, Plus, X } from "lucide-react";
 import { DatePicker } from "@/components/shared/DatePicker";
 
@@ -33,7 +31,7 @@ function SingleBudgetPage() {
   const { getSingleBudget, singleBudget, budgetType, updateBudget, isLoading } = useBudgetsStore(
     useShallow((state) => {
       return {
-        budgetType: state.budgetType,
+        budgetType: state.singleBudget?.budgetType || BudgetType.SAVINGS,
         getSingleBudget: state.getSingleBudget,
         singleBudget: state.singleBudget,
         isLoading: state.isLoading,
@@ -50,11 +48,10 @@ function SingleBudgetPage() {
       title: singleBudget?.title || "",
       description: singleBudget?.description || "",
       budgetType: singleBudget?.budgetType || BudgetType.SAVINGS,
-      budgetTargetAmount: singleBudget?.budgetTargetAmount,
       date: singleBudget?.date || new Date(),
     },
   });
-  console.log("🚀 ~ SingleBudgetPage ~ formMethods:", formMethods?.formState?.errors);
+
   const formMethodsOptions = useForm<BudgetOptionsSchemaType>({
     resolver: zodResolver(budgetOptionsSchema),
     mode: "onChange",
@@ -62,7 +59,6 @@ function SingleBudgetPage() {
       options: singleBudget?.options || [],
     },
   });
-  console.log("🚀 ~ SingleBudgetPage ~ formMethodsOptions:", formMethodsOptions?.formState?.errors);
 
   const {
     watch: watchOptions,
@@ -82,6 +78,7 @@ function SingleBudgetPage() {
   } = formMethods;
 
   useEffect(() => {
+    setValue("budgetTargetAmount", undefined);
     toast.loading("Loading...", { toastId: "fetchExpenses" });
 
     async function fetchBudget() {
@@ -90,8 +87,9 @@ function SingleBudgetPage() {
 
         setValue("title", response?.title || "");
         setValue("description", response?.description);
+        setValue("budgetType", response?.budgetType || BudgetType.SAVINGS);
         setValue("date", response?.date);
-        setValue("budgetTargetAmount", response?.budgetTargetAmount);
+        setValue("budgetTargetAmount", response?.budgetTargetAmount || undefined);
         resetOptions({ options: response?.options || [] });
       } catch (error: unknown) {
         toast.error(error as string);
@@ -100,7 +98,7 @@ function SingleBudgetPage() {
       }
     }
     fetchBudget();
-  }, [budgetType]);
+  }, [getSingleBudget, params.budgetId, resetOptions, setValue]);
 
   console.log("🚀 ~ SingleBudgetPage ~ errors>>>>>>>>>:", errors);
 
@@ -115,21 +113,39 @@ function SingleBudgetPage() {
   const targetPeriods = budgetRemaining / (totalAddedOptions || 1);
   const yearsToOneDecimal = (value: number) => Math.round(value * 10) / 10;
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control: formMethodsOptions.control,
     name: "options",
   });
 
   // on SAVE
   async function onSubmit(data: BudgetSchemaType) {
+    const currentOptions = getOptionValues("options") || [];
+    const completeOptions = currentOptions.filter(
+      (option) => option.title.trim() && Number.isFinite(option.amount) && option.amount !== 0
+    );
+
+    if (completeOptions.length !== currentOptions.length) {
+      replace(completeOptions);
+      setAddOption(false);
+    }
+
     const optionsAreValid = await triggerOptions("options");
     if (!optionsAreValid) return;
 
     toast.loading("Loading...", { toastId: "createExpense" });
     try {
-      await updateBudget({ ...data, options: getOptionValues("options") || [] }, params.budgetId);
+      await updateBudget(
+        {
+          ...data,
+          budgetType: singleBudget?.budgetType ?? data.budgetType ?? BudgetType.SAVINGS,
+          options: completeOptions,
+        },
+        params.budgetId
+      );
 
       setIsEdit(false);
+      setAddOption(false);
     } catch (error: unknown) {
       toast.error(error as string);
     } finally {
@@ -143,6 +159,8 @@ function SingleBudgetPage() {
       append({ title: "", amount: 0 });
     }
   }
+
+  const statsBudgetType = singleBudget?.budgetType === "expenses" ? "spend" : "set aside";
 
   return (
     <div className="flex flex-col gap-2 relative h-full">
@@ -167,12 +185,6 @@ function SingleBudgetPage() {
               />
 
               <FormProvider {...formMethods}>
-                <DropDownBudgetType
-                  disabled={isLoading}
-                  name="budgetType"
-                  budgetType={budgetType}
-                />
-
                 <DatePicker disabled={isLoading} name="date" label="Date" />
               </FormProvider>
               <Button variant="accent" className="w-full">
@@ -228,7 +240,10 @@ function SingleBudgetPage() {
                 type="number"
                 error={errors.budgetTargetAmount?.message}
                 {...field}
-                onChange={(e) => field.onChange(Number(e.target.value))}
+                value={field.value ?? ""}
+                onChange={(e) =>
+                  field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
+                }
               />
             )}
           />
@@ -326,7 +341,12 @@ function SingleBudgetPage() {
                               type="number"
                               error={errorsOptions?.options?.[index]?.amount?.message ?? ""}
                               {...field}
-                              onChange={(e) => field.onChange(Number(e.target.value))}
+                              value={field.value || ""}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value === "" ? undefined : Number(e.target.value)
+                                )
+                              }
                             />
                           )}
                         />
@@ -351,30 +371,46 @@ function SingleBudgetPage() {
         <div className="p-2 border rounded-md flex flex-col gap-2 sticky top-16 w-1/2">
           <h4 className="text-center">Your {singleBudget?.budgetType} Stats</h4>
 
-          <p>Budget target: {budgetTargetAmount}</p>
           <p>
-            Total {budgetType}: {totalAddedOptions}
+            Budget target: <b>{budgetTargetAmount}</b>
           </p>
           <p>
-            {budgetType === "expenses" ? "Budget left" : "Savings left to add"}: {budgetRemaining}
+            Total {budgetType}: <b>{totalAddedOptions}</b>
           </p>
-          {totalAddedOptions > 0 && budgetRemaining > 0 && (
+          <p>
+            {budgetType === "expenses" ? "Budget left" : "Savings left to add"}:{" "}
+            <b>{budgetRemaining}</b>
+          </p>
+          {!budgetTargetAmount ? (
+            <p>Set a budget target to see estimates.</p>
+          ) : totalAddedOptions <= 0 ? (
+            <p>Add an option amount to see estimates.</p>
+          ) : budgetRemaining <= 0 ? (
+            <p>Budget target reached.</p>
+          ) : (
             <ul className="list-disc list-inside ml-4">
-              <p>Estimated time to reach your target:</p>
+              <p>Estimated time to reach your budget:</p>
 
-              <p>If Daily:</p>
+              <p>
+                {" "}
+                <b>If Daily {statsBudgetType}:</b>
+              </p>
               <li>Days: {Math.ceil(targetPeriods)}</li>
               <li>Weeks: {Math.ceil(targetPeriods / 7)}</li>
               <li>Months: {Math.ceil(targetPeriods / 30)}</li>
               <li>Years: {yearsToOneDecimal(targetPeriods / 365)}</li>
 
-              <p className="mt-4">If Weekly:</p>
+              <p className="mt-4">
+                <b>If Weekly {statsBudgetType}:</b>
+              </p>
 
               <li>Weeks: {Math.ceil(targetPeriods)}</li>
               <li>Months: {Math.round((targetPeriods * 7) / 30)}</li>
               <li>Years: {yearsToOneDecimal((targetPeriods * 7) / 365)}</li>
 
-              <p className="mt-4">If Monthly:</p>
+              <p className="mt-4">
+                <b>If Monthly {statsBudgetType}:</b>
+              </p>
 
               <li>Months: {Math.ceil(targetPeriods)}</li>
               <li>Years: {yearsToOneDecimal(targetPeriods / 12)}</li>

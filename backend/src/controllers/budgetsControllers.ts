@@ -89,7 +89,7 @@ const createBudget = asyncHandler(async function createBudget(req: Request, res:
     userId: userId,
     title: validatedProvidedBody.data.title,
     budgetType: validatedProvidedBody.data.budgetType,
-    budgetTargetAmount: validatedProvidedBody.data?.budgetTargetAmount || 0,
+    budgetTargetAmount: validatedProvidedBody.data?.budgetTargetAmount,
     date: validatedProvidedBody.data.date || new Date(),
     description: validatedProvidedBody.data.description || "",
   });

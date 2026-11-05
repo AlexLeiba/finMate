@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   forgotPasswordSchema,
@@ -22,11 +22,10 @@ import {
 import { apiFactory } from "@/api/services/apiFactory";
 import { toast } from "react-toastify";
 import { getErrorMessage } from "@/lib/utils/errorMessage";
+import * as zod from "zod";
 
 function ForgotPasswordPage() {
-  const [step, setStep] = useState<
-    "verifyEmail" | "verifyOtp" | "resetPassword"
-  >("verifyEmail");
+  const [step, setStep] = useState<"verifyEmail" | "verifyOtp" | "resetPassword">("verifyEmail");
 
   const {
     register,
@@ -34,12 +33,13 @@ function ForgotPasswordPage() {
     handleSubmit,
     setValue,
     control,
-  } = useForm({
+  } = useForm<zod.input<typeof forgotPasswordSchema>, unknown, ForgotPasswordType>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       step: "verifyEmail",
     },
   });
+  const resetPasswordErrors = errors as FieldErrors<ResetPasswordType>;
 
   useEffect(() => {
     setValue("step", step);
@@ -106,11 +106,7 @@ function ForgotPasswordPage() {
     <main className="flex flex-col gap-8 items-center justify-center h-[calc(100vh-68px)]">
       <h1>Forgot Password</h1>
 
-      <form
-        action=""
-        autoComplete="off"
-        className="flex flex-col gap-4 max-w-100 w-full"
-      >
+      <form action="" autoComplete="off" className="flex flex-col gap-4 max-w-100 w-full">
         <input type="hidden" {...register("step")} />
         {step === "verifyEmail" && (
           <Input
@@ -154,13 +150,13 @@ function ForgotPasswordPage() {
             <Input
               label="New Password"
               placeholder="Type your new password"
-              error={errors?.newPassword?.message}
+              error={resetPasswordErrors.newPassword?.message}
               {...register("newPassword")}
             />
             <Input
               label="Repeat New Password"
               placeholder="Repeat your new password"
-              error={errors?.repeatNewPassword?.message}
+              error={resetPasswordErrors.repeatNewPassword?.message}
               {...register("repeatNewPassword")}
             />
           </>
@@ -173,11 +169,7 @@ function ForgotPasswordPage() {
         </div>
       </form>
 
-      <Button
-        className="w-full max-w-100"
-        size="lg"
-        onClick={handleSubmit(onSubmit)}
-      >
+      <Button className="w-full max-w-100" size="lg" onClick={handleSubmit(onSubmit)}>
         Submit
       </Button>
     </main>

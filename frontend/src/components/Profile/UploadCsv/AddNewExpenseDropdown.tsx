@@ -7,17 +7,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils/tailwindUtils";
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
-
-import * as z from "zod";
-
-const uploadNewExpensesSchema = z.object({
-  description: z.string().min(1),
-  date: z.date().default(new Date()),
-  category: z.string().min(1),
-  amount: z.string().min(1),
-});
-
 export function AddNewExpenseDropdown({
   rows,
   title,

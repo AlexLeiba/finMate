@@ -1,14 +1,24 @@
 const REFRESH_TOKEN_EXPIRES_AT = 7 * 24 * 60 * 60 * 1000; // 7 days
-const ACCESS_TOKEN_EXPIRES_AT = 1 * 60 * 1000; // 1min //TODO change to 15 min, integrate interseptions which will call refresh-token router
+const ACCESS_TOKEN_EXPIRES_AT = 15 * 60 * 1000;
+const REFRESH_TOKEN_EXPIRES_IN_SECONDS = 7 * 24 * 60 * 60;
+const ACCESS_TOKEN_EXPIRES_IN_SECONDS = 15 * 60;
 
 const ACCESS_TOKEN = "accessToken";
 const REFRESH_TOKEN = "refreshToken";
 const DEVELOPMENT_ENVIRONMENT = "development";
+const AUTH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT,
+  sameSite: process.env.NODE_ENV === DEVELOPMENT_ENVIRONMENT ? ("lax" as const) : ("none" as const),
+};
 
 export {
   REFRESH_TOKEN_EXPIRES_AT,
   ACCESS_TOKEN_EXPIRES_AT,
+  REFRESH_TOKEN_EXPIRES_IN_SECONDS,
+  ACCESS_TOKEN_EXPIRES_IN_SECONDS,
   ACCESS_TOKEN,
   REFRESH_TOKEN,
   DEVELOPMENT_ENVIRONMENT,
+  AUTH_COOKIE_OPTIONS,
 };

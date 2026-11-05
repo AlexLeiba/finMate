@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import type { ObjectId } from "mongodb";
 import { tokenPayloadSchema } from "../schemas/auth";
-import { ACCESS_TOKEN_EXPIRES_AT, REFRESH_TOKEN_EXPIRES_AT } from "../config/token";
+import { ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS } from "../config/token";
 function generateAccessToken(userId: ObjectId, userEmail: string) {
   return jwt.sign(
     {
@@ -10,7 +10,7 @@ function generateAccessToken(userId: ObjectId, userEmail: string) {
     },
     process.env.JWT_SECRET as string,
     {
-      expiresIn: ACCESS_TOKEN_EXPIRES_AT,
+      expiresIn: ACCESS_TOKEN_EXPIRES_IN_SECONDS,
     }
   );
 }
@@ -23,7 +23,7 @@ function decodeAccessToken(accessToken: string) {
 }
 function generateRefreshToken(userId: ObjectId, userEmail: string) {
   return jwt.sign({ userId, email: userEmail }, process.env.JWT_SECRET || "", {
-    expiresIn: REFRESH_TOKEN_EXPIRES_AT,
+    expiresIn: REFRESH_TOKEN_EXPIRES_IN_SECONDS,
   });
 }
 function decodeRefreshToken(refreshToken: string) {

@@ -1,13 +1,12 @@
-import type { BudgetType } from "../schemas/forms/budgetsSchema";
+import { BudgetType } from "../schemas/forms/budgetsSchema";
 
-
-export const BUDGET_TYPE: Array<{ label: string; value: BudgetType[number] }> = [
+export const BUDGET_TYPE: Array<{ label: string; value: BudgetType }> = [
   {
     label: "Saving",
-    value: "savings",
+    value: BudgetType.SAVINGS,
   },
   {
     label: "Expense",
-    value: "expenses",
+    value: BudgetType.EXPENSES,
   },
 ];

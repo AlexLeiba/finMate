@@ -16,7 +16,7 @@ export function RecentExpenseCard({
       <div className="flex justify-between items-center">
         <Category category={expense.category} />
 
-        <p className="text-xl">{formatCurrency(expense.amount, currency)}</p>
+        <p className="text-xl">{formatCurrency(Number(expense.amount), currency)}</p>
       </div>
 
       <div className="flex justify-between items-center">

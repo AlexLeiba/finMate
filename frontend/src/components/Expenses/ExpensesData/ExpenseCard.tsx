@@ -10,7 +10,7 @@ export function ExpenseCard({ expense, currency }: { expense: ExpenseType; curre
       <div className="flex justify-between items-center">
         <Category category={expense.category} />
 
-        <p className="text-xl">{formatCurrency(expense.amount, currency)}</p>
+        <p className="text-xl">{formatCurrency(Number(expense.amount), currency)}</p>
       </div>
       <p className="text-text-secondary">{expense.description}</p>
 
