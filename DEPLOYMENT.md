@@ -1,31 +1,34 @@
 # Vercel Deployment
 
-Deploy the frontend and backend as separate Vercel projects from this repository.
+Deploy this repository as one Vercel project with the frontend and backend defined as services in the root `vercel.json`.
 
 ## Frontend
 
+- Service name: `frontend`
 - Root directory: `frontend`
-- Framework preset: Vite
+- Framework: Vite
 - Build command: `npm run build`
-- Environment variable: `VITE_API_BASE_URL=https://<backend-domain>/api`
+- Output directory: `dist`
 
-The frontend Vercel rewrite serves the SPA for direct visits to nested routes.
+API requests default to the same deployment's `/api` path. The frontend service's fallback serves the SPA for direct visits to nested routes.
 
 ## Backend
 
+- Service name: `backend`
 - Root directory: `backend`
-- Build command: `npm run build`
-- Environment variables: `MONGODB_URI`, `JWT_SECRET`, `RESEND_API_KEY`, and `FRONTEND_ORIGINS`
-- Set `FRONTEND_ORIGINS` to a comma-separated list of exact frontend origins, including the production domain and any Vercel preview domains you intend to use.
+- Framework: Express
+- Entrypoint: `api/[...path].ts`
+- Environment variables: `MONGODB_URI`, `JWT_SECRET`, `RESEND_API_KEY`, and optionally `FRONTEND_ORIGINS`
+- Vercel deployment and production origins are allowed automatically. Set `FRONTEND_ORIGINS` to a comma-separated list of exact custom frontend origins if needed; same-origin production traffic uses `/api`.
 
-The backend is exposed as a Vercel function under `/api/*`. The health check is `/api/health`.
+The root rewrite publicly exposes the backend only under `/api/*`; `/api/health` is the health check. The frontend is public on all other paths.
 
 ## Authentication Cookies
 
-Production cookies use `SameSite=None; Secure` for credentialed frontend-to-backend requests. Configure explicit frontend origins in `FRONTEND_ORIGINS`; do not use `*` with credentials. A custom frontend and API domain under the same site is preferable because browsers may block third-party cookies between unrelated Vercel domains.
+Production cookies use `SameSite=Lax; Secure`. Since the services share one public domain, browser requests use same-origin `/api` URLs. Configure explicit frontend origins if cross-origin requests are needed; do not use `*` with credentials.
 
 The frontend sends cookies with requests. Verify sign-in, page refresh, token refresh, and sign-out on both the production domain and any preview domain you allow.
 
 ## Local Development
 
-Run the backend from `backend` and the Vite app from `frontend`. The backend allows `http://localhost:5173` by default. Local environment variables should be stored in untracked `.env` files.
+Use `vercel dev` from the repository root to run the services together locally. For standalone local development, run the backend from `backend` and Vite from `frontend`; local environment variables should be stored in untracked `.env` files.

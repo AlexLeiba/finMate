@@ -3,8 +3,13 @@ const configuredOrigins = (process.env.FRONTEND_ORIGINS || "")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+const vercelOrigins = [process.env.VERCEL_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL]
+  .filter((host): host is string => Boolean(host))
+  .map((host) => `https://${host}`);
+
 const allowedOrigins = new Set([
   ...(process.env.NODE_ENV === "production" ? [] : ["http://localhost:5173"]),
+  ...vercelOrigins,
   ...configuredOrigins,
 ]);
 

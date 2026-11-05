@@ -9,7 +9,7 @@ const DEVELOPMENT_ENVIRONMENT = "development";
 const AUTH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV !== DEVELOPMENT_ENVIRONMENT,
-  sameSite: process.env.NODE_ENV === DEVELOPMENT_ENVIRONMENT ? ("lax" as const) : ("none" as const),
+  sameSite: "lax" as const,
 };
 
 export {
