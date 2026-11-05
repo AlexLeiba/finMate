@@ -17,7 +17,7 @@ API requests default to the same deployment's `/api` path. The frontend service'
 - Service name: `backend`
 - Root directory: `backend`
 - Framework: Express
-- Entrypoint: `api/[...path].ts`
+- Express app entrypoint: `src/app.ts` (auto-detected from its default export)
 - Environment variables: `MONGODB_URI`, `JWT_SECRET`, `RESEND_API_KEY`, and optionally `FRONTEND_ORIGINS`
 - Vercel deployment and production origins are allowed automatically. Set `FRONTEND_ORIGINS` to a comma-separated list of exact custom frontend origins if needed; same-origin production traffic uses `/api`.
 
