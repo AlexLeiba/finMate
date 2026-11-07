@@ -7,8 +7,16 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useShallow } from "zustand/react/shallow";
 import { SpendingPeriodByCategoryDropDown } from "@/components/Dashboard/CategoriesBreakdown/SpendingPeriodByCategoryDropDown";
+import { Button } from "@/components/ui/button";
+import { Maximize2, Minimize2 } from "lucide-react";
 
-export function SpendingByCategoryBreakdown() {
+export function SpendingByCategoryBreakdown({
+  isFullWidth,
+  onToggleFullWidth,
+}: {
+  isFullWidth: boolean;
+  onToggleFullWidth: () => void;
+}) {
   const { isLoading, getSpendingByCategoryTimePeriod, spendingByCategoryTimePeriod } =
     useDashboardStore(
       useShallow((state) => {
@@ -33,10 +41,27 @@ export function SpendingByCategoryBreakdown() {
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <div className="px-4 py-2 border-border border rounded-md flex flex-col gap-2">
-      <div className="flex justify-between items-center">
+    <div className="min-w-0 w-full px-4 py-2 border-border border rounded-md flex flex-col gap-2">
+      <div className="flex flex-wrap justify-between items-center gap-2">
         <h4>Spending by category</h4>
-        <SpendingPeriodByCategoryDropDown />
+        <div className="flex items-center gap-2">
+          <SpendingPeriodByCategoryDropDown />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="hidden lg:inline-flex"
+            classNameChildren="flex items-center justify-center"
+            aria-label={
+              isFullWidth ? "Use standard spending category view" : "Expand spending by category"
+            }
+            aria-pressed={isFullWidth}
+            title={isFullWidth ? "Shrink" : "Full screen"}
+            onClick={onToggleFullWidth}
+          >
+            {isFullWidth ? <Minimize2 aria-hidden="true" /> : <Maximize2 aria-hidden="true" />}
+          </Button>
+        </div>
       </div>
 
       {!isLoading && spendingByCategoryTimePeriod?.categoriesBreakdownStats?.length === 0 ? (

@@ -31,10 +31,7 @@ export function BudgetsList({ currency }: { currency: string }) {
           <Spacer size={4} />
           <h4>Your {budgetType}</h4>
           <Spacer size={2} />
-          <div
-            className="grid grid-cols-[repeat(auto-fill,minmax(500px,1fr))]
-      gap-4"
-          >
+          <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
             {budgets.map((expense) => {
               const budgetId = expense._id;
               return budgetId ? (

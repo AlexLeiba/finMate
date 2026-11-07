@@ -8,6 +8,13 @@ import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Controller, FormProvider, useFieldArray, useForm } from "react-hook-form";
@@ -24,7 +31,8 @@ import { Edit, Plus, X } from "lucide-react";
 import { DatePicker } from "@/components/shared/DatePicker";
 
 function SingleBudgetPage() {
-  const [addOption, setAddOption] = useState(false);
+  const [isOptionsDialogOpen, setIsOptionsDialogOpen] = useState(false);
+  const [dialogOptionIndex, setDialogOptionIndex] = useState<number | null>(null);
   const [isEdit, setIsEdit] = useState(false);
   const params = Route.useParams();
 
@@ -127,7 +135,8 @@ function SingleBudgetPage() {
 
     if (completeOptions.length !== currentOptions.length) {
       replace(completeOptions);
-      setAddOption(false);
+      setIsOptionsDialogOpen(false);
+      setDialogOptionIndex(null);
     }
 
     const optionsAreValid = await triggerOptions("options");
@@ -145,7 +154,8 @@ function SingleBudgetPage() {
       );
 
       setIsEdit(false);
-      setAddOption(false);
+      setIsOptionsDialogOpen(false);
+      setDialogOptionIndex(null);
     } catch (error: unknown) {
       toast.error(error as string);
     } finally {
@@ -153,18 +163,27 @@ function SingleBudgetPage() {
     }
   }
 
-  async function handleAppendOption() {
-    const isValid = await triggerOptions("options");
-    if (isValid) {
+  function handleOpenOptionsDialog() {
+    const currentOptions = getOptionValues("options") || [];
+    const incompleteOptionIndex = currentOptions.findIndex(
+      (option) => !option.title.trim() || !Number.isFinite(option.amount) || option.amount === 0
+    );
+
+    if (incompleteOptionIndex >= 0) {
+      setDialogOptionIndex(incompleteOptionIndex);
+    } else {
+      setDialogOptionIndex(currentOptions.length);
       append({ title: "", amount: 0 });
     }
+    setIsOptionsDialogOpen(true);
   }
 
   const statsBudgetType = singleBudget?.budgetType === "expenses" ? "spend" : "set aside";
+  const budgetOptionLabel = singleBudget?.budgetType === BudgetType.EXPENSES ? "expense" : "saving";
 
   return (
     <div className="flex flex-col gap-2 relative h-full">
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
+      <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))]">
         {/* EDIT */}
         {isEdit ? (
           <div className="flex flex-col gap-2 border rounded-md p-4 relative">
@@ -199,10 +218,10 @@ function SingleBudgetPage() {
             </button>
           </div>
         ) : (
-          <div className="flex gap-2 border rounded-md p-4 relative">
-            <div>
+          <div className="flex min-w-0 gap-2 border rounded-md p-4 relative">
+            <div className="min-w-0 pr-8">
               <h3 className="line-clamp-1">{singleBudget?.title}</h3>
-              <p>{singleBudget?.description}</p>
+              <p className="wrap-break-word">{singleBudget?.description}</p>
               <p>Budget type: {singleBudget?.budgetType}</p>
             </div>
 
@@ -220,7 +239,7 @@ function SingleBudgetPage() {
             onClick={handleSubmit(onSubmit)}
             loading={isLoading}
             variant={"accent"}
-            className="w-50"
+            className="w-full sm:w-50"
           >
             Save
           </Button>
@@ -250,125 +269,45 @@ function SingleBudgetPage() {
         </div>
       </div>
 
-      <div className="flex gap-4 items-start">
-        <div className=" flex flex-col gap-4 w-1/2 h-full">
-          {!addOption && (
-            <div className="flex flex-col gap-3">
-              <h4 className="text-center">Your added {singleBudget?.budgetType}</h4>
-              {fields.map((field, index) => (
-                <div key={field.id} className="flex flex-col gap-2 border rounded-md p-4">
-                  <div className="flex items-center justify-between gap-1">
-                    <p>
-                      {singleBudget?.budgetType?.toUpperCase()} {index + 1}
-                    </p>
-                    <button
-                      type="button"
-                      aria-label={`Delete ${singleBudget?.budgetType} option ${index + 1}`}
-                      className="cursor-pointer w-8 h-8 rounded-full"
-                      onClick={() => remove(index)}
-                    >
-                      <X />
-                    </button>
-                  </div>
-                  <div className="flex items-end gap-2">
-                    <Input disabled label="Title" value={options?.[index]?.title || ""} />
-                    <Input
-                      disabled
-                      label="Amount"
-                      type="number"
-                      value={options?.[index]?.amount ?? ""}
-                    />
-                  </div>
+      <div className="grid min-w-0 grid-cols-1 items-start gap-4 lg:grid-cols-2">
+        <div className="order-2 flex min-w-0 w-full flex-col gap-4 lg:order-1">
+          <div className="flex flex-col gap-3">
+            <h4 className="text-center">Your added {singleBudget?.budgetType}</h4>
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex min-w-0 flex-col gap-2 border rounded-md p-4">
+                <div className="flex items-center justify-between gap-1">
+                  <p>
+                    {singleBudget?.budgetType?.toUpperCase()} {index + 1}
+                  </p>
+                  <button
+                    type="button"
+                    aria-label={`Delete ${singleBudget?.budgetType} option ${index + 1}`}
+                    className="cursor-pointer w-8 h-8 rounded-full"
+                    onClick={() => remove(index)}
+                  >
+                    <X />
+                  </button>
                 </div>
-              ))}
-              {fields.length === 0 && <p>No options added yet</p>}
-              <Button
-                className="w-full"
-                onClick={() => {
-                  append({ title: "", amount: 0 });
-                  setAddOption(true);
-                }}
-              >
-                <div className="flex items-center gap-1 justify-center">
-                  Add {singleBudget?.budgetType} <Plus />
+                <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2">
+                  <Input disabled label="Title" value={options?.[index]?.title || ""} />
+                  <Input
+                    disabled
+                    label="Amount"
+                    type="number"
+                    value={options?.[index]?.amount ?? ""}
+                  />
                 </div>
-              </Button>
-            </div>
-          )}
-
-          {addOption && (
-            <div className="flex flex-col gap-2 border rounded-md p-2">
-              <h4 className="text-center">Your added {singleBudget?.budgetType}</h4>
-
-              {fields.length === 0 ? (
-                <Button onClick={handleAppendOption}>
-                  <Plus />
-                </Button>
-              ) : (
-                fields.map((field, index) => {
-                  return (
-                    <div key={field.id} className="flex flex-col gap-2 border rounded-md p-4">
-                      <div className="flex items-center justify-between gap-1 ">
-                        <p>
-                          {singleBudget?.budgetType?.toUpperCase()} {index + 1}
-                        </p>
-
-                        <button
-                          className="cursor-pointer w-8 h-8 rounded-full"
-                          onClick={() => remove(index)}
-                        >
-                          <X />
-                        </button>
-                      </div>
-
-                      <div className="flex items-end gap-2">
-                        <Input
-                          disabled={isLoading}
-                          label="Title"
-                          placeholder="Type your title"
-                          error={errorsOptions?.options?.[index]?.title?.message ?? ""}
-                          {...registerOptions(`options.${index}.title`)}
-                        />
-
-                        <Controller
-                          control={formMethodsOptions.control}
-                          name={`options.${index}.amount`}
-                          render={({ field }) => (
-                            <Input
-                              label="Amount"
-                              disabled={isLoading}
-                              placeholder="99.99"
-                              type="number"
-                              error={errorsOptions?.options?.[index]?.amount?.message ?? ""}
-                              {...field}
-                              value={field.value || ""}
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value === "" ? undefined : Number(e.target.value)
-                                )
-                              }
-                            />
-                          )}
-                        />
-
-                        {/* ADD MORE OPTION BUTTON */}
-                        {fields?.length - 1 === index && (
-                          <Button onClick={handleAppendOption}>
-                            <div className="flex items-center gap-1 justify-center">
-                              <Plus />
-                            </div>
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          )}
-          {/* STATS */}
+              </div>
+            ))}
+            {fields.length === 0 && <p>No options added yet</p>}
+            <Button className="w-full" onClick={handleOpenOptionsDialog}>
+              <div className="flex items-center gap-1 justify-center">
+                Add {budgetOptionLabel} <Plus />
+              </div>
+            </Button>
+          </div>
         </div>
-        <div className="p-2 border rounded-md flex flex-col gap-2 sticky top-16 w-1/2">
+        <div className="order-1 min-w-0 w-full rounded-md border p-4 flex flex-col gap-2 lg:sticky lg:top-16 lg:order-2">
           <h4 className="text-center">Your {singleBudget?.budgetType} Stats</h4>
 
           <p>
@@ -418,6 +357,76 @@ function SingleBudgetPage() {
           )}
         </div>
       </div>
+
+      <Dialog open={isOptionsDialogOpen} onOpenChange={setIsOptionsDialogOpen}>
+        <DialogContent className="w-[calc(100vw-2rem)] max-h-[calc(100dvh-2rem)] max-w-lg overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add {budgetOptionLabel}</DialogTitle>
+            <DialogDescription>
+              Add a title and amount for this {budgetOptionLabel}. Saving updates this budget.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-4">
+            {dialogOptionIndex !== null && fields[dialogOptionIndex] && (
+              <div
+                key={fields[dialogOptionIndex].id}
+                className="flex flex-col gap-3 rounded-md border p-4"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-medium">New {budgetOptionLabel}</p>
+                  <button
+                    type="button"
+                    aria-label={`Discard new ${budgetOptionLabel}`}
+                    className="flex size-9 shrink-0 items-center justify-center rounded-md hover:bg-secondary"
+                    onClick={() => {
+                      remove(dialogOptionIndex);
+                      setDialogOptionIndex(null);
+                      setIsOptionsDialogOpen(false);
+                    }}
+                  >
+                    <X aria-hidden="true" />
+                  </button>
+                </div>
+                <Input
+                  disabled={isLoading}
+                  label="Title"
+                  placeholder="Type a title"
+                  error={errorsOptions?.options?.[dialogOptionIndex]?.title?.message ?? ""}
+                  {...registerOptions(`options.${dialogOptionIndex}.title`)}
+                />
+                <Controller
+                  control={formMethodsOptions.control}
+                  name={`options.${dialogOptionIndex}.amount`}
+                  render={({ field }) => (
+                    <Input
+                      label="Amount"
+                      disabled={isLoading}
+                      placeholder="99.99"
+                      type="number"
+                      error={errorsOptions?.options?.[dialogOptionIndex]?.amount?.message ?? ""}
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
+                      }
+                    />
+                  )}
+                />
+              </div>
+            )}
+            <Button
+              type="button"
+              variant="accent"
+              className="w-full"
+              loading={isLoading}
+              onClick={handleSubmit(onSubmit)}
+            >
+              Save
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

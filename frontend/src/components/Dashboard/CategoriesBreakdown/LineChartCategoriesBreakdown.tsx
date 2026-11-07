@@ -10,7 +10,13 @@ import { useShallow } from "zustand/react/shallow";
 
 const Typed = createHorizontalChart<any, string, number>()({ XAxis, YAxis, Tooltip, Line });
 
-function LineChart({ data }: { data: SendingTrendsType["data"] }) {
+function LineChart({
+  data,
+  isFullWidth,
+}: {
+  data: SendingTrendsType["data"];
+  isFullWidth: boolean;
+}) {
   const navigate = useNavigate();
 
   const { setFilters, filters } = useExpenseStore(
@@ -36,7 +42,12 @@ function LineChart({ data }: { data: SendingTrendsType["data"] }) {
   }
   return (
     <Typed.LineChart
-      style={{ width: "100%", maxWidth: "700px", maxHeight: "70vh", aspectRatio: 1.618 }}
+      style={{
+        width: "100%",
+        maxWidth: isFullWidth ? "none" : "700px",
+        maxHeight: "70vh",
+        aspectRatio: 1.618,
+      }}
       responsive
       data={data}
       margin={{
@@ -146,12 +157,14 @@ function LineChart({ data }: { data: SendingTrendsType["data"] }) {
 
 export function LineChartCategoriesBreakdown({
   spendingTrends,
+  isFullWidth,
 }: {
   spendingTrends: SendingTrendsType["data"];
+  isFullWidth: boolean;
 }) {
   return (
-    <div>
-      <LineChart data={spendingTrends} />
+    <div className="min-w-0 w-full">
+      <LineChart data={spendingTrends} isFullWidth={isFullWidth} />
 
       <div className="flex gap-1 items-center">
         <div className="p-2 rounded-full bg-red-600" />

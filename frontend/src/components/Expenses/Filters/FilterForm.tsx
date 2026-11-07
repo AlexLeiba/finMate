@@ -17,7 +17,6 @@ import { Sort } from "./Sort";
 import { useShallow } from "zustand/react/shallow";
 import { X } from "lucide-react";
 
-
 export function FilterForm() {
   const { filterAllExpenses, filters, setFilters, isLoading } = useExpenseStore(
     useShallow((state) => ({
@@ -28,13 +27,12 @@ export function FilterForm() {
     }))
   );
 
-
   const formMethods = useForm<FilterExpenseFormDataType>({
     resolver: zodResolver(filterExpenseSchema),
     defaultValues: {
       category: filters.category,
       sort: filters.sort,
-      searchTerm: filters.searchTerm ,
+      searchTerm: filters.searchTerm,
       startDate: filters.startDate,
       endDate: filters.endDate,
       minAmount: filters.minAmount,
@@ -87,14 +85,12 @@ export function FilterForm() {
   const activeFilters = Object.values(filters).length > 2 ? Object.values(filters).length - 2 : 0;
 
   function handleRemoveFilter() {
-   
     setFilters(DEFAULT_FILTERS);
-   
   }
 
   function handleClearSearch() {
     formMethods.setValue("searchTerm", "");
-    setFilters({...filters, searchTerm: "" });
+    setFilters({ ...filters, searchTerm: "" });
   }
   return (
     <form
@@ -115,7 +111,7 @@ export function FilterForm() {
             placeholder="Search expenses by description, category or amount"
             onChange={(e) => onChange(e.target.value)}
             value={value ?? ""}
-             onClear={() => handleClearSearch()}
+            onClear={() => handleClearSearch()}
           />
         )}
       />
@@ -166,35 +162,43 @@ export function FilterForm() {
         </div>
       </FormProvider>
 
-      <div className="flex gap-4 w-full justify-end">
+      <div className="flex w-full min-w-0 items-center gap-2 sm:justify-end">
         <Button
           type="submit"
           title="Apply Filter"
           aria-label="Apply Filter"
-          className={activeFilters > 0 ? "w-full lg:w-auto" : "w-full"}
+          className="min-w-0 flex-1 sm:flex-none"
           loading={isLoading}
           variant={"accent"}
         >
           <div className="flex justify-center items-center gap-2">
             <p>Apply Filter</p>
-               {activeFilters > 0 && (
-                         <span className="size-6 p-1 bg-accent rounded-md text-black flex items-center justify-center">
+            {activeFilters > 0 && (
+              <span className="size-6 p-1 bg-accent rounded-md text-black flex items-center justify-center">
                 {activeFilters}
               </span>
             )}
           </div>
         </Button>
 
-        {activeFilters > 0 && 
-        <Button className="flex gap-2" variant={"destructive"} title="Clear Filter" aria-label="Clear Filter" disabled={isLoading}  onClick={(e) => {
-          e.stopPropagation();
-          handleRemoveFilter();
-        }}
-        >
-                    <X className="size-6" />
-
-                    </Button>
-          }
+        {activeFilters > 0 && (
+          <Button
+            type="button"
+            size="icon"
+            className="size-9 shrink-0 p-0"
+            classNameChildren="flex items-center justify-center"
+            variant="destructive"
+            title="Clear Filter"
+            aria-label="Clear Filter"
+            disabled={isLoading}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRemoveFilter();
+            }}
+          >
+            <X className="size-5" aria-hidden="true" />
+          </Button>
+        )}
       </div>
     </form>
   );

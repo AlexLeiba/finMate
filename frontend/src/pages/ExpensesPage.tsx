@@ -42,15 +42,17 @@ function ExpensesPage() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="flex justify-between items-center">
-          <div>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="w-full min-w-0 lg:w-auto">
             <h3>Expenses</h3>
             <p>Create and manage your expenses</p>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
             <Sort label={false} />
-            <SearchExpense />
-            <CreateNewExpenseDialog />
+            <div className="min-w-0 flex-[1_1_12rem] lg:w-48 lg:flex-none">
+              <SearchExpense />
+            </div>
+            <CreateNewExpenseDialog compactOnMobile />
           </div>
         </div>
 

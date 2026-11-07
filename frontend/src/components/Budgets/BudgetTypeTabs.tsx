@@ -13,10 +13,10 @@ export function BudgetTypeTabs() {
   );
 
   return (
-    <div className="flex gap-8 items-center ">
-      <div className="flex flex-col gap-1">
+    <div className="flex w-full min-w-0 flex-wrap items-center gap-2 lg:w-auto">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
         <p>Select your budget type</p>
-        <div id="sort" className="border rounded-md flex">
+        <div id="sort" className="flex max-w-full rounded-md border">
           {BUDGET_TYPE.map((sort) => (
             <Button
               key={sort.value}

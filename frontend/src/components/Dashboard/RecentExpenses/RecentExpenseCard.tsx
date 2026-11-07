@@ -12,14 +12,14 @@ export function RecentExpenseCard({
   currency: string;
 }) {
   return (
-    <div className="border p-4 rounded-md flex flex-col gap-2">
-      <div className="flex justify-between items-center">
+    <div className="min-w-0 rounded-md border p-4 flex flex-col gap-2">
+      <div className="flex min-w-0 justify-between items-center gap-3">
         <Category category={expense.category} />
 
-        <p className="text-xl">{formatCurrency(Number(expense.amount), currency)}</p>
+        <p className="shrink-0 text-xl">{formatCurrency(Number(expense.amount), currency)}</p>
       </div>
 
-      <div className="flex justify-between items-center">
+      <div className="flex min-w-0 justify-between items-center gap-3">
         <div className="flex gap-2">
           <Calendar className="text-text-secondary" />
           {expense.date && (

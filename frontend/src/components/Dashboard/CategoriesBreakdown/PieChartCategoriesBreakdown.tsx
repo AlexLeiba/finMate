@@ -109,10 +109,7 @@ export default function PieChartWithCustomizedLabel({
     });
   }
   return (
-    <PieChart
-      style={{ width: "100%", maxWidth: "300px", maxHeight: "80vh", aspectRatio: 1 }}
-      responsive
-    >
+    <PieChart style={{ width: "100%", maxHeight: "80vh", aspectRatio: 1 }} responsive>
       <Pie
         cx="50%"
         cy="50%"
@@ -123,7 +120,7 @@ export default function PieChartWithCustomizedLabel({
         nameKey="category"
         isAnimationActive={isAnimationActive}
         shape={PieSlice}
-        outerRadius={100}
+        outerRadius="80%"
         onClick={(e) => {
           handleSliceClick(e?.payload);
         }}
@@ -142,7 +139,7 @@ export function PieChartCategoriesBreakdown({
   currency: string;
 }) {
   return (
-    <div>
+    <div className="min-w-0 w-full">
       <PieChartWithCustomizedLabel categoriesBreakdown={categoriesBreakdown} />
       <PieChartLegend
         categoriesBreakdownStats={categoriesBreakdown?.categoriesBreakdownStats}

@@ -19,7 +19,7 @@ export function Sort({ label = true }: { label?: boolean }) {
   const activeSortDirection = activeSortDirectionSymbol !== "-" ? "asc" : "desc";
 
   return (
-    <div className="flex gap-8 items-center ">
+    <div className="flex min-w-0 flex-wrap items-center gap-2">
       <div>
         {label && (
           <label
@@ -34,6 +34,8 @@ export function Sort({ label = true }: { label?: boolean }) {
           {SORT_TYPE.map((sort) => (
             <Button
               key={sort.value}
+              title={`Sort by ${sort.label}`}
+              aria-label={`Sort by ${sort.label}`}
               onClick={() => handleSort((activeSortDirectionSymbol + sort.value) as ExpenseSort)}
               variant="ghost"
               className={cn(activeSortType === sort.value && "bg-primary ")}
@@ -58,6 +60,8 @@ export function Sort({ label = true }: { label?: boolean }) {
           {SORT_DIRECTION.map((sort) => (
             <Button
               key={sort.value}
+              title={`Sort ${sort.value === "asc" ? "ascending" : "descending"}`}
+              aria-label={`Sort ${sort.value === "asc" ? "ascending" : "descending"}`}
               onClick={() => handleSort((sort.symbol + activeSortType) as ExpenseSort)}
               variant="ghost"
               className={cn(activeSortDirection === sort.value && "bg-primary ")}

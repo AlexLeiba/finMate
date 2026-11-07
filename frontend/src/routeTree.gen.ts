@@ -17,6 +17,7 @@ import { Route as publicPublicSigninRouteImport } from './routes/(public)/_publi
 import { Route as publicPublicForgotPasswordRouteImport } from './routes/(public)/_public/forgot-password'
 import { Route as appProtectedProfileRouteImport } from './routes/(app)/_protected/profile'
 import { Route as appProtectedExpensesRouteImport } from './routes/(app)/_protected/expenses'
+import { Route as appProtectedDocsRouteImport } from './routes/(app)/_protected/docs'
 import { Route as appProtectedDashboardRouteImport } from './routes/(app)/_protected/dashboard'
 import { Route as appProtectedAnalyticsRouteImport } from './routes/(app)/_protected/analytics'
 import { Route as appProtectedBudgetsIndexRouteImport } from './routes/(app)/_protected/budgets/index'
@@ -61,6 +62,11 @@ const appProtectedExpensesRoute = appProtectedExpensesRouteImport.update({
   path: '/expenses',
   getParentRoute: () => appProtectedRoute,
 } as any)
+const appProtectedDocsRoute = appProtectedDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => appProtectedRoute,
+} as any)
 const appProtectedDashboardRoute = appProtectedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -87,6 +93,7 @@ const appProtectedBudgetsBudgetIdRoute =
 export interface FileRoutesByFullPath {
   '/analytics': typeof appProtectedAnalyticsRoute
   '/dashboard': typeof appProtectedDashboardRoute
+  '/docs': typeof appProtectedDocsRoute
   '/expenses': typeof appProtectedExpensesRoute
   '/profile': typeof appProtectedProfileRoute
   '/forgot-password': typeof publicPublicForgotPasswordRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/analytics': typeof appProtectedAnalyticsRoute
   '/dashboard': typeof appProtectedDashboardRoute
+  '/docs': typeof appProtectedDocsRoute
   '/expenses': typeof appProtectedExpensesRoute
   '/profile': typeof appProtectedProfileRoute
   '/forgot-password': typeof publicPublicForgotPasswordRoute
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/(public)/_public': typeof publicPublicRouteWithChildren
   '/(app)/_protected/analytics': typeof appProtectedAnalyticsRoute
   '/(app)/_protected/dashboard': typeof appProtectedDashboardRoute
+  '/(app)/_protected/docs': typeof appProtectedDocsRoute
   '/(app)/_protected/expenses': typeof appProtectedExpensesRoute
   '/(app)/_protected/profile': typeof appProtectedProfileRoute
   '/(public)/_public/forgot-password': typeof publicPublicForgotPasswordRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/analytics'
     | '/dashboard'
+    | '/docs'
     | '/expenses'
     | '/profile'
     | '/forgot-password'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
   to:
     | '/analytics'
     | '/dashboard'
+    | '/docs'
     | '/expenses'
     | '/profile'
     | '/forgot-password'
@@ -154,6 +165,7 @@ export interface FileRouteTypes {
     | '/(public)/_public'
     | '/(app)/_protected/analytics'
     | '/(app)/_protected/dashboard'
+    | '/(app)/_protected/docs'
     | '/(app)/_protected/expenses'
     | '/(app)/_protected/profile'
     | '/(public)/_public/forgot-password'
@@ -227,6 +239,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appProtectedExpensesRouteImport
       parentRoute: typeof appProtectedRoute
     }
+    '/(app)/_protected/docs': {
+      id: '/(app)/_protected/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof appProtectedDocsRouteImport
+      parentRoute: typeof appProtectedRoute
+    }
     '/(app)/_protected/dashboard': {
       id: '/(app)/_protected/dashboard'
       path: '/dashboard'
@@ -261,6 +280,7 @@ declare module '@tanstack/react-router' {
 interface appProtectedRouteChildren {
   appProtectedAnalyticsRoute: typeof appProtectedAnalyticsRoute
   appProtectedDashboardRoute: typeof appProtectedDashboardRoute
+  appProtectedDocsRoute: typeof appProtectedDocsRoute
   appProtectedExpensesRoute: typeof appProtectedExpensesRoute
   appProtectedProfileRoute: typeof appProtectedProfileRoute
   appProtectedBudgetsBudgetIdRoute: typeof appProtectedBudgetsBudgetIdRoute
@@ -270,6 +290,7 @@ interface appProtectedRouteChildren {
 const appProtectedRouteChildren: appProtectedRouteChildren = {
   appProtectedAnalyticsRoute: appProtectedAnalyticsRoute,
   appProtectedDashboardRoute: appProtectedDashboardRoute,
+  appProtectedDocsRoute: appProtectedDocsRoute,
   appProtectedExpensesRoute: appProtectedExpensesRoute,
   appProtectedProfileRoute: appProtectedProfileRoute,
   appProtectedBudgetsBudgetIdRoute: appProtectedBudgetsBudgetIdRoute,

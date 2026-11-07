@@ -10,12 +10,12 @@ export function PreviewProfileSettings() {
       </div>
       <div>
         <p>Name</p>
-        <p className="font-bold">{userProfile?.name}</p>
+        <p className="wrap-break-word font-bold">{userProfile?.name}</p>
       </div>
 
       <div>
         <p>Email</p>
-        <p className="font-bold">{userProfile?.email}</p>
+        <p className="wrap-break-word font-bold">{userProfile?.email}</p>
       </div>
 
       <div>

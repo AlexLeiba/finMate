@@ -1,5 +1,14 @@
 import { StatCard } from "./StatCard";
-import { DollarSign, TrendingDown, ChartNoAxesColumn, CalendarArrowDown } from "lucide-react";
+import {
+  ArrowLeftRight,
+  CalendarClock,
+  CalendarDays,
+  ChartNoAxesColumn,
+  CircleDollarSign,
+  ReceiptText,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useExpenseStore } from "@/store/useExpensesStore";
 import { useShallow } from "zustand/react/shallow";
@@ -113,29 +122,34 @@ export function TotalStats({ currency }: { currency: string }) {
           </div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2 w-full">
             <StatCard
-              icon={<TrendingDown size={18} />}
+              icon={<ReceiptText size={18} />}
+              iconClassName="bg-sky-500/15 text-sky-700 dark:text-sky-300"
               title="Number of Expenses"
               value={`${dashboardStats?.expenseCount || 0}`}
             />
             <StatCard
-              icon={<DollarSign size={18} />}
+              icon={<CircleDollarSign size={18} />}
+              iconClassName="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
               title="Total Expenses"
               value={formatCurrency(dashboardStats?.totalExpenses || 0, currency)}
             />
             <StatCard
               icon={<ChartNoAxesColumn size={18} />}
+              iconClassName="bg-cyan-500/15 text-cyan-700 dark:text-cyan-300"
               title="Average Expense"
               value={formatCurrency(dashboardStats?.averageExpense || 0, currency)}
             />
             <StatCard
               onClick={() => handleFilterbyMonth("lowest")}
-              icon={<CalendarArrowDown size={18} />}
+              icon={<TrendingDown size={18} />}
+              iconClassName="bg-green-500/15 text-green-700 dark:text-green-300"
               title="Lowest Expense"
               value={formatCurrency(Number(dashboardStats?.lowestExpense?.amount || 0), currency)}
             />
             <StatCard
               onClick={() => handleFilterbyMonth("highest")}
-              icon={<CalendarArrowDown size={18} />}
+              icon={<TrendingUp size={18} />}
+              iconClassName="bg-rose-500/15 text-rose-700 dark:text-rose-300"
               title="Highest Expense"
               value={formatCurrency(Number(dashboardStats?.highestExpense?.amount || 0), currency)}
             />
@@ -146,18 +160,21 @@ export function TotalStats({ currency }: { currency: string }) {
         <div className="grid grid-cols-[repeat(auto-fit,minmax(270px,1fr))] gap-2 w-full">
           <StatCard
             onClick={() => handleFilterbyMonth("thisMonth")}
-            icon={<CalendarArrowDown size={18} />}
+            icon={<CalendarDays size={18} />}
+            iconClassName="bg-blue-500/15 text-blue-700 dark:text-blue-300"
             title="This Month"
             value={formatCurrency(dashboardStats?.currentMonthTotal || 0, currency)}
           />
           <StatCard
             onClick={() => handleFilterbyMonth("prevMonth")}
-            icon={<CalendarArrowDown size={18} />}
+            icon={<CalendarClock size={18} />}
+            iconClassName="bg-violet-500/15 text-violet-700 dark:text-violet-300"
             title="Previous Month"
             value={formatCurrency(dashboardStats?.prevMonthTotal || 0, currency)}
           />
           <StatCard
-            icon={<CalendarArrowDown size={18} />}
+            icon={<ArrowLeftRight size={18} />}
+            iconClassName="bg-amber-500/15 text-amber-700 dark:text-amber-300"
             title="Difference between current and prev. month"
             value={`${dashboardStats?.monthlyPercentageExpenseChange || 0} %`}
           />

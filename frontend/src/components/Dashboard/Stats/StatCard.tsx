@@ -5,11 +5,13 @@ export function StatCard({
   title,
   value,
   icon,
+  iconClassName,
   ...rest
 }: {
   title: string;
   value: string;
   icon?: React.ReactNode;
+  iconClassName?: string;
 } & ComponentProps<"button">) {
   return (
     <button
@@ -22,7 +24,9 @@ export function StatCard({
       {...rest}
     >
       <div className="flex gap-2">
-        <div className="p-1 size-7 bg-accent rounded-md text-black">{icon}</div>
+        <div className={cn("grid size-8 shrink-0 place-items-center rounded-md", iconClassName)}>
+          {icon}
+        </div>
         <p className="text-text-secondary">{title}</p>
       </div>
       <p className="text-xl font-bold">{value}</p>

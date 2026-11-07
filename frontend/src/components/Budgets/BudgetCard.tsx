@@ -49,19 +49,19 @@ export function BudgetCard({
   return (
     <div
       className={cn(
-        "flex items-stretch border border-border rounded-md cursor-pointer hover:border-accent transition-colors duration-200"
+        "flex min-w-0 w-full items-stretch rounded-md border border-border transition-colors duration-200 hover:border-accent"
       )}
     >
       <button
         type="button"
         onClick={onNavigate}
         disabled={!onNavigate}
-        className="flex-1 px-3 py-2 text-left cursor-pointer disabled:cursor-default"
+        className="min-w-0 flex-1 cursor-pointer px-3 py-2 text-left disabled:cursor-default"
       >
-        <div className="flex justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-2">
           <p
             className={cn(
-              "text-sm px-4 py-1 mb-2 rounded-full border",
+              "mb-2 rounded-full border px-3 py-1 text-sm",
               budgetType === "savings"
                 ? "bg-green-900 border-green-800 text-green-300"
                 : budgetType === "expenses"
@@ -71,10 +71,10 @@ export function BudgetCard({
           >
             {budgetType}
           </p>
-          <p>{formatCurrency(budgetTargetAmount, currency)}</p>
+          <p className="shrink-0 text-right">{formatCurrency(budgetTargetAmount, currency)}</p>
         </div>
-        <p>{title}</p>
-        <p className="text-sm text-gray-400">{date?.toDateString()}</p>
+        <p className="wrap-break-word">{title}</p>
+        <p className="text-sm text-text-secondary">{date?.toDateString()}</p>
       </button>
       {onDelete && (
         <ModalDelete

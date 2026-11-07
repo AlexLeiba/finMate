@@ -38,11 +38,19 @@ export function DeleteAccount() {
             <p>This action cannot be undone, you will lose all your data.</p>
           </div>
 
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setOpenDialog(false)}>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => setOpenDialog(false)}
+            >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteAccount}>
+            <Button
+              variant="destructive"
+              className="w-full sm:w-auto"
+              onClick={handleDeleteAccount}
+            >
               Delete Account
             </Button>
           </div>

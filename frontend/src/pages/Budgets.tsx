@@ -35,13 +35,15 @@ function Budgets() {
   }, [budgetType, getAllBudgets]);
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-between items-center">
-        <div>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="w-full min-w-0 lg:w-auto">
           <h3 className="line-clamp-1">Budgets Plan</h3>
           <p>Plan your savings or expenses based on a budget</p>
         </div>
 
-        <BudgetTypeTabs />
+        <div className="w-full min-w-0 lg:w-auto">
+          <BudgetTypeTabs />
+        </div>
 
         {/* NEW BUDGET */}
       </div>

@@ -8,8 +8,10 @@ import { DEFAULT_CURRENCY } from "@/lib/consts/currency";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useDashboardStore } from "@/store/useDashboardStore";
 import { useShallow } from "zustand/react/shallow";
+import { useState } from "react";
 
 function DashboardPage() {
+  const [expandedChart, setExpandedChart] = useState<"category" | "trend" | null>(null);
   const user = useAuthStore((state) => state.user);
 
   const { isLoading, dashboardStats } = useDashboardStore(
@@ -31,18 +33,54 @@ function DashboardPage() {
           <p>Here's your financial overview</p>
         </div>
         {/* NEW EXPENSE */}
-        <CreateNewExpenseDialog />
+        <CreateNewExpenseDialog compactOnMobile />
       </div>
 
       {/* STATS */}
       <TotalStats currency={user?.currency || DEFAULT_CURRENCY} />
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(500px,1fr))] gap-2 w-full">
-        {/* SPENDING BY CATEGORY */}
-        <SpendingByCategoryBreakdown />
-
-        {/* SPENDING TRENDS */}
-        <SpendingTrends />
+      <div
+        className={`grid grid-cols-1 gap-2 w-full min-w-0 ${
+          expandedChart ? "" : "lg:grid-cols-[repeat(auto-fit,minmax(500px,1fr))]"
+        }`}
+      >
+        {expandedChart === "trend" ? (
+          <>
+            <SpendingTrends
+              isFullWidth
+              onToggleFullWidth={() => setExpandedChart(null)}
+              onExpand={() => setExpandedChart("trend")}
+            />
+            <SpendingByCategoryBreakdown
+              isFullWidth={false}
+              onToggleFullWidth={() => setExpandedChart("category")}
+            />
+          </>
+        ) : expandedChart === "category" ? (
+          <>
+            <SpendingByCategoryBreakdown
+              isFullWidth
+              onToggleFullWidth={() => setExpandedChart(null)}
+            />
+            <SpendingTrends
+              isFullWidth={false}
+              onToggleFullWidth={() => setExpandedChart("trend")}
+              onExpand={() => setExpandedChart("trend")}
+            />
+          </>
+        ) : (
+          <>
+            <SpendingByCategoryBreakdown
+              isFullWidth={false}
+              onToggleFullWidth={() => setExpandedChart("category")}
+            />
+            <SpendingTrends
+              isFullWidth={false}
+              onToggleFullWidth={() => setExpandedChart("trend")}
+              onExpand={() => setExpandedChart("trend")}
+            />
+          </>
+        )}
       </div>
 
       {/* RECENT EXPENSES */}

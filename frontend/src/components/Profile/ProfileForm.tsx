@@ -1,7 +1,4 @@
-import {
-  profileSchema,
-  type ProfileFormType,
-} from "@/lib/schemas/forms/profileSchema";
+import { profileSchema, type ProfileFormType } from "@/lib/schemas/forms/profileSchema";
 import { useAuthStore } from "@/store/useAuthStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
@@ -11,11 +8,7 @@ import { toast } from "react-toastify";
 import { getErrorMessage } from "@/lib/utils/errorMessage";
 import { DropDownCurrency } from "./DropDownCurrency";
 
-export function ProfileForm({
-  onCloseEditProfile,
-}: {
-  onCloseEditProfile: () => void;
-}) {
+export function ProfileForm({ onCloseEditProfile }: { onCloseEditProfile: () => void }) {
   const userProfile = useAuthStore((state) => state.user);
   const updateProfile = useAuthStore((state) => state.updateProfile);
   const isLoading = useAuthStore((state) => state.isLoading);
@@ -109,8 +102,8 @@ export function ProfileForm({
           {...register("repeatNewPassword")}
         />
 
-        <div className="flex gap-4">
-          <Button loading={isLoading} variant={"accent"}>
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-4">
+          <Button loading={isLoading} variant={"accent"} className="w-full sm:w-auto">
             Save changes
           </Button>
           <Button
@@ -118,6 +111,7 @@ export function ProfileForm({
             type="button"
             onClick={handleCancel}
             variant={"destructive"}
+            className="w-full sm:w-auto"
           >
             Cancel
           </Button>

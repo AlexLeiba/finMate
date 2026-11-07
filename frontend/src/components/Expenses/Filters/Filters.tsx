@@ -47,20 +47,21 @@ export function Filters() {
     <>
       <div className="flex flex-col gap-2 w-full">
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild className="overflow-x-auto h-full min-h-12.5">
+          <DialogTrigger asChild className="h-full min-h-12.5">
             <Button
-              title="Edit Filter expenses"
-              aria-label="Edit Filter expenses"
+              title="Open multiple filter options"
+              aria-label="Open multiple filter options"
               className="w-full h-full"
               variant="outline"
-              classNameChildren="flex items-center gap-4"
+              classNameChildren="flex flex-wrap items-center gap-2"
             >
-              <div className="flex items-center gap-1">
-                <Filter /> Filter expenses
+              <div className="flex shrink-0 items-center gap-1">
+                <Filter aria-hidden="true" />
+                <span className="hidden sm:inline">Filter expenses</span>
               </div>
 
-              <div className="flex justify-between w-full">
-                <div className="flex gap-2 items-center flex-wrap ">
+              <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2">
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
                   {Object.entries(activeFilters).map(([key, value]) => {
                     return (
                       <ActiveFilterChips
@@ -88,7 +89,7 @@ export function Filters() {
                         revalidateAllExpenses();
                       }
                     }}
-                    className="flex items-center gap-2 text-destructive p-1 rounded-md hover:bg-destructive/50 hover:text-white"
+                    className="flex shrink-0 items-center gap-2 text-destructive p-1 rounded-md hover:bg-destructive/50 hover:text-white"
                   >
                     <X className="size-6" />
                   </div>

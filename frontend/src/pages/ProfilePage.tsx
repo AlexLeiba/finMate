@@ -16,11 +16,11 @@ const ProfileForm = lazy(() =>
 function ProfilePage() {
   const [editProfile, setEditProfile] = useState(false);
   return (
-    <div className="h-full">
+    <div className="flex min-h-full min-w-0 flex-col">
       <h3>Settings</h3>
       <Spacer size={4} />
-      <div className="grid grid-cols-2 gap-4 h-full ">
-        <div className="flex flex-col gap-8 p-4 border items-center ">
+      <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="flex min-w-0 flex-col items-center gap-8 border p-4">
           {editProfile ? (
             <Suspense>
               <ProfileForm onCloseEditProfile={() => setEditProfile(false)} />
@@ -35,8 +35,8 @@ function ProfilePage() {
           )}
         </div>
 
-        <div className="p-4 border flex flex-col justify-between gap-8 h-full">
-          <div>
+        <div className="flex min-w-0 flex-col gap-8 border p-4 lg:h-full lg:justify-between">
+          <div className="flex min-w-0 flex-col gap-4">
             <DownloadCsv />
             <UploadCsv />
           </div>

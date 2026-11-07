@@ -28,8 +28,8 @@ export function RecentExpenses() {
     }
   }, []);
   return (
-    <div>
-      <div className="flex justify-between items-center">
+    <section className="w-full min-w-0">
+      <div className="mb-3 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h4>Recent Expenses</h4>
 
         <Link to="/expenses">
@@ -40,12 +40,12 @@ export function RecentExpenses() {
       {!isLoading && expenses?.length === 0 ? (
         <div>No expenses were found</div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(500px,1fr))] gap-4">
+        <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
           {expenses?.map((expense) => (
             <RecentExpenseCard key={expense._id} expense={expense} currency={currency} />
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }

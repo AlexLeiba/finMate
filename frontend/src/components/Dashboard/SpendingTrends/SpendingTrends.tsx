@@ -5,8 +5,18 @@ import { useDashboardStore } from "@/store/useDashboardStore";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useShallow } from "zustand/react/shallow";
+import { Button } from "@/components/ui/button";
+import { Maximize2, Minimize2 } from "lucide-react";
 
-export function SpendingTrends() {
+export function SpendingTrends({
+  isFullWidth,
+  onToggleFullWidth,
+  onExpand,
+}: {
+  isFullWidth: boolean;
+  onToggleFullWidth: () => void;
+  onExpand: () => void;
+}) {
   const { isLoading, getSpendingTrends, spendingTrends } = useDashboardStore(
     useShallow((state) => {
       return {
@@ -28,16 +38,31 @@ export function SpendingTrends() {
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <div className="px-4 py-2 border-border border rounded-md">
-      <div className="flex justify-between items-center">
+    <div className="min-w-0 w-full px-4 py-2 border-border border rounded-md">
+      <div className="flex flex-wrap justify-between items-center gap-2">
         <h4>Spending Trend</h4>
-        <SpendingTrendsPeriodByCategoryDropDown />
+        <div className="flex items-center gap-2">
+          <SpendingTrendsPeriodByCategoryDropDown />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="hidden lg:inline-flex"
+            classNameChildren="flex items-center justify-center"
+            aria-label={isFullWidth ? "Use standard spending trend view" : "Expand spending trend"}
+            aria-pressed={isFullWidth}
+            title={isFullWidth ? "Shrink" : "Full screen"}
+            onClick={isFullWidth ? onToggleFullWidth : onExpand}
+          >
+            {isFullWidth ? <Minimize2 aria-hidden="true" /> : <Maximize2 aria-hidden="true" />}
+          </Button>
+        </div>
       </div>
 
       {!isLoading && spendingTrends?.length === 0 ? (
         <div>No expenses were found </div>
       ) : (
-        <LineChartCategoriesBreakdown spendingTrends={spendingTrends} />
+        <LineChartCategoriesBreakdown spendingTrends={spendingTrends} isFullWidth={isFullWidth} />
       )}
     </div>
   );

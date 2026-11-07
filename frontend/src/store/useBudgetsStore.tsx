@@ -7,6 +7,20 @@ import {
 import type { BudgetSchemaType } from "@/lib/schemas/forms/budgetsSchema";
 import { create } from "zustand";
 
+const BUDGET_TYPE_STORAGE_KEY = "finmate:budgetType";
+
+function getInitialBudgetType(): BudgetType {
+  if (typeof window === "undefined") return BudgetType.SAVINGS;
+
+  try {
+    return window.localStorage.getItem(BUDGET_TYPE_STORAGE_KEY) === BudgetType.EXPENSES
+      ? BudgetType.EXPENSES
+      : BudgetType.SAVINGS;
+  } catch {
+    return BudgetType.SAVINGS;
+  }
+}
+
 export type BudgetOption = {
   title: string;
   amount: number; //if the type is expenses, then will substract the budget from option / if budget is savings - will add to the budget
@@ -39,7 +53,7 @@ export type BudgetStoreType = {
 };
 
 export const useBudgetsStore = create<BudgetStoreType>((set, get) => ({
-  budgetType: BudgetType.SAVINGS,
+  budgetType: getInitialBudgetType(),
   budgets: [],
   singleBudget: null,
   isLoading: false,
@@ -47,6 +61,11 @@ export const useBudgetsStore = create<BudgetStoreType>((set, get) => ({
 
   setBudgetType: (type) => {
     set({ budgetType: type });
+    try {
+      window.localStorage.setItem(BUDGET_TYPE_STORAGE_KEY, type);
+    } catch {
+      // Keep the in-memory selection usable when storage is unavailable.
+    }
   },
 
   // Apis

@@ -5,7 +5,7 @@ export function TotalStats({ currency }: { currency: string }) {
   const stats = useExpenseStore((state) => state.stats);
   return (
     <section className="border px-4 py-2 flex flex-col gap-2 rounded-md">
-      <div className="flex items-center justify-between">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="flex flex-col gap-1">
           <p className="text-text-secondary">Total expenses</p>
           <p className="text-xl font-bold">{stats.totalCount} Expenses</p>
