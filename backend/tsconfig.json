@@ -7,7 +7,7 @@
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "esnext",
+    "module": "Node16",
     "target": "es2020",
     // "types": [],
     // For nodejs:
@@ -34,10 +34,10 @@
 
     // Recommended Options
     "strict": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "moduleResolution": "bundler",
+    "moduleResolution": "Node16",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true

@@ -48,4 +48,4 @@ app.use((_, res) => {
 
 app.use(errorHandler);
 
-export default app;
+export = app;
