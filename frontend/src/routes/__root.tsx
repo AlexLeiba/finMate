@@ -19,7 +19,7 @@ function RootLayout() {
 
   const activeMatch = matches.at(-1);
 
-  const { title = "fineManager" } = activeMatch?.context as { title: string };
+  const { title = "FineMate" } = activeMatch?.context as { title: string };
 
   useEffect(() => {
     document.title = title;

@@ -5,7 +5,7 @@ function DocsPage() {
     <div className="flex flex-col gap-8">
       <header>
         <h3>Documentation</h3>
-        <p>A concise guide to tracking expenses and planning budgets in FineManager.</p>
+        <p>A concise guide to tracking expenses and planning budgets in FineMate.</p>
       </header>
 
       <section className="flex flex-col gap-3 border-t border-border pt-6">

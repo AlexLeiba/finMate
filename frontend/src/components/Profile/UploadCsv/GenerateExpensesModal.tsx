@@ -67,6 +67,14 @@ export function GenerateExpensesModal() {
       const csvToJson = csv.split("\n").map((line) => line.split(","));
       const csvRows = csvToJson.slice(1);
       setExpenses(csvRows);
+      setSelectedValues(
+        Object.fromEntries(
+          csvRows.map((_, index) => [
+            index + 1,
+            { category: ExpenseCategory.ALL, date: new Date().toISOString() },
+          ])
+        )
+      );
 
       csvRows.forEach((row, index) => {
         setErrors((prev) => ({ ...prev, [index + 1]: [row] }));
@@ -106,18 +114,20 @@ export function GenerateExpensesModal() {
   const EXCLUDED_KEYS = ["createdAt", "updatedAt", "userId", "_id"];
 
   async function handleSubmit() {
-    const parsedExpenses = Object.values(selectedValues);
+    const completeExpenses = Object.values(selectedValues).flatMap((expense) => {
+      const result = uploadNewExpensesFormSchema.safeParse([expense]);
+      return result.success ? result.data : [];
+    });
 
-    const validatedResult = uploadNewExpensesFormSchema.safeParse(parsedExpenses);
-
-    if (!validatedResult.success) {
-      const errorMessage = JSON.parse(validatedResult.error.message)?.[0]?.message;
-      toast.error(errorMessage);
+    if (completeExpenses.length === 0) {
+      toast.error("Complete all required fields for at least one expense before saving");
       return;
     }
     try {
-      await apiFactory().createMultipleExpenses(validatedResult.data);
-      toast.success("Expenses was uploaded successfully");
+      await apiFactory().createMultipleExpenses(completeExpenses);
+      toast.success(
+        `${completeExpenses.length} expense${completeExpenses.length === 1 ? "" : "s"} uploaded`
+      );
       setOpenDialog(false);
     } catch (error: unknown) {
       toast.error(error as string);
@@ -170,17 +180,24 @@ export function GenerateExpensesModal() {
             )}
 
             <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-2">
-              {expenses?.slice(1).map((rows, indexExpense) => {
+              {expenses?.map((rows, indexExpense) => {
+                const rowId = indexExpense + 1;
+                const isComplete = uploadNewExpensesFormSchema.safeParse([
+                  selectedValues[rowId],
+                ]).success;
+
                 return (
                   <div
-                    className="flex flex-col gap-4 border rounded-md px-4 py-2 overflow-y-hidden overflow-x-auto"
-                    key={expenses[0][indexExpense] + indexExpense}
+                    className={cn(
+                      "flex flex-col gap-4 rounded-md border px-4 py-2 overflow-y-hidden overflow-x-auto",
+                      isComplete ? "border-green-500" : "border-border"
+                    )}
+                    key={`expense-${rowId}`}
                   >
-                    <p>{indexExpense + 1}:</p>
+                    <p>{rowId}:</p>
                     {rows?.map((value, indexDropdown) => {
-                      const errorMessage = errors[indexExpense + 1]?.[headers[indexDropdown]];
-                      const selectedValue =
-                        selectedValues?.[indexExpense + 1]?.[headers?.[indexDropdown]];
+                      const errorMessage = errors[rowId]?.[headers[indexDropdown]];
+                      const selectedValue = selectedValues?.[rowId]?.[headers?.[indexDropdown]];
                       if (EXCLUDED_KEYS.includes(headers[indexDropdown])) return null;
                       return (
                         <div className="flex flex-col ">
@@ -217,7 +234,7 @@ export function GenerateExpensesModal() {
                                         key={category}
                                         onClick={() => {
                                           handleSelectValue(
-                                            indexExpense + 1,
+                                            rowId,
                                             headers[indexDropdown],
                                             category
                                           );
@@ -234,11 +251,7 @@ export function GenerateExpensesModal() {
                                         )}
                                         key={value + indexItem}
                                         onClick={() =>
-                                          handleSelectValue(
-                                            indexExpense + 1,
-                                            headers[indexDropdown],
-                                            value
-                                          )
+                                          handleSelectValue(rowId, headers[indexDropdown], value)
                                         }
                                       >
                                         {value}
@@ -250,7 +263,7 @@ export function GenerateExpensesModal() {
                             {headers[indexDropdown] === "date" && (
                               <Button
                                 variant="primary"
-                                onClick={() => handleSetDefaultDate(indexExpense + 1, "date")}
+                                onClick={() => handleSetDefaultDate(rowId, "date")}
                               >
                                 Today
                               </Button>

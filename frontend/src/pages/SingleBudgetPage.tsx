@@ -29,11 +29,14 @@ import {
 
 import { Edit, Plus, X } from "lucide-react";
 import { DatePicker } from "@/components/shared/DatePicker";
+import { BREAKPOINTS } from "@/lib/consts/breakpoints";
+import { useResponsive } from "@/lib/hooks/useResponsive";
 
 function SingleBudgetPage() {
   const [isOptionsDialogOpen, setIsOptionsDialogOpen] = useState(false);
   const [dialogOptionIndex, setDialogOptionIndex] = useState<number | null>(null);
   const [isEdit, setIsEdit] = useState(false);
+  const isMobile = useResponsive(BREAKPOINTS.md);
   const params = Route.useParams();
 
   const { getSingleBudget, singleBudget, budgetType, updateBudget, isLoading } = useBudgetsStore(
@@ -130,7 +133,11 @@ function SingleBudgetPage() {
   async function onSubmit(data: BudgetSchemaType) {
     const currentOptions = getOptionValues("options") || [];
     const completeOptions = currentOptions.filter(
-      (option) => option.title.trim() && Number.isFinite(option.amount) && option.amount !== 0
+      (option): option is { title: string; amount: number } =>
+        Boolean(option.title.trim()) &&
+        typeof option.amount === "number" &&
+        Number.isFinite(option.amount) &&
+        option.amount > 0
     );
 
     if (completeOptions.length !== currentOptions.length) {
@@ -173,13 +180,58 @@ function SingleBudgetPage() {
       setDialogOptionIndex(incompleteOptionIndex);
     } else {
       setDialogOptionIndex(currentOptions.length);
-      append({ title: "", amount: 0 });
+      append({ title: "", amount: undefined });
     }
     setIsOptionsDialogOpen(true);
   }
 
-  const statsBudgetType = singleBudget?.budgetType === "expenses" ? "spend" : "set aside";
   const budgetOptionLabel = singleBudget?.budgetType === BudgetType.EXPENSES ? "expense" : "saving";
+  const optionEditor = dialogOptionIndex !== null && fields[dialogOptionIndex] && (
+    <div key={fields[dialogOptionIndex].id} className="flex flex-col gap-3 rounded-md border p-4">
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-medium">New {budgetOptionLabel}</p>
+        <button
+          type="button"
+          aria-label={`Discard new ${budgetOptionLabel}`}
+          className="flex size-9 shrink-0 items-center justify-center rounded-md hover:bg-secondary"
+          onClick={() => {
+            remove(dialogOptionIndex);
+            setDialogOptionIndex(null);
+            setIsOptionsDialogOpen(false);
+          }}
+        >
+          <X aria-hidden="true" />
+        </button>
+      </div>
+      <Input
+        disabled={isLoading}
+        label="Title"
+        placeholder="Type a title"
+        error={errorsOptions?.options?.[dialogOptionIndex]?.title?.message ?? ""}
+        {...registerOptions(`options.${dialogOptionIndex}.title`)}
+      />
+      <Controller
+        control={formMethodsOptions.control}
+        name={`options.${dialogOptionIndex}.amount`}
+        render={({ field }) => (
+          <Input
+            label="Amount"
+            disabled={isLoading}
+            placeholder="99.99"
+            type="number"
+            error={errorsOptions?.options?.[dialogOptionIndex]?.amount?.message ?? ""}
+            {...field}
+            value={field.value ?? ""}
+            onChange={(e) =>
+              field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
+            }
+          />
+        )}
+      />
+    </div>
+  );
+
+  const statsBudgetType = singleBudget?.budgetType === "expenses" ? "spend" : "set aside";
 
   return (
     <div className="flex flex-col gap-2 relative h-full">
@@ -305,6 +357,21 @@ function SingleBudgetPage() {
                 Add {budgetOptionLabel} <Plus />
               </div>
             </Button>
+            {!isMobile && isOptionsDialogOpen && (
+              <div className="flex flex-col gap-4 rounded-md border p-4">
+                <h4>Add {budgetOptionLabel}</h4>
+                {optionEditor}
+                <Button
+                  type="button"
+                  variant="accent"
+                  className="w-full"
+                  loading={isLoading}
+                  onClick={handleSubmit(onSubmit)}
+                >
+                  Save
+                </Button>
+              </div>
+            )}
           </div>
         </div>
         <div className="order-1 min-w-0 w-full rounded-md border p-4 flex flex-col gap-2 lg:sticky lg:top-16 lg:order-2">
@@ -358,7 +425,10 @@ function SingleBudgetPage() {
         </div>
       </div>
 
-      <Dialog open={isOptionsDialogOpen} onOpenChange={setIsOptionsDialogOpen}>
+      <Dialog
+        open={isMobile && isOptionsDialogOpen}
+        onOpenChange={(open) => setIsOptionsDialogOpen(open)}
+      >
         <DialogContent className="w-[calc(100vw-2rem)] max-h-[calc(100dvh-2rem)] max-w-lg overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add {budgetOptionLabel}</DialogTitle>
@@ -368,53 +438,7 @@ function SingleBudgetPage() {
           </DialogHeader>
 
           <div className="flex flex-col gap-4">
-            {dialogOptionIndex !== null && fields[dialogOptionIndex] && (
-              <div
-                key={fields[dialogOptionIndex].id}
-                className="flex flex-col gap-3 rounded-md border p-4"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-medium">New {budgetOptionLabel}</p>
-                  <button
-                    type="button"
-                    aria-label={`Discard new ${budgetOptionLabel}`}
-                    className="flex size-9 shrink-0 items-center justify-center rounded-md hover:bg-secondary"
-                    onClick={() => {
-                      remove(dialogOptionIndex);
-                      setDialogOptionIndex(null);
-                      setIsOptionsDialogOpen(false);
-                    }}
-                  >
-                    <X aria-hidden="true" />
-                  </button>
-                </div>
-                <Input
-                  disabled={isLoading}
-                  label="Title"
-                  placeholder="Type a title"
-                  error={errorsOptions?.options?.[dialogOptionIndex]?.title?.message ?? ""}
-                  {...registerOptions(`options.${dialogOptionIndex}.title`)}
-                />
-                <Controller
-                  control={formMethodsOptions.control}
-                  name={`options.${dialogOptionIndex}.amount`}
-                  render={({ field }) => (
-                    <Input
-                      label="Amount"
-                      disabled={isLoading}
-                      placeholder="99.99"
-                      type="number"
-                      error={errorsOptions?.options?.[dialogOptionIndex]?.amount?.message ?? ""}
-                      {...field}
-                      value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
-                      }
-                    />
-                  )}
-                />
-              </div>
-            )}
+            {optionEditor}
             <Button
               type="button"
               variant="accent"

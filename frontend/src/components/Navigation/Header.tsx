@@ -81,7 +81,7 @@ export function Header() {
                 <SheetContent side="right" className="w-[min(20rem,85vw)]">
                   <SheetHeader>
                     <SheetTitle>Navigation</SheetTitle>
-                    <SheetDescription>Navigate FineManager.</SheetDescription>
+                    <SheetDescription>Navigate FineMate.</SheetDescription>
                   </SheetHeader>
                   <nav aria-label="Main navigation" className="px-4">
                     <ul className="flex flex-col gap-1">

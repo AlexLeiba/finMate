@@ -23,7 +23,7 @@ export const budgetOptionsSchema = zod.object({
   options: zod.array(
     zod.object({
       title: zod.string().min(1, "Title is required"),
-      amount: zod.number().min(1, "Amount must be higher than 1"),
+      amount: zod.number().min(1, "Amount must be higher than 1").optional(),
     })
   ),
 });

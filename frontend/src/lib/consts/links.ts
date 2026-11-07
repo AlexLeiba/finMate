@@ -3,6 +3,6 @@ export const NAV_LINKS = [
   { label: "Expenses", href: "/expenses" },
   // { label: "Analytics", href: "/analytics" },
   { label: "Budgets", href: "/budgets" },
-  { label: "Docs", href: "/docs" },
   { label: "Profile", href: "/profile" },
+  { label: "Docs", href: "/docs" },
 ];

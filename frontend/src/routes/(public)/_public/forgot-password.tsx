@@ -3,5 +3,5 @@ import ForgotPasswordPage from "../../../pages/ForgotPasswordPage";
 
 export const Route = createFileRoute("/(public)/_public/forgot-password")({
   component: ForgotPasswordPage,
-  context: () => ({ title: "Forgot Password - FineManager" }),
+  context: () => ({ title: "Forgot Password - FineMate" }),
 });

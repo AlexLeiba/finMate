@@ -11,7 +11,10 @@ export function Links() {
       <ul className="flex gap-4">
         {NAV_LINKS.map((link) => (
           <Link to={link.href} key={link.href}>
-            <Button variant={pathname === link.href ? "link" : "ghost"}>
+            <Button
+              variant={pathname === link.href ? "link" : "ghost"}
+              className={pathname === link.href ? "text-accent" : undefined}
+            >
               <li>{link.label}</li>
             </Button>
           </Link>
