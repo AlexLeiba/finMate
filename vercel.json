@@ -3,7 +3,10 @@
   "services": {
     "backend": {
       "root": "backend",
-      "framework": "express"
+      "framework": "express",
+      "entrypoint": "dist/app.js",
+      "installCommand": "npm install --include=dev",
+      "buildCommand": "npm run build"
     },
     "frontend": {
       "root": "frontend",

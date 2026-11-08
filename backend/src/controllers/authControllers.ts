@@ -9,7 +9,7 @@ import {
   verifyEmailSchema,
 } from "../schemas/auth";
 import { DEFAULT_VALIDATION_ERROR_MESSAGE } from "../consts/consts";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { Resend } from "resend";
 import { generateOtp } from "../utils/generateOtp";
 import {

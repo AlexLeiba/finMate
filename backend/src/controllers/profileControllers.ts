@@ -4,7 +4,7 @@ import { asyncHandler, sendError, sendSuccess } from "../utils/responseHelpers";
 import { DEFAULT_VALIDATION_ERROR_MESSAGE } from "../consts/consts";
 import { updateProfileSchema } from "../schemas/profile";
 import { User } from "../models/User";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 // GET PROFILE
 const getProfile = asyncHandler(async function getProfile(req: Request, res: Response) {
