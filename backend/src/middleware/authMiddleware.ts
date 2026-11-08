@@ -1,7 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import dotenv from "dotenv";
 import { decodeAccessToken } from "../utils/generateTokens";
-dotenv.config();
 
 declare global {
   namespace Express {

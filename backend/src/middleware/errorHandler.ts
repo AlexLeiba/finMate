@@ -1,7 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import dotenv from "dotenv";
 
-dotenv.config();
 export class AppError extends Error {
   statusCode: number;
   isOperational: boolean;

@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "./config/loadEnv";
 import express, { type Application } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
