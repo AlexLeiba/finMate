@@ -5,16 +5,11 @@
     "backend": {
       "root": "backend",
       "framework": "express",
-      "entrypoint": "src/app.ts",
-      "installCommand": "npm ci",
-      "buildCommand": "npm run build"
+      "entrypoint": "src/app.ts"
     },
     "frontend": {
       "root": "frontend",
-      "framework": "vite",
-      "installCommand": "npm ci",
-      "buildCommand": "npm run build",
-      "outputDirectory": "dist"
+      "framework": "vite"
     }
   },
   "rewrites": [

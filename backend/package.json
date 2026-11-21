@@ -1,9 +1,9 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "./src/index.ts",
+  "main": "./src/app.ts",
 "scripts": {
-  "build": "tsc",
+  "build":  "node -e \"console.log('Express resolved:', require.resolve('express'))\" && tsc",
   "start": "node dist/server.js",
   "dev": "tsx watch src/server.ts"
 },
