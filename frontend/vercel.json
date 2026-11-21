@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://YOUR-BACKEND-DOMAIN.vercel.app/api/$1"
+      "destination": "https://fin-mate-silk.vercel.app/api/$1"
     },
     {
       "source": "/(.*)",
