@@ -374,16 +374,13 @@ const getDashboardStats = asyncHandler(async function getDashboardStats(
   });
 
   const prevMonthTotal = prevMonthExpenses.reduce((acc, exp) => (acc += Number(exp.amount)), 0);
+let monthlyPercentageExpenseChange = 0;
 
-  let monthlyPercentageExpenseChange = 0;
-  if (prevMonthTotal > 0) {
-    monthlyPercentageExpenseChange = Math.round(
-      ((prevMonthTotal - currentMonthTotal) / prevMonthTotal) * 100
-    );
-  } else if (currentMonthTotal > 0) {
-    monthlyPercentageExpenseChange = 100;
-  }
-
+if (prevMonthTotal > 0) {
+  monthlyPercentageExpenseChange = Math.round(
+    ((currentMonthTotal - prevMonthTotal) / prevMonthTotal) * 100
+  );
+}
   const stats: DashboardStatsType = {
     totalExpenses: Math.round(totalExpenses * 100) / 100,
     averageExpense: Math.round(averageExpense * 100) / 100,
