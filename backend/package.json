@@ -1,10 +1,8 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "./src/app.ts",
-"scripts": {
-  "build":  "node -e \"console.log('Express resolved:', require.resolve('express'))\" && tsc",
-  "start": "node dist/server.js",
+"main": "./src/index.ts","scripts": {
+"build": "tsc",  "start": "node dist/server.js",
   "dev": "tsx watch src/server.ts"
 },
   "keywords": [],
